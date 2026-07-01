@@ -1,4 +1,4 @@
-package com.project.uninataskboard;
+package main;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
