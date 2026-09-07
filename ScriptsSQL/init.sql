@@ -113,6 +113,7 @@ id_attivita INT
 -- di dipendenza incrociata e "missing links", permettendo di creare prima 
 -- tutte le tabelle in modo indipendente senza preoccuparsi dell'ordine gerarchico.
 -- ==============================================================================
++
 
 -- Studente_Progetto
 ALTER TABLE Studente_Progetto
@@ -149,3 +150,24 @@ ALTER TABLE Revisione
 -- FileCodice
 ALTER TABLE FileCodice
     ADD CONSTRAINT fk_attivita FOREIGN KEY(id_attivita) REFERENCES Attivita(id) ON DELETE CASCADE;
+-- ==============================================================================
+-- Definizione Trigger
+-- ==============================================================================
+
+CREATE FUNCTION StudenteExistsOnProject()
+RETURNS TRIGGER AS $$
+BEGIN
+IF NOT EXISTS (SELECT 1 FROM Studente_Progetto ST JOIN Attivita ON ST.id_Progetto = Attivita.id_progetto WHERE ST.matricola_studente = NEW.matricola_studente AND Attivita.id = NEW.id_Attivita)
+THEN 
+RAISE EXCEPTION 'Utente non registrato nel progetto';
+END IF;
+RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER Controllo_Assegnazioni
+BEFORE 
+INSERT ON Studente_Attivita
+FOR EACH ROW
+EXECUTE FUNCTION StudenteExistsOnProject();
