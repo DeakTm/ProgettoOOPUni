@@ -1,3 +1,4 @@
+
 -- ==============================================================================
 -- Script di Inizializzazione Database
 -- ==============================================================================
@@ -11,7 +12,7 @@
 
 
 -- ==============================================================================
--- 1. DEFINIZIONE ENUM(s)
+-- 1. DEFINIZIONE ENUM
 -- ==============================================================================
 
 CREATE TYPE stato_avanzamento AS ENUM (
@@ -44,40 +45,51 @@ CREATE TYPE tipo_linguaggio AS ENUM(
 	'Altro'
 );
 
+-- =======================
+--  DOMAIN
+-- =======================
+
+--Controlla che il testo non sia vuoto per cercare di bypassare il vincolo di NOT NULL
+CREATE DOMAIN valid_text AS TEXT
+CHECK (
+    length(trim(VALUE)) > 0
+);
+
+
 -- ==============================================================================
 -- 2. DEFINIZIONE TABELLE
 -- ==============================================================================
 
 CREATE TABLE Studente(
-    Matricola VARCHAR(255) PRIMARY KEY,
-    Nome VARCHAR(255),
-    Cognome VARCHAR(255),
-    hashed_password VARCHAR(255)
+    Matricola VARCHAR(9) PRIMARY KEY,
+    Nome VARCHAR(255) NOT NULL,
+    Cognome VARCHAR(255)NOT NULL,
+    hashed_password VARCHAR(255) DEFAULT NULL
 );
 
 CREATE TABLE Progetto(
     id SERIAL PRIMARY KEY,
-    Scadenza DATE,
-    Stato stato_avanzamento
+    Scadenza DATE CHECK (Scadenza > CURRENT_DATE),
+    Stato stato_avanzamento DEFAULT 'Creato'
 );
 
 CREATE TABLE Studente_Progetto(
-    matricola_studente VARCHAR(255),
+    matricola_studente VARCHAR(9),
     id_progetto INT,
     PRIMARY KEY (matricola_studente, id_progetto)
 );
 
 CREATE TABLE Attivita(
     id SERIAL PRIMARY KEY,
-    Descrizione TEXT,
-    Tipo tipo_attivita,
+    Descrizione valid_text NOT NULL,
+    Tipo tipo_attivita NOT NULL,
     DataCreazione TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     Stato stato_attivita DEFAULT 'Non_Iniziata',
     id_progetto INT
 );
 
 CREATE TABLE Studente_Attivita(
-    matricola_studente VARCHAR(255),
+    matricola_studente VARCHAR(9),
     id_attivita INT,
     PRIMARY KEY(matricola_studente, id_attivita)
 );
@@ -85,23 +97,23 @@ CREATE TABLE Studente_Attivita(
 CREATE TABLE Commento(
     id SERIAL PRIMARY KEY,
     DataCommento TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    Testo TEXT,
-    matricola_studente VARCHAR(255),
+    Testo valid_text NOT NULL,
+    matricola_studente VARCHAR(9),
     id_attivita INT
 );
 
 CREATE TABLE Revisione (
     id SERIAL PRIMARY KEY,
     Data TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    Nota TEXT,
+    Nota valid_text,
     id_filecodice INT,
-    matricola_studente VARCHAR(255)
+    matricola_studente VARCHAR(9)
 );
 
 CREATE TABLE FileCodice(
     id_file SERIAL PRIMARY KEY,
     nome_file VARCHAR(255) NOT NULL,
-    contenuto TEXT,
+    contenuto valid_text,
     linguaggio tipo_linguaggio DEFAULT 'Altro',
     id_attivita INT
 );
@@ -196,7 +208,7 @@ BEGIN
         UPDATE Progetto 
         SET Stato = 'Attivo' 
         WHERE id = NEW.id_progetto 
-          AND Stato IN ('Creato', 'Sospeso', 'Completato');
+          AND Stato IN 
     END IF;
 
     RETURN NEW;
@@ -336,7 +348,3 @@ CREATE TRIGGER tr_ControlloAssegnazioniPerCommentare
 BEFORE INSERT ON Commento
 FOR EACH ROW
 EXECUTE FUNCTION ControlloAssegnazioniPerCommentare();
-
-
-
-
