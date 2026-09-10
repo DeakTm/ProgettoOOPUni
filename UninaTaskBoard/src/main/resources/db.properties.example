@@ -1,0 +1,12 @@
+# ===================================================================
+# CONFIGURAZIONE DATABASE POSTGRESQL (TEMPLATE)
+# 
+# ISTRUZIONI PER IL TEAM:
+# 1. Copia questo file nella stessa cartella e rinominalo in 'db.properties'
+# 2. Sostituisci i valori sottostanti con le tue credenziali locali di pgAdmin
+# 3. NON committare mai il file 'db.properties' su Git!
+# ===================================================================
+
+db.url=jdbc:postgresql://localhost:5432/UninaTaskBoardDB
+db.user=postgres
+db.password=INSERISCI_LA_TUA_PASSWORD_LOCALE
