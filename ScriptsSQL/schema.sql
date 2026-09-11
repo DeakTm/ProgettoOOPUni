@@ -1,5 +1,7 @@
 
 
+
+
 -- ==============================================================================
 -- Script di Inizializzazione Database
 -- ==============================================================================
@@ -15,7 +17,7 @@
 -- DEFINIZIONE ENUM
 -- ==============================================================================
 
-CREATE TYPE stato_avanzamento AS ENUM (
+CREATE TYPE StatoAttivita AS ENUM (
 	'Creato',
 	'Attivo',
 	'Completato',
@@ -23,21 +25,21 @@ CREATE TYPE stato_avanzamento AS ENUM (
 	'Annullato'
 );
 
-CREATE TYPE tipo_attivita AS ENUM(
+CREATE TYPE TipoAttivita AS ENUM(
 	'Sviluppo',
 	'Documentazione'
 );
 
-CREATE TYPE stato_attivita AS ENUM(
+CREATE TYPE StatoAttivita AS ENUM(
 	'Non_Iniziata',
 	'In_Corso',
 	'Completata'
 );
 
-CREATE TYPE tipo_linguaggio AS ENUM(
+CREATE TYPE TipoLinguaggio AS ENUM(
 	'Java',
 	'C',
-	'C++',
+	'Cpp',
 	'Python',
 	'HTML',
 	'CSS',
@@ -70,7 +72,7 @@ CREATE TABLE Studente(
 CREATE TABLE Progetto(
     id SERIAL PRIMARY KEY,
     Scadenza DATE CHECK (Scadenza > CURRENT_DATE),
-    Stato stato_avanzamento DEFAULT 'Creato'
+    Stato StatoAttivita DEFAULT 'Creato'
 );
 
 CREATE TABLE Studente_Progetto(
@@ -82,9 +84,9 @@ CREATE TABLE Studente_Progetto(
 CREATE TABLE Attivita(
     id SERIAL PRIMARY KEY,
     Descrizione valid_text NOT NULL,
-    Tipo tipo_attivita NOT NULL,
+    Tipo TipoAttivita NOT NULL,
     DataCreazione TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    Stato stato_attivita DEFAULT 'Non_Iniziata',
+    Stato StatoAttivita DEFAULT 'Non_Iniziata',
     id_progetto INT
 );
 
@@ -114,7 +116,7 @@ CREATE TABLE FileCodice(
     id_file SERIAL PRIMARY KEY,
     nome_file VARCHAR(255) NOT NULL,
     contenuto valid_text,
-    linguaggio tipo_linguaggio DEFAULT 'Altro',
+    linguaggio TipoLinguaggio DEFAULT 'Altro',
     id_attivita INT
 );
 
