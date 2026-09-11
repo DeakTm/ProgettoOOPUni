@@ -1,4 +1,4 @@
-package entity;
+package entity.enums;
 
 public enum StatoAttivita {
 	Non_Iniziata,
