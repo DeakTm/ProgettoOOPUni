@@ -1,9 +1,9 @@
 package main;
 
+import boundary.ui.MainViewBuilder;
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import util.DatabaseManager;
 import java.sql.Connection;
@@ -13,42 +13,34 @@ public class Uninataskboard extends Application {
 
     @Override
     public void start(Stage stage) {
-        System.out.println("Avvio interfaccia grafica e test database...");
+        System.out.println("Avvio applicazione e test database...");
 
         DatabaseManager dbManager = DatabaseManager.getDatabaseManager();
         Connection conn = dbManager.getConnection();
-
-        String testoBottone = "JavaFX funziona!\n";
-        
-        if (conn != null) {
-            try {
-                if (!conn.isClosed()) {
-                    testoBottone += "Database connesso: " + conn.getMetaData().getDatabaseProductName();
-                    System.out.println("Connessione al database stabilita con successo.");
-                }
-            } catch (SQLException e) {
-                testoBottone += "Errore nello stato della connessione.";
-                e.printStackTrace();
-            }
-        } else {
-            testoBottone += "Connessione al DB fallita (controlla la console).";
+        if (conn == null) {
+            System.err.println("Attenzione: Connessione al database fallita.");
         }
 
-        //interfaccia JavaFX
-        Button btn = new Button(testoBottone);
-        btn.setStyle("-fx-font-size: 14px; -fx-text-alignment: center;");
+        // Istanziazione della vista principale dal package boundary.ui
+        MainViewBuilder viewBuilder = new MainViewBuilder();
+        BorderPane root = viewBuilder.createMainView();
 
-        StackPane root = new StackPane(btn);
-        Scene scene = new Scene(root, 400, 300);
+        Scene scene = new Scene(root, 1200, 750);
+        try {
+            String css = getClass().getResource("/css/style.css").toExternalForm();
+            scene.getStylesheets().add(css);
+        } catch (NullPointerException e) {
+            System.err.println("Errore: File CSS non trovato in /css/style.css");
+        }
 
-        stage.setTitle("UninaTaskBoard - Test di avvio");
+        stage.setTitle("UninaTaskBoard");
         stage.setScene(scene);
         stage.show();
     }
 
     @Override
     public void stop() {
-        System.out.println("\nChiusura applicazione in corso...");
+        System.out.println("Chiusura applicazione in corso...");
         DatabaseManager dbManager = DatabaseManager.getDatabaseManager();
         Connection conn = dbManager.getConnection();
         

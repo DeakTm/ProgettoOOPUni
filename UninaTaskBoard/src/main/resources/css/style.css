@@ -1,0 +1,532 @@
+/* ==========================================================================
+   UninaTaskBoard — JavaFX Stylesheet (Ottimizzato per JavaFX)
+   ========================================================================== */
+.root {
+    -color-bg-app: #F5F6F8;
+    -color-surface: #FFFFFF;
+    -color-surface-alt: #FAFBFC;
+    -color-border: #E3E6EB;
+    -color-border-strong: #CBD1DA;
+    -color-divider: #EDEFF3;
+
+    -color-text-primary: #1A2233;
+    -color-text-secondary: #5B6472;
+    -color-text-muted: #8A93A2;
+    -color-text-inverse: #F5F7FA;
+    -color-text-inverse-muted: #97A3BC;
+
+    -color-navy-900: #0E1A2E;
+    -color-navy-800: #16233D;
+    -color-navy-700: #1E2C4A;
+
+    -color-primary-50:  #EAF1FE;
+    -color-primary-100: #D3E3FD;
+    -color-primary-500: #3B6FE0;
+    -color-primary-600: #2F5FD0;
+    -color-primary-700: #234AAD;
+
+    -color-success-bg: #E4F7EE;
+    -color-success-text: #14804F;
+    -color-success-border: #BCEBD3;
+
+    -color-info-bg: #E8F0FE;
+    -color-info-text: #1D5FD1;
+    -color-info-border: #C7DBFC;
+
+    -color-neutral-bg: #EEF0F3;
+    -color-neutral-text: #5B6472;
+    -color-neutral-border: #DCE0E6;
+
+    -color-danger-bg: #FCEAE8;
+    -color-danger-text: #C0392B;
+    -color-danger-border: #F5C6C0;
+
+    -color-warning-bg: #FEF3E0;
+    -color-warning-text: #B45309;
+    -color-warning-border: #FADFA6;
+
+    -color-indigo-bg: #EEF0FE;
+    -color-indigo-text: #4F46E5;
+    -color-indigo-border: #D6D9FB;
+
+    -color-violet-bg: #F3ECFE;
+    -color-violet-text: #7C3AED;
+    -color-violet-border: #E1D2FC;
+
+    /* Proprietà native JavaFX impostate direttamente qui */
+    -fx-font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+    -fx-font-size: 14px;
+    -fx-background-color: -color-bg-app;
+    -fx-text-fill: -color-text-primary;
+
+    -shadow-xs: dropshadow(gaussian, rgba(15, 23, 42, 0.04), 2, 0.0, 0, 1);
+    -shadow-sm: dropshadow(gaussian, rgba(15, 23, 42, 0.06), 3, 0.0, 0, 1);
+    -shadow-md: dropshadow(gaussian, rgba(15, 23, 42, 0.08), 14, 0.0, 0, 4);
+    -shadow-modal: dropshadow(gaussian, rgba(15, 23, 42, 0.18), 48, 0.0, 0, 24);
+}
+
+/* ==========================================================================
+   2. RESET & BASE
+   ========================================================================== */
+.label {
+    -fx-text-fill: -color-text-primary;
+}
+
+/* ==========================================================================
+   3. TIPOGRAFIA
+   ========================================================================== */
+.page-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -color-text-primary;
+}
+
+.page-subtitle {
+    -fx-font-size: 15px;
+    -fx-text-fill: -color-text-secondary;
+}
+
+.section-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -color-text-primary;
+}
+
+.text-muted { -fx-text-fill: -color-text-muted; }
+.text-secondary { -fx-text-fill: -color-text-secondary; }
+.text-sm { -fx-font-size: 13px; }
+.text-xs { -fx-font-size: 12px; }
+.font-medium { -fx-font-weight: normal; }
+.font-semibold { -fx-font-weight: bold; }
+
+/* ==========================================================================
+   4. LAYOUT APPLICATIVO (Shell)
+   ========================================================================== */
+.app-main {
+    -fx-padding: 24px;
+}
+
+/* ==========================================================================
+   5. SIDEBAR
+   ========================================================================== */
+.sidebar {
+    -fx-background-color: -color-navy-900;
+    -fx-padding: 16px;
+}
+
+.sidebar .label {
+    -fx-text-fill: -color-text-inverse-muted;
+}
+.sidebar__nav-item:hover .label,
+.sidebar__nav-item.is-active .label {
+    -fx-text-fill: white;
+}
+.sidebar__brand {
+    -fx-padding: 20px;
+    -fx-spacing: 12px;
+    -fx-alignment: center-left;
+}
+
+.sidebar__logo-mark {
+    -fx-background-color: -color-primary-500;
+    -fx-background-radius: 6px;
+    -fx-pref-width: 32px;
+    -fx-pref-height: 32px;
+    -fx-alignment: center;
+}
+
+.sidebar__logo-mark .label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+}
+
+.sidebar__brand-name {
+    -fx-font-weight: bold;
+    -fx-font-size: 15px;
+    -fx-text-fill: white;
+}
+
+.sidebar__section-label {
+    -fx-padding: 16px 0 8px 0;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -color-text-inverse-muted;
+}
+
+.sidebar__nav-item {
+    -fx-padding: 8px 12px;
+    -fx-background-radius: 6px;
+    -fx-text-fill: -color-text-inverse-muted;
+    -fx-cursor: hand;
+    -fx-alignment: center-left;
+    -fx-spacing: 12px;
+}
+
+.sidebar__nav-item:hover {
+    -fx-background-color: -color-navy-800;
+    -fx-text-fill: white;
+}
+
+.sidebar__nav-item.is-active {
+    -fx-background-color: -color-navy-700;
+    -fx-text-fill: white;
+    -fx-border-color: transparent transparent transparent -color-primary-500;
+    -fx-border-width: 0 0 0 3px;
+    -fx-border-radius: 0 6px 6px 0;
+}
+
+.sidebar__nav-icon {
+    -fx-pref-width: 20px;
+    -fx-pref-height: 20px;
+    -fx-alignment: center;
+}
+
+/* ==========================================================================
+   6. TOPBAR
+   ========================================================================== */
+.topbar {
+    -fx-background-color: -color-surface;
+    -fx-border-color: transparent transparent -color-border transparent;
+    -fx-border-width: 0 0 1px 0;
+    -fx-padding: 0 32px;
+    -fx-pref-height: 64px;
+    -fx-alignment: center-left;
+    -fx-spacing: 16px;
+}
+
+.topbar__search {
+    -fx-background-color: -color-surface-alt;
+    -fx-border-color: -color-border;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-padding: 8px 12px;
+    -fx-spacing: 8px;
+    -fx-alignment: center-left;
+    -fx-max-width: 360px;
+}
+
+.topbar__icon-btn {
+    -fx-pref-width: 36px;
+    -fx-pref-height: 36px;
+    -fx-background-radius: 999px;
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+}
+
+.topbar__icon-btn:hover {
+    -fx-background-color: -color-surface-alt;
+    -fx-border-color: -color-border;
+    -fx-border-width: 1px;
+}
+
+/* ==========================================================================
+   7. CARD GENERICHE & STATISTICHE
+   ========================================================================== */
+.card, .stat-card, .task-card, .chart-card {
+    -fx-background-color: -color-surface;
+    -fx-border-color: -color-border;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-effect: -shadow-xs;
+    -fx-padding: 20px;
+    -fx-spacing: 12px;
+}
+
+.card:hover, .task-card:hover {
+    -fx-effect: -shadow-md;
+    -fx-border-color: -color-border-strong;
+}
+
+.card__header, .modal__header, .chart-card__header {
+    -fx-padding: 0 0 16px 0;
+    -fx-border-color: transparent transparent -color-divider transparent;
+    -fx-border-width: 0 0 1px 0;
+    -fx-alignment: center-left;
+}
+
+.card__title, .modal__title {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+.stat-card__label {
+    -fx-font-size: 13px;
+    -fx-text-fill: -color-text-secondary;
+    -fx-font-weight: bold;
+}
+
+.stat-card__value {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -color-text-primary;
+}
+
+.stat-card__trend.is-positive { -fx-text-fill: -color-success-text; }
+.stat-card__trend.is-negative { -fx-text-fill: -color-danger-text; }
+.stat-card__trend.is-neutral { -fx-text-fill: -color-text-muted; }
+
+/* ==========================================================================
+   8. BOTTONI
+   ========================================================================== */
+.button {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6px;
+    -fx-padding: 8px 16px;
+    -fx-cursor: hand;
+    -fx-border-width: 1px;
+}
+
+.button:disabled {
+    -fx-opacity: 0.55;
+    -fx-cursor: default;
+}
+
+.button.btn--primary {
+    -fx-background-color: -color-primary-600;
+    -fx-border-color: -color-primary-600;
+    -fx-text-fill: white;
+}
+.button.btn--primary:hover {
+    -fx-background-color: -color-primary-700;
+    -fx-border-color: -color-primary-700;
+}
+
+.button.btn--secondary {
+    -fx-background-color: -color-surface;
+    -fx-border-color: -color-border;
+    -fx-text-fill: -color-text-primary;
+}
+.button.btn--secondary:hover {
+    -fx-background-color: -color-surface-alt;
+    -fx-border-color: -color-border-strong;
+}
+
+.button.btn--ghost {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: -color-text-secondary;
+}
+.button.btn--ghost:hover {
+    -fx-background-color: -color-surface-alt;
+}
+
+/* ==========================================================================
+   9. BADGE
+   ========================================================================== */
+.badge {
+    -fx-padding: 4px 10px;
+    -fx-background-radius: 999px;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-border-radius: 999px;
+    -fx-border-width: 1px;
+}
+
+.badge--completata {
+    -fx-background-color: -color-success-bg;
+    -fx-text-fill: -color-success-text;
+    -fx-border-color: -color-success-border;
+}
+
+.badge--in-corso {
+    -fx-background-color: -color-info-bg;
+    -fx-text-fill: -color-info-text;
+    -fx-border-color: -color-info-border;
+}
+
+.badge--scaduta {
+    -fx-background-color: -color-danger-bg;
+    -fx-text-fill: -color-danger-text;
+    -fx-border-color: -color-danger-border;
+}
+
+/* ==========================================================================
+   10. AVATAR
+   ========================================================================== */
+.avatar {
+    -fx-pref-width: 32px;
+    -fx-pref-height: 32px;
+    -fx-max-width: 32px;
+    -fx-max-height: 32px;
+    -fx-background-radius: 999px;
+    -fx-background-color: -color-primary-100;
+    -fx-border-color: -color-surface;
+    -fx-border-width: 2px;
+    -fx-alignment: center;
+}
+
+.avatar .label {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -color-primary-700;
+}
+
+/* ==========================================================================
+   13. FORM (Input, Select, Textarea)
+   ========================================================================== */
+.text-field, .text-area, .combo-box {
+    -fx-background-color: -color-surface;
+    -fx-border-color: -color-border;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-padding: 8px 12px;
+    -fx-font-size: 13px;
+    -fx-text-fill: -color-text-primary;
+}
+
+.text-field:focused, .text-area:focused, .combo-box:focused {
+    -fx-border-color: -color-primary-500;
+    -fx-effect: dropshadow(gaussian, rgba(59, 111, 224, 0.2), 10, 0.0, 0, 0);
+}
+
+.text-field:disabled, .text-area:disabled {
+    -fx-opacity: 0.6;
+}
+
+.text-area {
+    -fx-min-height: 96px;
+}
+
+.form-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -color-text-primary;
+}
+
+.form-error {
+    -fx-font-size: 12px;
+    -fx-text-fill: -color-danger-text;
+}
+
+.check-box, .radio-button {
+    -fx-font-size: 13px;
+    -fx-text-fill: -color-text-primary;
+    -fx-cursor: hand;
+}
+.check-box .box, .radio-button .radio {
+    -fx-background-color: -color-surface;
+    -fx-border-color: -color-border;
+    -fx-border-radius: 3px;
+}
+.check-box:selected .mark, .radio-button:selected .dot {
+    -fx-background-color: -color-primary-600;
+}
+
+/* ==========================================================================
+   14. TABELLE
+   ========================================================================== */
+.table-view {
+    -fx-background-color: -color-surface;
+    -fx-border-color: -color-border;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-table-cell-border-color: transparent;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: -color-surface-alt;
+    -fx-border-color: transparent transparent -color-border transparent;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.table-view .column-header .label {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -color-text-secondary;
+}
+
+.table-row-cell {
+    -fx-background-color: -color-surface;
+    -fx-font-size: 13px;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: -color-surface-alt;
+}
+
+.table-row-cell:hover {
+    -fx-background-color: derive(-color-surface-alt, -5%);
+}
+
+/* ==========================================================================
+   15. TABS
+   ========================================================================== */
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent -color-border transparent;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.tab-pane .tab {
+    -fx-background-color: transparent;
+    -fx-padding: 8px 12px;
+    -fx-border-color: transparent;
+    -fx-border-width: 0 0 2px 0;
+}
+
+.tab-pane .tab .tab-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -color-text-secondary;
+}
+
+.tab-pane .tab:hover .tab-label {
+    -fx-text-fill: -color-text-primary;
+}
+
+.tab-pane .tab:selected {
+    -fx-border-color: -color-primary-600;
+}
+
+.tab-pane .tab:selected .tab-label {
+    -fx-text-fill: -color-primary-600;
+}
+
+/* ==========================================================================
+   16. MODALI
+   ========================================================================== */
+.dialog-pane {
+    -fx-background-color: -color-surface;
+    -fx-background-radius: 14px;
+    -fx-effect: -shadow-modal;
+    -fx-padding: 0;
+}
+
+.dialog-pane .header-panel {
+    -fx-padding: 20px;
+    -fx-border-color: transparent transparent -color-divider transparent;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.dialog-pane .content {
+    -fx-padding: 20px;
+}
+
+.dialog-pane .button-bar {
+    -fx-padding: 16px 20px;
+    -fx-border-color: -color-divider transparent transparent transparent;
+    -fx-border-width: 1px 0 0 0;
+}
+
+/* ==========================================================================
+   19. PROGRESS BAR
+   ========================================================================== */
+.progress-bar > .track {
+    -fx-background-color: -color-neutral-bg;
+    -fx-background-radius: 999px;
+}
+
+.progress-bar > .bar {
+    -fx-background-color: -color-primary-500;
+    -fx-background-radius: 999px;
+    -fx-padding: 0;
+}
+
+/* ==========================================================================
+   21. ACCESSIBILITÀ (Focus)
+   ========================================================================== */
+.text-field:focused, .button:focused, .check-box:focused {
+    -fx-border-color: -color-primary-500;
+}
