@@ -17,6 +17,13 @@ public class Studente {
 		this.Cognome = Cognome;
 		this.hashed_password = hashed_password;
 	}
+	
+	public Studente (String Matricola, String Nome, String Cognome) {
+		this.Matricola = Matricola;
+		this.Nome = Nome;
+		this.Cognome = Cognome;
+	}
+	
 
 	public String getMatricola() {
 		return Matricola;
