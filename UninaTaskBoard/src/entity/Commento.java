@@ -7,21 +7,21 @@ public class Commento {
 	private LocalDateTime DataCommento;
 	private String Testo;
 	
-	private Studente matricola;
+	private Studente studente;
 	private Attivita id_attivita;
 	
-	public Commento(int id, LocalDateTime DataCommento, String Testo, Studente matricola, Attivita id_attivita) {
+	public Commento(int id, LocalDateTime DataCommento, String Testo, Studente studente, Attivita id_attivita) {
 		this.id = id;
 		this.DataCommento = DataCommento;
 		this.Testo = Testo;
-		this.matricola = matricola;
+		this.studente = studente;
 		this.id_attivita = id_attivita;
 	}
 	
-	public Commento(LocalDateTime DataCommento, String Testo, Studente matricola, Attivita id_attivita) {
+	public Commento(LocalDateTime DataCommento, String Testo, Studente studente, Attivita id_attivita) {
 		this.DataCommento = DataCommento;
 		this.Testo = Testo;
-		this.matricola = matricola;
+		this.studente = studente;
 		this.id_attivita = id_attivita;
 	}
 	
@@ -51,11 +51,11 @@ public class Commento {
 	}
 
 	public Studente getMatricola() {
-		return matricola;
+		return studente;
 	}
 
 	public void setStudente(Studente matricola) {
-		matricola = matricola;
+		this.studente = matricola;
 	}
 
 	public Attivita getId_attivita() {

@@ -86,6 +86,7 @@ CREATE TABLE Attivita(
     Descrizione valid_text NOT NULL,
     Tipo TipoAttivita NOT NULL,
     DataCreazione TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    DataScadenza TIMESTAMP CHECK(DataScadenza > CURRENT_DATE),
     Stato StatoAttivita DEFAULT 'Non_Iniziata',
     id_progetto INT
 );

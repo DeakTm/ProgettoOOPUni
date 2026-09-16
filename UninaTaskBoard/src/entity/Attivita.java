@@ -5,12 +5,11 @@ import java.util.List;
 import entity.enums.StatoAttivita;
 import java.util.ArrayList;
 import entity.enums.TipoAttivita;
-import java.time.LocalDateTime;
 
 public class Attivita {
 	private int id;
 	private String Descrizione;
-	private LocalDateTime DataCreazione;
+	private LocalDate DataCreazione;
 	private LocalDate DataScadenza;
 	private StatoAttivita Stato;
 	private TipoAttivita Tipo;
@@ -21,7 +20,7 @@ public class Attivita {
 	private Progetto id_progetto;
 	
 
-	public Attivita(int id, String Descrizione,LocalDateTime DataCreazione,LocalDate DataScadenza, StatoAttivita Stato, TipoAttivita Tipo, Progetto id_progetto) {
+	public Attivita(int id, String Descrizione,LocalDate DataCreazione,LocalDate DataScadenza, StatoAttivita Stato, TipoAttivita Tipo, Progetto id_progetto) {
 		this.id = id;
 		this.Descrizione = Descrizione;
 		this.DataCreazione = DataCreazione;
@@ -31,13 +30,22 @@ public class Attivita {
 		this.id_progetto = id_progetto;
 	}
  
-	public Attivita(String Descrizione, LocalDateTime DataCreazione, LocalDate DataScadenza, StatoAttivita Stato, TipoAttivita Tipo) {
+	public Attivita(String Descrizione, LocalDate DataCreazione, LocalDate DataScadenza, StatoAttivita Stato, TipoAttivita Tipo) {
 		this.Descrizione = Descrizione;
 		this.DataCreazione = DataCreazione;
 		this.DataScadenza = DataScadenza;
 		this.Stato = Stato;
 		this.Tipo = Tipo;
 	}
+	public Attivita(int id,String Descrizione, LocalDate DataCreazione, LocalDate DataScadenza, StatoAttivita Stato, TipoAttivita Tipo) {
+		this.id = id;
+		this.Descrizione = Descrizione;
+		this.DataCreazione = DataCreazione;
+		this.DataScadenza = DataScadenza;
+		this.Stato = Stato;
+		this.Tipo = Tipo;
+	}
+
 
 	public int getId() {
 		return id;
@@ -55,11 +63,11 @@ public class Attivita {
 		Descrizione = descrizione;
 	}
 
-	public LocalDateTime getDataCreazione() {
+	public LocalDate getDataCreazione() {
 		return DataCreazione;
 	}
 
-	public void setDataCreazione(LocalDateTime dataCreazione) {
+	public void setDataCreazione(LocalDate dataCreazione) {
 		DataCreazione = dataCreazione;
 	}
 

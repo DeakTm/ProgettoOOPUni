@@ -1,4 +1,4 @@
-package boundary.persistence;
+package boundary.persistence.dao;
 
 import entity.Studente;
 import java.util.List;

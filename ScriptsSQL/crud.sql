@@ -133,23 +133,19 @@ $$;
 CREATE OR REPLACE FUNCTION fn_crea_attivita(
     p_descrizione TEXT,
     p_tipo VARCHAR,
+    p_data_scadenza TIMESTAMP,
     p_id_progetto INT
 ) RETURNS INT AS $$
 DECLARE
     v_id INT;
 BEGIN
-    INSERT INTO Attivita (Descrizione, Tipo, id_progetto)
-    VALUES (
-        p_descrizione::valid_text,
-        p_tipo::TipoAttivita,
-        p_id_progetto
-    )
+    INSERT INTO Attivita (Descrizione, Tipo, DataScadenza, id_progetto) 
+    VALUES (p_descrizione::valid_text, p_tipo::TipoAttivita, p_data_scadenza, p_id_progetto)
     RETURNING id INTO v_id;
-
+    
     RETURN v_id;
 END;
 $$ LANGUAGE plpgsql;
-
 
 CREATE OR REPLACE FUNCTION fn_leggi_attivita_progetto(
     p_id_progetto INT
@@ -158,6 +154,7 @@ CREATE OR REPLACE FUNCTION fn_leggi_attivita_progetto(
     descrizione TEXT,
     tipo VARCHAR,
     data_creazione TIMESTAMP,
+    data_scadenza TIMESTAMP,
     stato VARCHAR
 ) AS $$
 BEGIN
@@ -167,26 +164,27 @@ BEGIN
         a.Descrizione::TEXT,
         a.Tipo::VARCHAR,
         a.DataCreazione,
+        a.DataScadenza,
         a.Stato::VARCHAR
     FROM Attivita a
     WHERE a.id_progetto = p_id_progetto;
 END;
 $$ LANGUAGE plpgsql;
 
-
 CREATE OR REPLACE PROCEDURE pr_aggiorna_attivita(
     IN p_id INT,
     IN p_descrizione TEXT,
+    IN p_data_scadenza TIMESTAMP,
     IN p_stato VARCHAR
 ) LANGUAGE plpgsql AS $$
 BEGIN
     UPDATE Attivita
     SET Descrizione = p_descrizione::valid_text,
+        DataScadenza = p_data_scadenza,
         Stato = p_stato::StatoAttivita
     WHERE id = p_id;
 END;
 $$;
-
 
 CREATE OR REPLACE PROCEDURE pr_elimina_attivita(
     IN p_id INT
@@ -199,7 +197,6 @@ $$;
 
 
 -- File di codice
-
 CREATE OR REPLACE FUNCTION fn_crea_filecodice(
     p_nome_file VARCHAR(255),
     p_contenuto TEXT,

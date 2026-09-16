@@ -1,12 +1,13 @@
 package boundary.persistence.jdbc;
 
-import boundary.persistence.StudenteDAO;
 import entity.Studente;
 import util.DatabaseManager;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import boundary.persistence.dao.StudenteDAO;
 
 public class StudenteBoundaryJdbc implements StudenteDAO {
 
