@@ -127,3 +127,32 @@ CREATE TRIGGER tr_ControlloAssegnazioniPerCommentare
 BEFORE INSERT ON Commento
 FOR EACH ROW
 EXECUTE FUNCTION ControlloAssegnazioniPerCommentare();
+
+
+-- TRIGGER 6: Controlla se l'attività è scaduta e controlla anche che l'attività non scada prima del progetto
+CREATE OR REPLACE FUNCTION ControlloScadenzaAttivita()
+RETURNS TRIGGER AS $$
+DECLARE
+    Scadenza_pro DATE;
+BEGIN
+    SELECT Scadenza 
+    INTO Scadenza_pro
+    FROM Progetto
+    WHERE id = NEW.id_progetto;
+
+    IF (Scadenza_pro < CURRENT_DATE) THEN
+        RAISE EXCEPTION 'Impossibile aggiungere o modificare l''attività: il progetto di riferimento è già scaduto!';
+    END IF;
+
+    IF (NEW.DataScadenza::DATE > Scadenza_pro) THEN
+        RAISE EXCEPTION 'La scadenza dell''attività non può essere successiva alla data di scadenza del progetto!';
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_verifica_scadenza_attivita
+BEFORE INSERT OR UPDATE ON Attivita
+FOR EACH ROW
+EXECUTE FUNCTION ControlloScadenzaAttivita();
