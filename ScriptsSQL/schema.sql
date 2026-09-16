@@ -17,7 +17,7 @@
 -- DEFINIZIONE ENUM
 -- ==============================================================================
 
-CREATE TYPE StatoAttivita AS ENUM (
+CREATE TYPE StatoAvanzamento AS ENUM (
 	'Creato',
 	'Attivo',
 	'Completato',
@@ -117,6 +117,7 @@ CREATE TABLE FileCodice(
     nome_file VARCHAR(255) NOT NULL,
     contenuto valid_text,
     linguaggio TipoLinguaggio DEFAULT 'Altro',
+    DataUltimaModifica TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     id_attivita INT
 );
 

@@ -22,7 +22,7 @@ public class Studente {
 		return Matricola;
 	}
 
-	public void setMatricola(String matricola) {
+	public void setMatricola(String matricola) {	
 		Matricola = matricola;
 	}
 
