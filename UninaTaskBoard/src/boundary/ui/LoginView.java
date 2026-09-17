@@ -12,7 +12,6 @@ public class LoginView {
     private TextField txtMatricola;
     private PasswordField txtPassword;
     private Button btnAccedi;
-    private Hyperlink linkRegistrati;
 
     public LoginView() {
         root = new StackPane();
@@ -71,9 +70,8 @@ public class LoginView {
         btnAccedi.setMaxWidth(Double.MAX_VALUE); // Il bottone si allunga a tutta larghezza
         btnAccedi.getStyleClass().addAll("button", "btn--primary");
 
-        linkRegistrati = new Hyperlink("Non hai un account? Registrati");
         
-        loginCard.getChildren().addAll(brandBox, headerBox, formBox, btnAccedi, linkRegistrati);
+        loginCard.getChildren().addAll(brandBox, headerBox, formBox, btnAccedi);
         root.getChildren().add(loginCard);
     }
 
@@ -82,5 +80,4 @@ public class LoginView {
     public TextField getTxtMatricola() { return txtMatricola; }
     public PasswordField getTxtPassword() { return txtPassword; }
     public Button getBtnAccedi() { return btnAccedi; }
-    public Hyperlink getLinkRegistrati() { return linkRegistrati; }
 }

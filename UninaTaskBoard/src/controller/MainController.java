@@ -32,10 +32,12 @@ public class MainController {
 
     private void inizializzaEventi() {
         
-        view.getBtnNuovaAttivita().setOnAction(event -> {
-            System.out.println("Hai cliccato Nuova Attività! Presto si aprirà il form.");
-            // Qui in futuro faremo: new FormAttivitaController().mostraFinestra();
-        });
+    	// Clicck su + Nuova Attività
+    	view.getBtnNuovaAttivita().setOnAction(event -> {
+    	    System.out.println("Apertura popup in corso...");
+    	    FormAttivitaController form = new FormAttivitaController(stage);
+    	    form.mostra();
+    	});
 
         view.getItemDashboard().setOnMouseClicked(event -> {
             rimuoviAttivi();
