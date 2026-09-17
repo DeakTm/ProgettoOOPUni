@@ -1,10 +1,11 @@
 package controller;
 
+import boundary.ui.MainView;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+
 public class MainController {
 
-<<<<<<< Updated upstream
-}
-=======
     private MainView view;
     private Stage stage;
     private String matricolaLoggata;
@@ -12,12 +13,20 @@ public class MainController {
     public MainController(Stage stage, String matricolaLoggata) {
         this.stage = stage;
         this.matricolaLoggata = matricolaLoggata;
-
+        
         this.view = new MainView();
 
         Scene scene = new Scene(view.getRoot(), 1200, 800);
-        this.stage.setScene(scene);
+        
+        // RICARICO IL CSS PER LA NUOVA SCENA
+        try {
+            String css = getClass().getResource("/css/style.css").toExternalForm();
+            scene.getStylesheets().add(css);
+        } catch (NullPointerException e) {
+            System.err.println("Errore: File CSS non trovato in /css/style.css");
+        }
 
+        this.stage.setScene(scene);
         inizializzaEventi();
     }
 
@@ -25,7 +34,7 @@ public class MainController {
         
         view.getBtnNuovaAttivita().setOnAction(event -> {
             System.out.println("Hai cliccato Nuova Attività! Presto si aprirà il form.");
-
+            // Qui in futuro faremo: new FormAttivitaController().mostraFinestra();
         });
 
         view.getItemDashboard().setOnMouseClicked(event -> {
@@ -52,6 +61,7 @@ public class MainController {
         });
     }
 
+    // Metodo di supporto per togliere l'evidenziazione dal menu laterale
     private void rimuoviAttivi() {
         view.getItemDashboard().getStyleClass().remove("is-active");
         view.getItemProgetti().getStyleClass().remove("is-active");
@@ -60,4 +70,3 @@ public class MainController {
         view.getItemNotifiche().getStyleClass().remove("is-active");
     }
 }
->>>>>>> Stashed changes
