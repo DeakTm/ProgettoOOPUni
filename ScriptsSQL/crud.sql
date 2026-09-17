@@ -1,5 +1,6 @@
 -- Studente
 
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE OR REPLACE FUNCTION fn_crea_studente(
     p_matricola VARCHAR(9),
     p_nome VARCHAR(255),
@@ -8,8 +9,11 @@ CREATE OR REPLACE FUNCTION fn_crea_studente(
 ) RETURNS VARCHAR AS $$
 BEGIN
     INSERT INTO Studente (Matricola, Nome, Cognome, hashed_password)
-    VALUES (p_matricola, p_nome, p_cognome, p_hpassword);
-
+    VALUES (p_matricola, p_nome, p_cognome, encode(digest(p_hpassword, 'sha256'), 'hex'));
+-- Scelta architetturale: Abbiamo delegato l'hashing SHA-256 al database 
+-- tramite 'pgcrypto'. Nonostante l'hashing lato client sia preferibile per la 
+-- sicurezza in transito, questa soluzione centralizza tutta la logica di 
+-- sicurezza direttamente all'interno di PostgreSQL.
     RETURN p_matricola;
 END;
 $$ LANGUAGE plpgsql;

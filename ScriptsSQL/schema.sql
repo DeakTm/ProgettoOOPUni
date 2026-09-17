@@ -1,8 +1,4 @@
 
-
-
-
--- ==============================================================================
 -- Script di Inizializzazione Database
 -- ==============================================================================
 -- Questo script genera l'intera struttura fisica del database in PostgreSQL.
@@ -10,12 +6,12 @@
 --  Definizione dei Tipi (ENUM)
 --  Creazione delle Tabelle (Primary Keys e attributi base)
 --. Definizione dei Vincoli Relazionali (Foreign Keys in coda)
--- ==============================================================================
 
 
--- ==============================================================================
+
+
 -- DEFINIZIONE ENUM
--- ==============================================================================
+
 
 CREATE TYPE StatoAvanzamento AS ENUM (
 	'Creato',
@@ -47,9 +43,9 @@ CREATE TYPE TipoLinguaggio AS ENUM(
 	'Altro'
 );
 
--- =======================
+
 --  DOMAIN
--- =======================
+
 
 --Controlla che il testo non sia vuoto per cercare di bypassare il vincolo di NOT NULL
 CREATE DOMAIN valid_text AS TEXT
@@ -58,9 +54,8 @@ CHECK (
 );
 
 
--- ==============================================================================
+
 -- DEFINIZIONE TABELLE
--- ==============================================================================
 
 CREATE TABLE Studente(
     Matricola VARCHAR(9) PRIMARY KEY,
@@ -122,9 +117,9 @@ CREATE TABLE FileCodice(
     id_attivita INT
 );
 
--- ==============================================================================
+
 -- DEFINIZIONE DELLE CHIAVI ESTERNE (FOREIGN KEYS)
--- ==============================================================================
+
 
 -- Studente_Progetto
 ALTER TABLE Studente_Progetto
