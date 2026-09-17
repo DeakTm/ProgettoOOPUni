@@ -4,8 +4,11 @@ import boundary.persistence.dao.ProgettoDAO;
 import entity.Progetto;
 import util.DatabaseManager;
 import entity.enums.StatoAvanzamento;
+
 import java.sql.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProgettoBoundaryJdbc implements ProgettoDAO {
 
@@ -63,6 +66,7 @@ public class ProgettoBoundaryJdbc implements ProgettoDAO {
              CallableStatement stmt = conn.prepareCall(query)) {
 
             stmt.setInt(1, progetto.getId());
+            // CORRETTO: getScadenze() con la 'e'
             stmt.setDate(2, Date.valueOf(progetto.getScadenze()));
             stmt.setString(3, progetto.getStato().name());
 
@@ -125,24 +129,23 @@ public class ProgettoBoundaryJdbc implements ProgettoDAO {
         }
     }
     
+    @Override
     public List<String> getStudentiByProgetto(int idProgetto) {
         List<String> matricole = new ArrayList<>();
-        // CHIAMO LA TUA FUNZIONE SQL!
         String query = "SELECT matricola FROM fn_leggi_studenti_progetto(?)";
         
         try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
              
             stmt.setInt(1, idProgetto);
-            ResultSet rs = stmt.executeQuery();
-            
-            while (rs.next()) {
-                matricole.add(rs.getString("matricola"));
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    matricole.add(rs.getString("matricola"));
+                }
             }
         } catch (SQLException e) {
-            System.err.println("Errore lettura studenti: " + e.getMessage());
+            System.err.println("Errore lettura studenti dal DB: " + e.getMessage());
         }
         return matricole;
     }
-    
 }

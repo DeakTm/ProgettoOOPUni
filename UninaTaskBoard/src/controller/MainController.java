@@ -38,7 +38,8 @@ public class MainController {
             System.out.println("Apertura popup in corso...");
             // Passiamo 1 come ID progetto temporaneo per far funzionare la tendina degli studenti
             int idProgettoCorrente = 1; 
-
+            FormAttivitaController form = new FormAttivitaController(stage, idProgettoCorrente);
+            form.mostra();
         });
 
         // 2. Navigazione laterale

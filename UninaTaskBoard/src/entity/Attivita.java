@@ -17,17 +17,17 @@ public class Attivita {
 	private List<Studente> Studenti = new ArrayList<>();
 	private List<FileCodice> List_FileCodice = new ArrayList<>();
 	
-	private Progetto id_progetto;
+	private Progetto progetto;
 	
 
-	public Attivita(int id, String Descrizione,LocalDate DataCreazione,LocalDate DataScadenza, StatoAttivita Stato, TipoAttivita Tipo, Progetto id_progetto) {
+	public Attivita(int id, String Descrizione,LocalDate DataCreazione,LocalDate DataScadenza, StatoAttivita Stato, TipoAttivita Tipo, Progetto progetto) {
 		this.id = id;
 		this.Descrizione = Descrizione;
 		this.DataCreazione = DataCreazione;
 		this.DataScadenza = DataScadenza;
 		this.Stato = Stato;
 		this.Tipo = Tipo; 
-		this.id_progetto = id_progetto;
+		this.progetto = progetto;
 	}
  
 	public Attivita(String Descrizione, LocalDate DataCreazione, LocalDate DataScadenza, StatoAttivita Stato, TipoAttivita Tipo) {
@@ -45,6 +45,7 @@ public class Attivita {
 		this.Stato = Stato;
 		this.Tipo = Tipo;
 	}
+	public Attivita() {}
 
 
 	public int getId() {
@@ -95,12 +96,12 @@ public class Attivita {
 		List_FileCodice = list_FileCodice;
 	}
 
-	public Progetto getId_progetto() {
-		return id_progetto;
+	public Progetto getProgetto() {
+		return progetto;
 	}
 
-	public void setId_progetto(Progetto id_progetto) {
-		this.id_progetto = id_progetto;
+	public void setProgetto(Progetto progetto) {
+		this.progetto = progetto;
 	}
 
 	public TipoAttivita getTipo() {

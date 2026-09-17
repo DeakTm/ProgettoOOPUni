@@ -1,26 +1,39 @@
 package controller;
 
 import boundary.ui.FormAttivitaView;
+import control.GestioneAttivitaControl;
 import entity.enums.TipoAttivita;
 import javafx.scene.Scene;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class FormAttivitaController {
 
     private Stage dialogStage;
     private FormAttivitaView view;
+    private GestioneAttivitaControl control;
+    private int idProgettoCorrente;
 
-    public FormAttivitaController(Stage ownerStage) {
+    // CORRETTO: Accetta due parametri come richiede il MainController
+    public FormAttivitaController(Stage ownerStage, int idProgetto) {
+        this.idProgettoCorrente = idProgetto;
+        this.control = new GestioneAttivitaControl();
         this.view = new FormAttivitaView();
         this.dialogStage = new Stage();
 
-        // Configuro la finestra come Modale (blocca l'interazione con la MainView)
+        // Configuro la finestra come Modale
         dialogStage.initModality(Modality.WINDOW_MODAL);
         dialogStage.initOwner(ownerStage);
         dialogStage.setTitle("Assegna Nuova Attività");
+
+        // Carica dinamicamente gli studenti associati a questo progetto nella ComboBox
+        List<String> studenti = control.getStudentiProgetto(idProgettoCorrente);
+        if (studenti != null && view.getCmbStudenteAssegnato() != null) {
+            view.getCmbStudenteAssegnato().getItems().addAll(studenti);
+        }
 
         Scene scene = new Scene(view.getRoot());
         try {
@@ -44,23 +57,25 @@ public class FormAttivitaController {
             String descrizione = view.getTxtDescrizione().getText();
             TipoAttivita tipo = view.getCmbTipo().getValue();
             LocalDate scadenza = view.getDataScadenza().getValue();
-            String matricola = view.getTxtMatricolaAssegnata().getText();
+            
+            // Preleviamo la matricola scelta dalla ComboBox
+            String matricola = view.getCmbStudenteAssegnato().getValue();
 
-            // Validazione essenziale
-            if (descrizione.trim().isEmpty() || tipo == null) {
-                System.out.println("Errore: Descrizione e Tipo sono obbligatori!");
-                return; // Ferma il salvataggio
+            // Validazione formale di base (UI)
+            if (descrizione == null || descrizione.trim().isEmpty() || tipo == null || matricola == null) {
+                System.out.println("Errore UI: Descrizione, Tipo e Studente sono obbligatori!");
+                return; 
             }
 
-            System.out.println("--- PRONTO PER IL DATABASE ---");
-            System.out.println("Descrizione: " + descrizione);
-            System.out.println("Tipo: " + tipo);
-            System.out.println("Scadenza: " + scadenza);
-            System.out.println("Studente: " + matricola);
+            // Chiamata al Control che invoca le funzioni PL/pgSQL e subisce i Trigger del DB
+            boolean successo = control.creaAttivita(descrizione, tipo, scadenza, idProgettoCorrente, matricola);
 
-            // TODO: Qui chiameremo GestioneProgettiControl per passare i dati al DAO
-            
-            dialogStage.close();
+            if (successo) {
+                System.out.println("Attività creata e salvata con successo nel Database!");
+                dialogStage.close();
+            } else {
+                System.out.println("Salvataggio fallito. I Trigger del database hanno bloccato l'operazione.");
+            }
         });
     }
 
