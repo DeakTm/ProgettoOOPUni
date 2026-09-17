@@ -9,7 +9,7 @@ public class MainController {
     private MainView view;
     private Stage stage;
     private String matricolaLoggata;
-    private ProgettoController progettoController;  // tienilo vivo
+    private ProgettoController progettoController; 
 
     public MainController(Stage stage, String matricolaLoggata) {
         this.stage = stage;
@@ -33,14 +33,16 @@ public class MainController {
 
     private void inizializzaEventi() {
 
-        // 1. Apertura del form Nuova Attività
-        view.getBtnNuovaAttivita().setOnAction(event -> {
-            System.out.println("Apertura popup nuova attività...");
-            int idProgettoCorrente = 1;
-            // TODO: apri FormAttivitaView
-        });
+    	view.getBtnNuovaAttivita().setOnAction(event -> {
+    	    System.out.println("Apertura popup nuova attività...");
+    	    int idProgettoCorrente = 1;
+    	    
+    	    // Istanziamo e mostriamo il controller del form attività
+    	    FormAttivitaController formAttivita = new FormAttivitaController(stage, idProgettoCorrente);
+    	    formAttivita.mostra(); 
+    	});
 
-        // 2. Navigazione laterale
+        // Navigazione laterale
         view.getItemDashboard().setOnMouseClicked(event -> {
             rimuoviAttivi();
             view.getItemDashboard().getStyleClass().add("is-active");

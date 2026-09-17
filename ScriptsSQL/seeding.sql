@@ -11,6 +11,7 @@ SELECT fn_crea_studente('S00000005', 'Alessandro', 'Gialli', 'password123');
 SELECT fn_crea_studente('S00000006', 'Chiara', 'Romano', 'password123');
 SELECT fn_crea_studente('S00000007', 'Davide', 'Colombo', 'password123');
 SELECT fn_crea_studente('S00000008', 'Elena', 'Ferrari', 'password123');
+SELECT fn_crea_studente('adminUTB', 'Admin', 'Sistema', 'root');
 
 -- Progetti (Con scadenze nel futuro per rispettare i vincoli dei trigger)
 SELECT fn_crea_progetto('2026-12-31'); -- ID 1

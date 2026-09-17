@@ -118,4 +118,35 @@ public class StudenteBoundaryJdbc implements StudenteDAO {
             e.printStackTrace();
         }
     }
+    
+    @Override
+    public boolean verificaLogin(String matricola, String password) {
+        String query = "SELECT fn_verifica_login(?, ?)";
+        boolean credenzialiValide = false;
+
+        System.out.println(">>> DEBUG LOGIN: Matricola inserita = [" + matricola + "], Password = [" + password + "]");
+
+        try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, matricola);
+            stmt.setString(2, password);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    credenzialiValide = rs.getBoolean(1);
+                    System.out.println(">>> DEBUG LOGIN: Il database ha risposto: " + credenzialiValide);
+                } else {
+                    System.out.println(">>> DEBUG LOGIN: Il ResultSet è vuoto!");
+                }
+            }
+
+        } catch (SQLException e) {
+            System.err.println(">>> ERRORE SQL LOGIN: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        System.out.println(">>> DEBUG LOGIN: Ritorno al controller il valore: " + credenzialiValide);
+        return credenzialiValide;
+    }
 }

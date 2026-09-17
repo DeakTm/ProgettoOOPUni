@@ -1,6 +1,7 @@
 package main;
 
 import boundary.ui.MainView;
+import controller.AuthController;
 import controller.LoginController;
 import controller.MainController;
 import javafx.application.Application;
@@ -25,13 +26,11 @@ public class Uninataskboard extends Application {
             System.err.println("Attenzione: Connessione al database fallita.");
             return; 
         }
-
-        new LoginController(stage);
+        new AuthController(stage);
 
         stage.setTitle("UninaTaskBoard");
         stage.show();
     }
-
     @Override
     public void stop() {
         System.out.println("Chiusura applicazione in corso...");

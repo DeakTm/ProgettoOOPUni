@@ -156,3 +156,19 @@ CREATE TRIGGER trigger_verifica_scadenza_attivita
 BEFORE INSERT OR UPDATE ON Attivita
 FOR EACH ROW
 EXECUTE FUNCTION ControlloScadenzaAttivita();
+
+CREATE OR REPLACE FUNCTION fn_auto_associa_admin()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO Studente_Progetto (matricola_studente, id_progetto)
+    VALUES ('adminUTB', NEW.id)
+    ON CONFLICT (matricola_studente, id_progetto) DO NOTHING;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_auto_associa_admin
+AFTER INSERT ON Progetto
+FOR EACH ROW
+EXECUTE FUNCTION fn_auto_associa_admin();

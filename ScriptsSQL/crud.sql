@@ -483,3 +483,23 @@ BEGIN
     WHERE SP.matricola_studente = p_matricola;
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION fn_verifica_login(
+    p_matricola VARCHAR(9),
+    p_password VARCHAR(255)
+) RETURNS BOOLEAN AS $$
+DECLARE
+    v_stored_hash VARCHAR(255);
+BEGIN
+    SELECT hashed_password INTO v_stored_hash
+    FROM Studente
+    WHERE Matricola = p_matricola;
+
+    IF v_stored_hash IS NULL THEN
+        RETURN FALSE;
+    END IF;
+
+    -- Calcola l'hash della password immessa e confrontala con quella salvata
+    RETURN v_stored_hash = encode(digest(p_password, 'sha256'), 'hex');
+END;
+$$ LANGUAGE plpgsql;
