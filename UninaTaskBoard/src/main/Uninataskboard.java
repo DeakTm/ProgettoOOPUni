@@ -1,6 +1,7 @@
 package main;
 
 import boundary.ui.MainView;
+import controller.LoginController;
 import controller.MainController;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -18,30 +19,15 @@ public class Uninataskboard extends Application {
     public void start(Stage stage) {
         System.out.println("Avvio applicazione e test database...");
 
-        // 1. Verifica connessione al DB
         DatabaseManager dbManager = DatabaseManager.getDatabaseManager();
         Connection conn = dbManager.getConnection();
         if (conn == null) {
             System.err.println("Attenzione: Connessione al database fallita.");
-            return; // Blocco l'avvio se il DB non è disponibile
+            return; 
         }
 
-        // 2. Esempio: matricola utente (in futuro verrà dal LoginController)
-        String matricolaUtente = "M12345";  // TODO: sostituisci con login reale
+        new LoginController(stage);
 
-        // 3. Creo il MainController che istanzia MainView e collega tutto
-        mainController = new MainController(stage, matricolaUtente);
-
-        // 4. Applico il CSS alla scena creata dal MainController
-        Scene scene = stage.getScene();
-        try {
-            String css = getClass().getResource("/css/style.css").toExternalForm();
-            scene.getStylesheets().add(css);
-        } catch (NullPointerException e) {
-            System.err.println("Errore: File CSS non trovato in /css/style.css");
-        }
-
-        // 5. Titolo e show
         stage.setTitle("UninaTaskBoard");
         stage.show();
     }
