@@ -472,3 +472,14 @@ BEGIN
     WHERE sp.id_progetto = p_id_progetto;
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION fn_progetti_studente(p_matricola VARCHAR(9))
+RETURNS TABLE(id INT, scadenza DATE, stato VARCHAR) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT P.id, P.Scadenza, P.Stato::VARCHAR
+    FROM Progetto P
+    JOIN Studente_Progetto SP ON P.id = SP.id_progetto
+    WHERE SP.matricola_studente = p_matricola;
+END;
+$$ LANGUAGE plpgsql;

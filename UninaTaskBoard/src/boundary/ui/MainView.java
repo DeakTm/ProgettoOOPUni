@@ -28,7 +28,6 @@ public class MainView {
     private ComboBox<String> filtroMembro;
     private Button btnNuovaAttivita;
     private TableView<Object> tabellaAttivita;
-    
     // Tab 2: Report
     private Label statTotale;
     private Label statCompletate;
@@ -36,6 +35,7 @@ public class MainView {
     private Label statSviluppo;
     private PieChart pieChart;
     private BarChart<String, Number> barChart;
+    private TabPane tabPane;
 
     // COSTRUTTORE: costruisce la UI
 
@@ -76,7 +76,7 @@ public class MainView {
         root.setTop(topbar);
 
         // --- CENTRO: TabPane ---
-        TabPane tabPane = new TabPane();
+        this.tabPane = new TabPane();
         tabPane.getStyleClass().add("app-main");
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
 
@@ -273,6 +273,16 @@ public class MainView {
         card.getChildren().addAll(header, chart);
         return card;
     }
+    
+ // In MainView.java
+
+    public void mostraProgettiView(ProgettiView progettiView) {
+        root.setCenter(progettiView.getRoot());
+    }
+
+    public void mostraTabPane() {
+        root.setCenter(tabPane);
+    }
 
     // GETTER PER IL CONTROLLER
     public BorderPane getRoot() { return root; }
@@ -295,4 +305,5 @@ public class MainView {
     public Label getStatSviluppo() { return statSviluppo; }
     public PieChart getPieChart() { return pieChart; }
     public BarChart<String, Number> getBarChart() { return barChart; }
+    public TabPane getTabPane() { return tabPane; }
 }
