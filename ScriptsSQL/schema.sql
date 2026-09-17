@@ -72,7 +72,7 @@ CREATE TABLE Studente(
 CREATE TABLE Progetto(
     id SERIAL PRIMARY KEY,
     Scadenza DATE CHECK (Scadenza > CURRENT_DATE),
-    Stato StatoAttivita DEFAULT 'Creato'
+    Stato StatoAvanzamento DEFAULT 'Creato'
 );
 
 CREATE TABLE Studente_Progetto(

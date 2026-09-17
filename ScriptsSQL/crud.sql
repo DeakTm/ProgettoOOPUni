@@ -453,3 +453,18 @@ BEGIN
       AND id_attivita = p_id_attivita;
 END;
 $$;
+CREATE OR REPLACE FUNCTION fn_leggi_studenti_progetto(
+    p_id_progetto INT
+) RETURNS TABLE (
+    Matricola VARCHAR(9),
+    Nome VARCHAR(255),
+    Cognome VARCHAR(255)
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT s.Matricola, s.Nome, s.Cognome
+    FROM Studente s
+    JOIN Studente_Progetto sp ON s.Matricola = sp.matricola_studente
+    WHERE sp.id_progetto = p_id_progetto;
+END;
+$$ LANGUAGE plpgsql;

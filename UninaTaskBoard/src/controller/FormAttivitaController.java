@@ -1,7 +1,7 @@
 package controller;
 
 import boundary.ui.FormAttivitaView;
-import control.GestioneAttivitaControl;
+import controller.AttivitaController;
 import entity.enums.TipoAttivita;
 import javafx.scene.Scene;
 import javafx.stage.Modality;
@@ -14,22 +14,19 @@ public class FormAttivitaController {
 
     private Stage dialogStage;
     private FormAttivitaView view;
-    private GestioneAttivitaControl control;
+    private AttivitaController control;
     private int idProgettoCorrente;
 
-    // CORRETTO: Accetta due parametri come richiede il MainController
     public FormAttivitaController(Stage ownerStage, int idProgetto) {
         this.idProgettoCorrente = idProgetto;
-        this.control = new GestioneAttivitaControl();
+        this.control = new AttivitaController();
         this.view = new FormAttivitaView();
         this.dialogStage = new Stage();
 
-        // Configuro la finestra come Modale
         dialogStage.initModality(Modality.WINDOW_MODAL);
         dialogStage.initOwner(ownerStage);
         dialogStage.setTitle("Assegna Nuova Attività");
 
-        // Carica dinamicamente gli studenti associati a questo progetto nella ComboBox
         List<String> studenti = control.getStudentiProgetto(idProgettoCorrente);
         if (studenti != null && view.getCmbStudenteAssegnato() != null) {
             view.getCmbStudenteAssegnato().getItems().addAll(studenti);
@@ -49,25 +46,32 @@ public class FormAttivitaController {
 
     private void inizializzaEventi() {
         
-        // EVENTO: Tasto Annulla
         view.getBtnAnnulla().setOnAction(event -> dialogStage.close());
 
-        // EVENTO: Tasto Salva
+
         view.getBtnSalva().setOnAction(event -> {
             String descrizione = view.getTxtDescrizione().getText();
             TipoAttivita tipo = view.getCmbTipo().getValue();
-            LocalDate scadenza = view.getDataScadenza().getValue();
             
-            // Preleviamo la matricola scelta dalla ComboBox
+            LocalDate scadenza = null;
+            try {
+                scadenza = view.getDataScadenza().getValue();
+                if (scadenza == null && view.getDataScadenza().getEditor().getText() != null && !view.getDataScadenza().getEditor().getText().isEmpty()) {
+                    view.getDataScadenza().commitValue();
+                    scadenza = view.getDataScadenza().getValue();
+                }
+            } catch (Exception e) {
+                System.out.println("Errore UI: Formato data non valido!");
+                return;
+            }
+
             String matricola = view.getCmbStudenteAssegnato().getValue();
 
-            // Validazione formale di base (UI)
             if (descrizione == null || descrizione.trim().isEmpty() || tipo == null || matricola == null) {
                 System.out.println("Errore UI: Descrizione, Tipo e Studente sono obbligatori!");
                 return; 
             }
 
-            // Chiamata al Control che invoca le funzioni PL/pgSQL e subisce i Trigger del DB
             boolean successo = control.creaAttivita(descrizione, tipo, scadenza, idProgettoCorrente, matricola);
 
             if (successo) {
@@ -76,10 +80,10 @@ public class FormAttivitaController {
             } else {
                 System.out.println("Salvataggio fallito. I Trigger del database hanno bloccato l'operazione.");
             }
-        });
-    }
+        }); 
+    } 
 
-    // Metodo pubblico per innescare l'apertura
+
     public void mostra() {
         dialogStage.showAndWait();
     }
