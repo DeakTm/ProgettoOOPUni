@@ -20,6 +20,7 @@ public class ProgettiView {
     private Label lblSottotitolo;
     private TextField searchField;
     private Button btnNuovoProgetto;
+    private Consumer<Progetto> onEliminaClick;
 
     // Griglia dei progetti
     private FlowPane grigliaProgetti;
@@ -99,16 +100,8 @@ public class ProgettiView {
         card.setPrefWidth(280);
         card.setMinHeight(140);
         card.setPadding(new Insets(20));
-        card.setStyle("-fx-cursor: hand;");
 
-        // Click sulla card → apro il progetto
-        card.setOnMouseClicked(e -> {
-            if (onProgettoClick != null) {
-                onProgettoClick.accept(progetto);
-            }
-        });
-
-        // Titolo + stato
+        // Header: titolo + stato
         HBox headerBox = new HBox(8);
         headerBox.setAlignment(Pos.CENTER_LEFT);
 
@@ -129,7 +122,30 @@ public class ProgettiView {
         Label lblHint = new Label("Clicca per aprire il progetto");
         lblHint.getStyleClass().add("text-muted");
 
-        card.getChildren().addAll(headerBox, lblScadenza, lblHint);
+        // ⬇️ BOTTONE ELIMINA
+        Button btnElimina = new Button("🗑 Elimina");
+        btnElimina.getStyleClass().add("btn--danger");
+        btnElimina.setOnAction(e -> {
+            // Blocco la propagazione del click alla card
+            e.consume();
+            if (onEliminaClick != null) {
+                onEliminaClick.accept(progetto);
+            }
+        });
+
+        HBox footer = new HBox(lblHint);
+        HBox.setHgrow(lblHint, Priority.ALWAYS);
+        footer.setAlignment(Pos.CENTER_LEFT);
+        footer.getChildren().add(btnElimina);
+
+        // Click sulla card → apre il progetto
+        card.setOnMouseClicked(e -> {
+            if (onProgettoClick != null) {
+                onProgettoClick.accept(progetto);
+            }
+        });
+
+        card.getChildren().addAll(headerBox, lblScadenza, footer);
         return card;
     }
 
@@ -159,6 +175,8 @@ public class ProgettiView {
     public void setOnProgettoClick(Consumer<Progetto> handler) {
         this.onProgettoClick = handler;
     }
+    
+    
 
     private Consumer<Progetto> onProgettoClick;
 
@@ -171,4 +189,8 @@ public class ProgettiView {
     public TextField getSearchField() { return searchField; }
     public Button getBtnNuovoProgetto() { return btnNuovoProgetto; }
     public FlowPane getGrigliaProgetti() { return grigliaProgetti; }
+
+    public void setOnEliminaClick(Consumer<Progetto> handler) {
+        this.onEliminaClick = handler;
+    }
 }

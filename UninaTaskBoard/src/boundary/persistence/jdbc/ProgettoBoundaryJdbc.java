@@ -88,11 +88,9 @@ public class ProgettoBoundaryJdbc implements ProgettoDAO {
     // ============================================
     @Override
     public void eliminaProgetto(int id) {
-        String query = "{ call pr_elimina_progetto(?) }";
-
+        String query = "CALL pr_elimina_progetto(?)";
         try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-             CallableStatement stmt = conn.prepareCall(query)) {
-
+             PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, id);
             stmt.execute();
         } catch (SQLException e) {

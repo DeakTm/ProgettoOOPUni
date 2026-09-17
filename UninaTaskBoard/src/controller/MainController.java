@@ -9,7 +9,7 @@ public class MainController {
     private MainView view;
     private Stage stage;
     private String matricolaLoggata;
-    private ProgettoController progettoController; 
+    private ProgettoController progettoController;  // tienilo vivo
 
     public MainController(Stage stage, String matricolaLoggata) {
         this.stage = stage;
@@ -33,6 +33,7 @@ public class MainController {
 
     private void inizializzaEventi() {
 
+        // 1. Apertura del form Nuova Attività
     	view.getBtnNuovaAttivita().setOnAction(event -> {
     	    System.out.println("Apertura popup nuova attività...");
     	    int idProgettoCorrente = 1;
@@ -42,7 +43,7 @@ public class MainController {
     	    formAttivita.mostra(); 
     	});
 
-        // Navigazione laterale
+        // 2. Navigazione laterale
         view.getItemDashboard().setOnMouseClicked(event -> {
             rimuoviAttivi();
             view.getItemDashboard().getStyleClass().add("is-active");
@@ -50,7 +51,7 @@ public class MainController {
             view.getTabPane().getSelectionModel().select(0);
         });
 
-        view.getItemProgetti().setOnMouseClicked(event -> {
+        view.getItemProgetti().setOnMouseClicked(event -> {   // <-- UNO SOLO!
             rimuoviAttivi();
             view.getItemProgetti().getStyleClass().add("is-active");
             mostraProgetti();
@@ -91,8 +92,6 @@ public class MainController {
     }
 
     private void mostraProgetti() {
-        // Il ProgettoController crea da solo la ProgettiView
-        // e la mostra al centro della MainView
         this.progettoController = new ProgettoController(view, matricolaLoggata);
     }
 }
