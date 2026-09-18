@@ -1,7 +1,6 @@
 package controller;
 
 import boundary.ui.FormAttivitaView;
-import controller.AttivitaController;
 import entity.enums.TipoAttivita;
 import javafx.scene.Scene;
 import javafx.stage.Modality;
@@ -27,9 +26,9 @@ public class FormAttivitaController {
         dialogStage.initOwner(ownerStage);
         dialogStage.setTitle("Assegna Nuova Attività");
 
-        List<String> studenti = control.getStudentiProgetto(idProgettoCorrente);
-        if (studenti != null && view.getCmbStudenteAssegnato() != null) {
-            view.getCmbStudenteAssegnato().getItems().addAll(studenti);
+        List<String> studentiFormattati = control.getStudentiProgetto(idProgettoCorrente);
+        if (studentiFormattati != null && view.getCmbStudenteAssegnato() != null) {
+            view.getCmbStudenteAssegnato().getItems().addAll(studentiFormattati);
         }
 
         Scene scene = new Scene(view.getRoot());

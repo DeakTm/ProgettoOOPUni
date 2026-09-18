@@ -10,4 +10,5 @@ public interface StudenteDAO {
     void aggiornaStudente(Studente studente, String nuovaPassword);
     void eliminaStudente(String matricola);
     boolean verificaLogin(String matricola, String password);
+    
 }

@@ -8,6 +8,7 @@ import boundary.persistence.jdbc.AttivitaBoundaryJdbc;
 import boundary.persistence.jdbc.ProgettoBoundaryJdbc;
 import entity.Attivita;
 import entity.Progetto;
+import entity.Studente;
 import entity.enums.TipoAttivita;
 
 import java.time.LocalDate;
@@ -16,31 +17,20 @@ import java.util.stream.Collectors;
 
 public class AttivitaController {
 
-    // ============================================
-    // CAMPI ESISTENTI
-    // ============================================
     private AttivitaDAO attivitaDAO;
     private ProgettoDAO progettoDAO;
 
-    // ============================================
-    // CAMPI NUOVI (per la AttivitaView)
-    // ============================================
     private AttivitaView view;
     private MainView mainView;
     private String matricolaUtente;
     private List<Attivita> listaAttivita;
 
-    // ============================================
-    // COSTRUTTORE ESISTENTE (invariato)
-    // ============================================
     public AttivitaController() {
         this.attivitaDAO = new AttivitaBoundaryJdbc();
         this.progettoDAO = new ProgettoBoundaryJdbc();
     }
 
-    // ============================================
-    // NUOVO COSTRUTTORE (per la AttivitaView)
-    // ============================================
+
     public AttivitaController(MainView mainView, String matricolaUtente) {
         this.mainView = mainView;
         this.matricolaUtente = matricolaUtente;
@@ -53,12 +43,13 @@ public class AttivitaController {
 
         mainView.mostraAttivitaView(view);
     }
-
-    // ============================================
-    // METODI ESISTENTI (invariati)
-    // ============================================
+   
     public List<String> getStudentiProgetto(int idProgetto) {
-        return progettoDAO.getStudentiByProgetto(idProgetto);
+        List<Studente> studenti = progettoDAO.leggiStudentiPerProgetto(idProgetto);
+        
+        return studenti.stream()
+                .map(s -> s.getMatricola() + " - " + s.getNome() + " " + s.getCognome())
+                .collect(Collectors.toList());
     }
 
     public boolean creaAttivita(String descrizione, TipoAttivita tipo, LocalDate scadenza, int idProgetto, String matricola) {
@@ -74,30 +65,17 @@ public class AttivitaController {
         return attivitaDAO.inserisciAttivitaConAssegnazione(nuovaAttivita, matricola);
     }
 
-    // ============================================
-    // NUOVI METODI (per la AttivitaView)
-    // ============================================
-
-    /**
-     * Collega i listener della view.
-     */
     private void configuraListener() {
         view.getSearchField().textProperty().addListener((obs, oldVal, newVal) -> filtraAttivita());
         view.getFiltroStato().setOnAction(e -> filtraAttivita());
         view.getFiltroTipo().setOnAction(e -> filtraAttivita());
     }
 
-    /**
-     * Carica tutte le attività della matricola loggata.
-     */
     private void caricaAttivita() {
         listaAttivita = attivitaDAO.getAttivitaStudente(matricolaUtente);
         view.mostraAttivita(listaAttivita);
     }
 
-    /**
-     * Filtra le attività in base a ricerca, stato e tipo.
-     */
     private void filtraAttivita() {
         if (listaAttivita == null) return;
 
@@ -107,16 +85,16 @@ public class AttivitaController {
 
         List<Attivita> filtrati = listaAttivita.stream()
             .filter(a -> {
-                // Ricerca testuale
+
                 if (query != null && !query.trim().isEmpty()) {
                     String q = query.toLowerCase().trim();
                     if (!a.getDescrizione().toLowerCase().contains(q)) return false;
                 }
-                // Filtro stato
+
                 if (stato != null && !"Tutti".equals(stato)) {
                     if (!a.getStato().toString().equals(stato)) return false;
                 }
-                // Filtro tipo
+
                 if (tipo != null && !"Tutti".equals(tipo)) {
                     if (!a.getTipo().toString().equals(tipo)) return false;
                 }
@@ -127,28 +105,15 @@ public class AttivitaController {
         view.mostraAttivita(filtrati);
     }
 
-    /**
-     * Apre il form per creare una nuova attività.
-     * (Per ora placeholder; da collegare a FormAttivitaView)
-     */
     private void apriFormNuovaAttivita() {
         System.out.println("Apro form nuova attività...");
-        // TODO: quando avrai FormAttivitaView con selettore progetto:
-        // FormAttivitaView form = new FormAttivitaView();
-        // ... logica per creare ...
-        // refresh();
+
     }
 
-    /**
-     * Ricarica la lista delle attività.
-     */
     public void refresh() {
         caricaAttivita();
     }
-
-    /**
-     * Getter per la view (utile per il MainController o test).
-     */
+    
     public AttivitaView getView() {
         return view;
     }

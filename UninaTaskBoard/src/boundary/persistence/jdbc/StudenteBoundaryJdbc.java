@@ -2,12 +2,11 @@ package boundary.persistence.jdbc;
 
 import entity.Studente;
 import util.DatabaseManager;
+import boundary.persistence.dao.StudenteDAO;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
-import boundary.persistence.dao.StudenteDAO;
 
 public class StudenteBoundaryJdbc implements StudenteDAO {
 
@@ -49,8 +48,7 @@ public class StudenteBoundaryJdbc implements StudenteDAO {
                 String nome = rs.getString("Nome");
                 String cognome = rs.getString("Cognome");
                 
-                Studente s = new Studente(matricola, nome, cognome);
-                studenti.add(s);
+                studenti.add(new Studente(matricola, nome, cognome));
             }
 
         } catch (SQLException e) {
@@ -124,7 +122,7 @@ public class StudenteBoundaryJdbc implements StudenteDAO {
         String query = "SELECT fn_verifica_login(?, ?)";
         boolean credenzialiValide = false;
 
-        System.out.println(">>> DEBUG LOGIN: Matricola inserita = [" + matricola + "], Password = [" + password + "]");
+        System.out.println(">>> DEBUG LOGIN: Matricola = [" + matricola + "]");
 
         try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -135,9 +133,6 @@ public class StudenteBoundaryJdbc implements StudenteDAO {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     credenzialiValide = rs.getBoolean(1);
-                    System.out.println(">>> DEBUG LOGIN: Il database ha risposto: " + credenzialiValide);
-                } else {
-                    System.out.println(">>> DEBUG LOGIN: Il ResultSet è vuoto!");
                 }
             }
 
@@ -146,7 +141,6 @@ public class StudenteBoundaryJdbc implements StudenteDAO {
             e.printStackTrace();
         }
         
-        System.out.println(">>> DEBUG LOGIN: Ritorno al controller il valore: " + credenzialiValide);
         return credenzialiValide;
     }
 }

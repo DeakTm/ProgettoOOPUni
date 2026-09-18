@@ -12,7 +12,6 @@ public interface ProgettoDAO {
     void eliminaProgetto(int id);
     boolean assegnaStudenteProgetto(String matricola, int idProgetto);
     void rimuoviStudenteProgetto(String matricola, int idProgetto);
-    List<String> getStudentiByProgetto(int idProgetto); 
     List<Progetto> getProgettiStudente(String matricola);
     List<Studente> leggiStudentiPerProgetto(int idProgetto);
 }
