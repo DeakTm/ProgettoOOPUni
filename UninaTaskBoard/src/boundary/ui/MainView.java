@@ -275,6 +275,10 @@ public class MainView {
             lblAvatar.setText(initials);
         }
     }
+    
+    public void mostraAttivitaView(AttivitaView attivitaView) {
+        root.setCenter(attivitaView.getRoot());
+    }
 
     // GETTER PER IL CONTROLLER
     public BorderPane getRoot() { return root; }

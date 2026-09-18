@@ -8,12 +8,14 @@ import entity.enums.StatoAttivita;
 import util.DatabaseManager;
 
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 public class AttivitaBoundaryJdbc implements AttivitaDAO {
 
+    // ============================================
+    // CREA ATTIVITÀ
+    // ============================================
     @Override
     public int creaAttivita(Attivita attivita) {
         String query = "{ ? = call fn_crea_attivita(?, ?, ?, ?) }";
@@ -25,14 +27,13 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
             stmt.registerOutParameter(1, Types.INTEGER);
             stmt.setString(2, attivita.getDescrizione());
             stmt.setString(3, attivita.getTipo().name());
-            
+
             if (attivita.getDataScadenza() != null) {
                 stmt.setTimestamp(4, Timestamp.valueOf(attivita.getDataScadenza().atStartOfDay()));
             } else {
                 stmt.setNull(4, Types.TIMESTAMP);
             }
-            
-            // Prende l'ID dall'oggetto Progetto associato all'Attività
+
             if (attivita.getProgetto() != null) {
                 stmt.setInt(5, attivita.getProgetto().getId());
             } else {
@@ -43,11 +44,14 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
             idGenerato = stmt.getInt(1);
 
         } catch (SQLException e) {
-            System.err.println("Errore Database (Trigger Attività): " + e.getMessage());
+            System.err.println("Errore Database (creaAttivita): " + e.getMessage());
         }
         return idGenerato;
     }
 
+    // ============================================
+    // LEGGI ATTIVITÀ DI UN PROGETTO
+    // ============================================
     @Override
     public List<Attivita> leggiAttivitaPerProgetto(int idProgetto) {
         List<Attivita> lista = new ArrayList<>();
@@ -60,33 +64,21 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    int id = rs.getInt("id");
-                    String descrizione = rs.getString("descrizione");
-                    
-                    String tipoStr = rs.getString("tipo");
-                    TipoAttivita tipo = TipoAttivita.valueOf(tipoStr.toUpperCase());
-                    
-                    LocalDate dataScadenza = null;
+                    Attivita a = new Attivita();
+                    a.setId(rs.getInt("id"));
+                    a.setDescrizione(rs.getString("descrizione"));
+
+                    // ✅ NIENTE toUpperCase!
+                    a.setTipo(TipoAttivita.valueOf(rs.getString("tipo")));
+                    a.setStato(StatoAttivita.valueOf(rs.getString("stato")));
+
+                    // Data scadenza (può essere null)
                     Timestamp tsScadenza = rs.getTimestamp("data_scadenza");
                     if (tsScadenza != null) {
-                        // FIX: Uso toLocalDateTime() prima di toLocalDate()
-                        dataScadenza = tsScadenza.toLocalDateTime().toLocalDate();
+                        a.setDataScadenza(tsScadenza.toLocalDateTime().toLocalDate());
                     }
 
-                    String statoStr = rs.getString("stato");
-                    StatoAttivita stato = StatoAttivita.valueOf(statoStr.toUpperCase());
-
-                    Progetto progettoRiferimento = new Progetto(idProgetto, null, null);
-
-                    // Adesso funzionerà grazie al costruttore vuoto aggiunto in Attivita.java
-                    Attivita a = new Attivita();
-                    a.setId(id);
-                    a.setDescrizione(descrizione);
-                    a.setTipo(tipo);
-                    a.setDataScadenza(dataScadenza);
-                    a.setStato(stato);
-                    a.setProgetto(progettoRiferimento);
-
+                    a.setProgetto(new Progetto(idProgetto, null, null));
                     lista.add(a);
                 }
             }
@@ -96,22 +88,25 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
         return lista;
     }
 
+    // ============================================
+    // AGGIORNA ATTIVITÀ (PROCEDURA → CALL)
+    // ============================================
     @Override
     public void aggiornaAttivita(Attivita attivita) {
-        String query = "{ call pr_aggiorna_attivita(?, ?, ?, ?) }";
+        String query = "CALL pr_aggiorna_attivita(?, ?, ?, ?)";  // ✅ CALL
 
         try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-             CallableStatement stmt = conn.prepareCall(query)) {
+             PreparedStatement stmt = conn.prepareStatement(query)) {  // ✅ PreparedStatement
 
             stmt.setInt(1, attivita.getId());
             stmt.setString(2, attivita.getDescrizione());
-            
+
             if (attivita.getDataScadenza() != null) {
                 stmt.setTimestamp(3, Timestamp.valueOf(attivita.getDataScadenza().atStartOfDay()));
             } else {
                 stmt.setNull(3, Types.TIMESTAMP);
             }
-            
+
             stmt.setString(4, attivita.getStato().name());
 
             stmt.execute();
@@ -121,12 +116,15 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
         }
     }
 
+    // ============================================
+    // ELIMINA ATTIVITÀ (PROCEDURA → CALL)
+    // ============================================
     @Override
     public void eliminaAttivita(int id) {
-        String query = "{ call pr_elimina_attivita(?) }";
+        String query = "CALL pr_elimina_attivita(?)";  // ✅ CALL
 
         try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-             CallableStatement stmt = conn.prepareCall(query)) {
+             PreparedStatement stmt = conn.prepareStatement(query)) {  // ✅ PreparedStatement
 
             stmt.setInt(1, id);
             stmt.execute();
@@ -136,6 +134,9 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
         }
     }
 
+    // ============================================
+    // ASSEGNA STUDENTE AD ATTIVITÀ
+    // ============================================
     @Override
     public boolean assegnaStudenteAttivita(String matricola, int idAttivita) {
         String query = "{ ? = call fn_assegna_studente_attivita(?, ?) }";
@@ -152,17 +153,20 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
             risultato = stmt.getBoolean(1);
 
         } catch (SQLException e) {
-            System.err.println("Errore Assegnazione (Trigger DB): " + e.getMessage());
+            System.err.println("Errore Assegnazione: " + e.getMessage());
         }
         return risultato;
     }
 
+    // ============================================
+    // RIMUOVI STUDENTE DA ATTIVITÀ (PROCEDURA → CALL)
+    // ============================================
     @Override
     public void rimuoviStudenteAttivita(String matricola, int idAttivita) {
-        String query = "{ call pr_rimuovi_studente_attivita(?, ?) }";
+        String query = "CALL pr_rimuovi_studente_attivita(?, ?)";  // ✅ CALL
 
         try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-             CallableStatement stmt = conn.prepareCall(query)) {
+             PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, matricola);
             stmt.setInt(2, idAttivita);
@@ -173,14 +177,62 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
         }
     }
 
+    // ============================================
+    // INSERISCI + ASSEGNA (helper)
+    // ============================================
     @Override
     public boolean inserisciAttivitaConAssegnazione(Attivita attivita, String matricola) {
         int idAttivita = creaAttivita(attivita);
-        
+
         if (idAttivita != -1 && matricola != null && !matricola.trim().isEmpty()) {
             return assegnaStudenteAttivita(matricola, idAttivita);
         }
-        
         return idAttivita != -1;
+    }
+
+    // ============================================
+    // GET ATTIVITÀ DI UNO STUDENTE (tutti i progetti)
+    // ============================================
+    @Override
+    public List<Attivita> getAttivitaStudente(String matricola) {
+        List<Attivita> lista = new ArrayList<>();
+        String query = "SELECT * FROM fn_attivita_studente(?)";
+
+        try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, matricola);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Attivita a = new Attivita();
+                    a.setId(rs.getInt("id"));
+                    a.setDescrizione(rs.getString("descrizione"));
+                    a.setTipo(TipoAttivita.valueOf(rs.getString("tipo")));
+                    a.setStato(StatoAttivita.valueOf(rs.getString("stato")));
+
+                    // ✅ DataCreazione → LocalDate
+                    Timestamp tsCreazione = rs.getTimestamp("data_creazione");
+                    if (tsCreazione != null) {
+                        a.setDataCreazione(tsCreazione.toLocalDateTime().toLocalDate());
+                    }
+
+                    // ✅ DataScadenza → LocalDate
+                    Timestamp tsScadenza = rs.getTimestamp("data_scadenza");
+                    if (tsScadenza != null) {
+                        a.setDataScadenza(tsScadenza.toLocalDateTime().toLocalDate());
+                    }
+
+                    // ✅ Progetto
+                    int idProg = rs.getInt("id_progetto");
+                    a.setProgetto(new Progetto(idProg, null, null));
+
+                    lista.add(a);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return lista;
     }
 }

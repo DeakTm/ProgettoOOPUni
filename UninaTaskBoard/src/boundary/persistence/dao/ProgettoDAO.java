@@ -1,6 +1,8 @@
 package boundary.persistence.dao;
 
 import entity.Progetto;
+import entity.Studente;
+
 import java.util.List;
 
 public interface ProgettoDAO {
@@ -12,4 +14,5 @@ public interface ProgettoDAO {
     void rimuoviStudenteProgetto(String matricola, int idProgetto);
     List<String> getStudentiByProgetto(int idProgetto); 
     List<Progetto> getProgettiStudente(String matricola);
+    List<Studente> leggiStudentiPerProgetto(int idProgetto);
 }

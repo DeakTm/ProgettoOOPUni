@@ -60,8 +60,7 @@ public class MainController {
         view.getItemAttivita().setOnMouseClicked(event -> {
             rimuoviAttivi();
             view.getItemAttivita().getStyleClass().add("is-active");
-            view.mostraTabPane();
-            view.getTabPane().getSelectionModel().select(0);
+            new AttivitaController(view, matricolaLoggata);
         });
 
      
