@@ -178,4 +178,10 @@ public class ProgettoBoundaryJdbc implements ProgettoDAO {
         }
         return lista;
     }
+
+	@Override
+	public List<String> getStudentiByProgetto(int idProgetto) {
+		// altrimenti da errore
+		return null;
+	}
 }
