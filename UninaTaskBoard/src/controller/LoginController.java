@@ -1,25 +1,17 @@
 package controller;
 
 import boundary.ui.LoginView;
-import boundary.persistence.dao.StudenteDAO;
-import boundary.persistence.jdbc.StudenteBoundaryJdbc;
-import entity.Studente;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.stage.Stage;
-import java.util.List;
 
 public class LoginController {
 
     private LoginView view;
     private Stage stage;
-    private StudenteDAO studenteDAO;
 
     public LoginController(Stage stage) {
         this.stage = stage;
         this.view = new LoginView();
-        this.studenteDAO = new StudenteBoundaryJdbc();
-        
         Scene scene = new Scene(view.getRoot(), 800, 600);
 
         try {
@@ -30,56 +22,25 @@ public class LoginController {
         }
 
         this.stage.setScene(scene);
-        this.stage.setTitle("UninaTaskBoard - Login");
-        this.stage.show();
-        
         inizializzaEventi();
     }
 
     private void inizializzaEventi() {
+        
         // EVENTO: Click su Accedi
         view.getBtnAccedi().setOnAction(event -> {
             String matricola = view.getTxtMatricola().getText();
             String password = view.getTxtPassword().getText();
             
-            if (matricola == null || matricola.trim().isEmpty()) {
-                mostraErrore("Inserisci la matricola per effettuare l'accesso.");
-                return;
-            }
-
-
-            List<Studente> tuttiStudenti = studenteDAO.leggiTuttiStudenti();
-            boolean credenzialiValide = false;
-
-            if (tuttiStudenti != null) {
-                for (Studente s : tuttiStudenti) {
-                    if (s.getMatricola().equalsIgnoreCase(matricola.trim())) {
-                        credenzialiValide = true;
-                        break;
-                    }
-                }
-            }
-
-            if (credenzialiValide) {
+            // Per ora fingiamo che il login sia sempre corretto se inserisci qualcosa
+            if (!matricola.isEmpty()) {
                 System.out.println("Login effettuato con successo. Matricola: " + matricola);
-                new MainController(stage, matricola.trim());
+                
+                // CAMBIO SCENA! Sovrascrivo la finestra attuale con il Main
+                new MainController(stage, matricola);
             } else {
-                mostraErrore("Matricola o password non corrette.");
+                System.out.println("Inserisci la matricola per entrare!");
             }
         });
-    }
-
-    private void mostraErrore(String messaggio) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Errore di Autenticazione");
-        alert.setHeaderText("Accesso Negato");
-        alert.setContentText(messaggio);
-
-        try {
-            String css = getClass().getResource("/css/style.css").toExternalForm();
-            alert.getDialogPane().getStylesheets().add(css);
-        } catch (Exception ignored) {}
-
-        alert.showAndWait();
     }
 }

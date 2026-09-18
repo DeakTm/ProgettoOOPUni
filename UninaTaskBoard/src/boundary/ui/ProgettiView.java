@@ -36,7 +36,7 @@ public class ProgettiView {
         VBox header = createHeader();
         root.setTop(header);
 
-        // --- CENTRO
+        // --- CENTRO:
         ScrollPane scroll = new ScrollPane();
         scroll.setFitToWidth(true);
         scroll.setStyle("-fx-background-color: transparent;");
@@ -45,6 +45,7 @@ public class ProgettiView {
         grigliaProgetti.setHgap(24);
         grigliaProgetti.setVgap(24);
         grigliaProgetti.getStyleClass().add("app-content");
+        // Spaziatura generosa per staccarsi dai bordi e dalla sidebar
         grigliaProgetti.setPadding(new Insets(24, 36, 36, 36));
         grigliaProgetti.setAlignment(Pos.TOP_LEFT);
 
@@ -52,7 +53,9 @@ public class ProgettiView {
         root.setCenter(scroll);
     }
 
+    // ============================================
     // CREAZIONE HEADER
+    // ============================================
     private VBox createHeader() {
         VBox header = new VBox(20);
         header.getStyleClass().add("app-content");
@@ -94,7 +97,9 @@ public class ProgettiView {
         return header;
     }
 
-    // CREAZIONE CARD PROGETTO
+    // ============================================
+    // CREAZIONE CARD PROGETTO ELEGANTE
+    // ============================================
     private VBox createProjectCard(Progetto progetto) {
         VBox card = new VBox(14);
         card.getStyleClass().add("card");
@@ -213,7 +218,10 @@ public class ProgettiView {
             grigliaProgetti.getChildren().add(createProjectCard(p));
         }
     }
-// LISTENER E GETTER
+
+    // ============================================
+    // LISTENER E GETTER
+    // ============================================
     public void setOnProgettoClick(Consumer<Progetto> handler) {
         this.onProgettoClick = handler;
     }

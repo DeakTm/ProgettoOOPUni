@@ -47,7 +47,7 @@ public class DatabaseManager {
      * Consente di collegarsi al database impostando un determinato "schema" di lavoro 
      * (una partizione logica in cui sono raggruppate le tabelle).
      * 
-     * Se su pgAdmin non sono stati definiti schemi personalizzati, PostgreSQL 
+     * N.B: Se su pgAdmin non sono stati definiti schemi personalizzati, PostgreSQL 
      * utilizza in automatico lo schema predefinito chiamato "public". In tal caso, 
      * è sufficiente richiamare il metodo getConnection() senza parametri.
      */    

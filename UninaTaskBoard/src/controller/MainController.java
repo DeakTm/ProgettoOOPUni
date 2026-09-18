@@ -16,6 +16,8 @@ public class MainController {
         this.matricolaLoggata = matricolaLoggata;
 
         this.view = new MainView();
+        
+        // Impostiamo subito la matricola e l'avatar nella nuova Dashboard
         this.view.setUtenteLoggato(matricolaLoggata);
 
         Scene scene = new Scene(view.getRoot(), 1200, 800);
@@ -28,19 +30,20 @@ public class MainController {
         }
 
         this.stage.setScene(scene);
-        this.stage.setTitle("UninaTaskBoard - Dashboard");
 
         inizializzaEventi();
     }
 
     private void inizializzaEventi() {
 
+        //  Bottone centrale nella card della Dashboard ("Visualizza i tuoi Progetti")
         view.getBtnVaiAiProgetti().setOnAction(event -> {
             rimuoviAttivi();
             view.getItemProgetti().getStyleClass().add("is-active");
             mostraProgetti();
         });
 
+        //  Navigazione laterale
         view.getItemDashboard().setOnMouseClicked(event -> {
             rimuoviAttivi();
             view.getItemDashboard().getStyleClass().add("is-active");
@@ -60,11 +63,11 @@ public class MainController {
             new AttivitaController(view, matricolaLoggata);
         });
 
-        // GESTIONE LOGOUT
-        view.getBtnLogout().setOnAction(event -> {
-            System.out.println("Logout effettuato per l'utente: " + matricolaLoggata);
-            
-            new LoginController(stage);
+     
+
+        // Notifiche (bottone topbar)
+        view.getBtnNotif().setOnAction(event -> {
+            System.out.println("Apertura pannello notifiche per: " + matricolaLoggata);
         });
     }
 
