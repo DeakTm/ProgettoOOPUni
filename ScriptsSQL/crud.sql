@@ -503,3 +503,30 @@ BEGIN
     RETURN v_stored_hash = encode(digest(p_password, 'sha256'), 'hex');
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION fn_attivita_studente(p_matricola VARCHAR(9))
+RETURNS TABLE (
+    id INT,
+    descrizione TEXT,
+    tipo VARCHAR,
+    stato VARCHAR,
+    data_creazione TIMESTAMP,
+    data_scadenza TIMESTAMP,
+    id_progetto INT
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        A.id,
+        A.Descrizione::TEXT,
+        A.Tipo::VARCHAR,
+        A.Stato::VARCHAR,
+        A.DataCreazione,
+        A.DataScadenza,
+        A.id_progetto
+    FROM Attivita A
+    JOIN Studente_Attivita SA ON A.id = SA.id_attivita
+    WHERE SA.matricola_studente = p_matricola
+    ORDER BY A.DataCreazione DESC;
+END;
+$$ LANGUAGE plpgsql;
