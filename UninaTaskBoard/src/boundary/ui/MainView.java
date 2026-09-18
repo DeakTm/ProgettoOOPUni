@@ -7,27 +7,26 @@ import javafx.scene.chart.*;
 
 public class MainView {
 
-    // COMPONENTI PRINCIPALI
     private BorderPane root;
     
-    // Sidebar (Solo le voci richieste)
+    // Sidebar
     private HBox itemDashboard;
     private HBox itemProgetti;
     private HBox itemAttivita;
     
     // Topbar
-    private TextField searchField;
-    private Button btnNotif;
-    private Label lblAvatar;
+    private Button btnLogout;
+    private Label lblAvatarTopbar;
+    private Label lblNomeTopbar;
     
     // Dashboard (Home)
     private Label lblBenvenuto;
     private Button btnVaiAiProgetti;
+    private Label lblAvatarHome;
 
     // TabPane centrale
     private TabPane tabPane;
     
-    // Tab Report e Metriche (Mantenuti i campi nel caso servano in futuro)
     private Label statTotale;
     private Label statCompletate;
     private Label statInCorso;
@@ -40,7 +39,7 @@ public class MainView {
         root.getStyleClass().add("app-shell");
 
         // --- SIDEBAR MINIMALE ---
-        VBox sidebar = new VBox(20); // Spaziatura generosa tra logo e menu
+        VBox sidebar = new VBox(20);
         sidebar.getStyleClass().add("sidebar");
         sidebar.setPrefWidth(260);
 
@@ -48,7 +47,6 @@ public class MainView {
         
         VBox navMenu = new VBox(4);
         navMenu.getStyleClass().add("sidebar__nav");
-        // Modificato in "Home" con un'icona adatta
         itemDashboard = createNavItem("🏠", "Home", true);
         itemProgetti = createNavItem("📁", "Progetti", false);
         itemAttivita = createNavItem("✓", "Attività", false);
@@ -68,29 +66,27 @@ public class MainView {
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
 
         Tab tabDashboard = createTabDashboard();
-        Tab tabReport = createTabReport(); // Mantenuto nascosto nel tabpane per eventuali usi futuri
+        Tab tabReport = createTabReport();
 
         tabPane.getTabs().addAll(tabDashboard, tabReport);
         root.setCenter(tabPane);
     }
 
-    // CREAZIONE TAB DASHBOARD (Home)
     private Tab createTabDashboard() {
         Tab tab = new Tab("Home");
         VBox content = new VBox(32);
         content.getStyleClass().add("app-content");
         content.setAlignment(javafx.geometry.Pos.TOP_LEFT);
 
-        // --- INTESTAZIONE BENVENUTO CON AVATAR ---
         HBox welcomeBox = new HBox(20);
         welcomeBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
         
         StackPane pfp = new StackPane();
         pfp.getStyleClass().add("avatar");
         pfp.setPrefSize(60, 60);
-        lblAvatar = new Label("UT");
-        lblAvatar.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;");
-        pfp.getChildren().add(lblAvatar);
+        lblAvatarHome = new Label("UT");
+        lblAvatarHome.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;");
+        pfp.getChildren().add(lblAvatarHome);
 
         VBox textVBox = new VBox(4);
         Label title = new Label("UninaTaskBoard");
@@ -102,7 +98,6 @@ public class MainView {
 
         welcomeBox.getChildren().addAll(pfp, textVBox);
 
-        // --- CARD CENTRALE "I TUOI PROGETTI" ---
         VBox projectCard = new VBox(16);
         projectCard.getStyleClass().add("chart-card");
         projectCard.setMaxWidth(500);
@@ -123,7 +118,6 @@ public class MainView {
         return tab;
     }
 
-    // CREAZIONE TAB REPORT (Nascosto ma disponibile)
     private Tab createTabReport() {
         Tab tab = new Tab("Report e Metriche");
         ScrollPane scroll = new ScrollPane();
@@ -175,7 +169,6 @@ public class MainView {
         return tab;
     }
 
-    // METODI DI SUPPORTO
     private HBox createBrandBox() {
         HBox brandBox = new HBox();
         brandBox.getStyleClass().add("sidebar__brand");
@@ -205,34 +198,34 @@ public class MainView {
         HBox topbar = new HBox();
         topbar.getStyleClass().add("topbar");
         topbar.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-
-        HBox searchBox = new HBox();
-        searchBox.getStyleClass().add("topbar__search");
-        Label searchIcon = new Label("🔍");
-        searchIcon.getStyleClass().add("text-muted");
-        searchField = new TextField();
-        searchField.setPromptText("Cerca attività, progetti o membri...");
-        searchField.setStyle("-fx-background-color: transparent; -fx-border-width: 0;");
-        HBox.setHgrow(searchField, Priority.ALWAYS);
-        searchBox.getChildren().addAll(searchIcon, searchField);
-        searchBox.setMaxWidth(360);
+        topbar.setPrefHeight(56); // Topbar più snella e moderna
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        HBox actions = new HBox(16);
-        actions.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
-        
-        btnNotif = new Button("🔔");
-        btnNotif.getStyleClass().add("topbar__icon-btn");
-        
-        StackPane avatar = new StackPane();
-        avatar.getStyleClass().add("avatar");
-        Label avatarLabel = new Label("UT");
-        avatar.getChildren().add(avatarLabel);
-        
-        actions.getChildren().addAll(btnNotif, avatar);
-        topbar.getChildren().addAll(searchBox, spacer, actions);
+        // Box utente in alto a destra (Avatar + Nome + Pulsante Esci)
+        HBox userBox = new HBox(12);
+        userBox.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
+
+        StackPane miniAvatar = new StackPane();
+        miniAvatar.getStyleClass().add("avatar");
+        miniAvatar.setPrefSize(32, 32);
+        lblAvatarTopbar = new Label("UT");
+        lblAvatarTopbar.setStyle("-fx-font-size: 11px; -fx-font-weight: bold;");
+        miniAvatar.getChildren().add(lblAvatarTopbar);
+
+        lblNomeTopbar = new Label("Utente");
+        lblNomeTopbar.setStyle("-fx-font-weight: bold; -fx-font-size: 13px;");
+
+        Separator sep = new Separator(javafx.geometry.Orientation.VERTICAL);
+        sep.setPrefHeight(16);
+
+        btnLogout = new Button("🚪 Esci");
+        btnLogout.getStyleClass().addAll("button", "btn--secondary");
+
+        userBox.getChildren().addAll(miniAvatar, lblNomeTopbar, sep, btnLogout);
+
+        topbar.getChildren().addAll(spacer, userBox);
         return topbar;
     }
 
@@ -270,28 +263,30 @@ public class MainView {
         if (lblBenvenuto != null) {
             lblBenvenuto.setText("Benvenuto, " + matricola);
         }
-        if (lblAvatar != null && matricola != null && !matricola.isEmpty()) {
-            String initials = matricola.length() >= 2 ? matricola.substring(0, 2).toUpperCase() : matricola.toUpperCase();
-            lblAvatar.setText(initials);
+        if (lblNomeTopbar != null) {
+            lblNomeTopbar.setText(matricola);
         }
+        
+        String initials = (matricola != null && matricola.length() >= 2) 
+            ? matricola.substring(0, 2).toUpperCase() 
+            : (matricola != null ? matricola.toUpperCase() : "UT");
+
+        if (lblAvatarHome != null) lblAvatarHome.setText(initials);
+        if (lblAvatarTopbar != null) lblAvatarTopbar.setText(initials);
     }
     
     public void mostraAttivitaView(AttivitaView attivitaView) {
         root.setCenter(attivitaView.getRoot());
     }
 
-    // GETTER PER IL CONTROLLER
     public BorderPane getRoot() { return root; }
     public HBox getItemDashboard() { return itemDashboard; }
     public HBox getItemProgetti() { return itemProgetti; }
     public HBox getItemAttivita() { return itemAttivita; }
-    public TextField getSearchField() { return searchField; }
-    public Button getBtnNotif() { return btnNotif; }
+    public Button getBtnLogout() { return btnLogout; }
     public Button getBtnVaiAiProgetti() { return btnVaiAiProgetti; }
     public TabPane getTabPane() { return tabPane; }
     
-    // I getter per i componenti del report non sono più essenziali, 
-    // ma li manteniamo in caso tu voglia integrarli successivamente altrove.
     public Label getStatTotale() { return statTotale; }
     public Label getStatCompletate() { return statCompletate; }
     public Label getStatInCorso() { return statInCorso; }

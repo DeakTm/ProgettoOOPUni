@@ -48,9 +48,8 @@ public class AttivitaView {
         configuraFiltri();
     }
 
-    // ============================================
     // HEADER
-    // ============================================
+
     private VBox createHeader() {
         VBox header = new VBox(20);
         header.setPadding(new Insets(24, 24, 16, 24));
@@ -112,16 +111,16 @@ public class AttivitaView {
         return header;
     }
 
-    // ============================================
+
     // TABELLA
-    // ============================================
+
     private TableView<Attivita> createTabella() {
         TableView<Attivita> table = new TableView<>();
         table.getStyleClass().add("table-view");
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table.setPlaceholder(createEmptyPlaceholder());
 
-        // ============ COLONNA DESCRIZIONE (con ID sotto) ============
+        // COLONNA DESCRIZIONE
         TableColumn<Attivita, Void> colDesc = new TableColumn<>("Attività");
         colDesc.setPrefWidth(340);
         colDesc.setCellFactory(col -> new TableCell<>() {
@@ -148,7 +147,7 @@ public class AttivitaView {
             }
         });
 
-        // ============ COLONNA TIPO (badge colorato) ============
+        //COLONNA TIPO
         TableColumn<Attivita, String> colTipo = new TableColumn<>("Tipo");
         colTipo.setPrefWidth(150);
         colTipo.setCellValueFactory(cellData -> 
@@ -164,7 +163,7 @@ public class AttivitaView {
                 Label badge = new Label(tipo);
                 badge.getStyleClass().add("badge");
 
-                // Colori diversi per tipo (riuso delle variabili CSS esistenti)
+                // Colori diversi per tipo
                 if ("Sviluppo".equalsIgnoreCase(tipo)) {
                     badge.setStyle(
                         "-fx-background-color: -color-indigo-bg; " +
@@ -183,7 +182,7 @@ public class AttivitaView {
             }
         });
 
-        // ============ COLONNA STATO (badge) ============
+        //COLONNA STATO
         TableColumn<Attivita, String> colStato = new TableColumn<>("Stato");
         colStato.setPrefWidth(150);
         colStato.setCellValueFactory(cellData -> 
@@ -217,7 +216,7 @@ public class AttivitaView {
             }
         });
 
-        // ============ COLONNA SCADENZA (con colore smart) ============
+        //COLONNA SCADENZA
         TableColumn<Attivita, LocalDate> colScadenza = new TableColumn<>("Scadenza");
         colScadenza.setPrefWidth(180);
         colScadenza.setCellValueFactory(cellData -> 
@@ -264,7 +263,7 @@ public class AttivitaView {
             }
         });
 
-        // ============ COLONNA PROGETTO ============
+        // COLONNA PROGETTO 
         TableColumn<Attivita, Void> colProgetto = new TableColumn<>("Progetto");
         colProgetto.setPrefWidth(120);
         colProgetto.setCellFactory(col -> new TableCell<>() {
@@ -306,9 +305,6 @@ public class AttivitaView {
         return table;
     }
 
-    // ============================================
-    // PLACEHOLDER VUOTO (carino)
-    // ============================================
     private VBox createEmptyPlaceholder() {
         VBox box = new VBox(8);
         box.setAlignment(Pos.CENTER);
@@ -330,9 +326,6 @@ public class AttivitaView {
         return box;
     }
 
-    // ============================================
-    // UTILITY
-    // ============================================
     private String prettifyStato(String stato) {
         return stato.replace("_", " ");
     }
@@ -348,17 +341,12 @@ public class AttivitaView {
         return "tra ~" + mesi + (mesi == 1 ? " mese" : " mesi");
     }
 
-    // ============================================
-    // FILTRI
-    // ============================================
+
     private void configuraFiltri() {
         filtroStato.getItems().addAll("Tutti", "Non_Iniziata", "In_Corso", "Completata");
         filtroTipo.getItems().addAll("Tutti", "Sviluppo", "Documentazione");
     }
 
-    // ============================================
-    // METODI PER IL CONTROLLER
-    // ============================================
     public void mostraAttivita(List<Attivita> lista) {
         tabellaAttivita.getItems().clear();
         if (lista != null) {
@@ -373,9 +361,7 @@ public class AttivitaView {
         return tabellaAttivita.getSelectionModel().getSelectedItem();
     }
 
-    // ============================================
-    // GETTER
-    // ============================================
+
     public BorderPane getRoot() { return root; }
     public TableView<Attivita> getTabellaAttivita() { return tabellaAttivita; }
     public TextField getSearchField() { return searchField; }

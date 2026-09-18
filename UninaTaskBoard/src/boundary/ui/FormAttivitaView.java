@@ -46,8 +46,8 @@ public class FormAttivitaView {
         lblDescrizione.getStyleClass().add("form-label");
         
         txtDescrizione = new TextArea();
-        txtDescrizione.setPrefRowCount(3);
-        txtDescrizione.setMaxHeight(85);
+        txtDescrizione.setPrefRowCount(2);
+        txtDescrizione.setMaxHeight(65);
         txtDescrizione.setPromptText("Descrivi dettagliatamente cosa c'è da fare...");
         txtDescrizione.getStyleClass().add("text-area");
 
