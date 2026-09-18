@@ -14,7 +14,7 @@ public class FormAttivitaView {
     private TextArea txtDescrizione;
     private ComboBox<TipoAttivita> cmbTipo;
     private DatePicker dataScadenza;
-    private ComboBox<String> cmbStudenteAssegnato; // <-- MODIFICATO: Da TextField a ComboBox
+    private ComboBox<String> cmbStudenteAssegnato; 
 
     private Button btnSalva;
     private Button btnAnnulla;

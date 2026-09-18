@@ -9,13 +9,16 @@ public class MainController {
     private MainView view;
     private Stage stage;
     private String matricolaLoggata;
-    private ProgettoController progettoController;  // tienilo vivo
+    private ProgettoController progettoController; 
 
     public MainController(Stage stage, String matricolaLoggata) {
         this.stage = stage;
         this.matricolaLoggata = matricolaLoggata;
 
         this.view = new MainView();
+        
+        // Impostiamo subito la matricola e l'avatar nella nuova Dashboard
+        this.view.setUtenteLoggato(matricolaLoggata);
 
         Scene scene = new Scene(view.getRoot(), 1200, 800);
 
@@ -33,17 +36,14 @@ public class MainController {
 
     private void inizializzaEventi() {
 
-        // 1. Apertura del form Nuova Attività
-    	view.getBtnNuovaAttivita().setOnAction(event -> {
-    	    System.out.println("Apertura popup nuova attività...");
-    	    int idProgettoCorrente = 1;
-    	    
-    	    // Istanziamo e mostriamo il controller del form attività
-    	    FormAttivitaController formAttivita = new FormAttivitaController(stage, idProgettoCorrente);
-    	    formAttivita.mostra(); 
-    	});
+        //  Bottone centrale nella card della Dashboard ("Visualizza i tuoi Progetti")
+        view.getBtnVaiAiProgetti().setOnAction(event -> {
+            rimuoviAttivi();
+            view.getItemProgetti().getStyleClass().add("is-active");
+            mostraProgetti();
+        });
 
-        // 2. Navigazione laterale
+        //  Navigazione laterale
         view.getItemDashboard().setOnMouseClicked(event -> {
             rimuoviAttivi();
             view.getItemDashboard().getStyleClass().add("is-active");
@@ -51,7 +51,7 @@ public class MainController {
             view.getTabPane().getSelectionModel().select(0);
         });
 
-        view.getItemProgetti().setOnMouseClicked(event -> {   // <-- UNO SOLO!
+        view.getItemProgetti().setOnMouseClicked(event -> {   
             rimuoviAttivi();
             view.getItemProgetti().getStyleClass().add("is-active");
             mostraProgetti();
@@ -64,20 +64,9 @@ public class MainController {
             view.getTabPane().getSelectionModel().select(0);
         });
 
-        view.getItemReport().setOnMouseClicked(event -> {
-            rimuoviAttivi();
-            view.getItemReport().getStyleClass().add("is-active");
-            view.mostraTabPane();
-            view.getTabPane().getSelectionModel().select(1);
-        });
+     
 
-        view.getItemNotifiche().setOnMouseClicked(event -> {
-            rimuoviAttivi();
-            view.getItemNotifiche().getStyleClass().add("is-active");
-            System.out.println("Navigazione: Notifiche");
-        });
-
-        // 3. Notifiche (bottone topbar)
+        // Notifiche (bottone topbar)
         view.getBtnNotif().setOnAction(event -> {
             System.out.println("Apertura pannello notifiche per: " + matricolaLoggata);
         });
@@ -87,8 +76,6 @@ public class MainController {
         view.getItemDashboard().getStyleClass().remove("is-active");
         view.getItemProgetti().getStyleClass().remove("is-active");
         view.getItemAttivita().getStyleClass().remove("is-active");
-        view.getItemReport().getStyleClass().remove("is-active");
-        view.getItemNotifiche().getStyleClass().remove("is-active");
     }
 
     private void mostraProgetti() {

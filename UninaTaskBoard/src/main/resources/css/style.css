@@ -1,6 +1,6 @@
-/* ==========================================================================
-   UninaTaskBoard — JavaFX Stylesheet (Ottimizzato per JavaFX)
-   ========================================================================== */
+/* 
+   UninaTaskBoard — JavaFX Stylesheet 
+    */
 .root {
     -color-bg-app: #F5F6F8;
     -color-surface: #FFFFFF;
@@ -53,7 +53,6 @@
     -color-violet-text: #7C3AED;
     -color-violet-border: #E1D2FC;
 
-    /* Proprietà native JavaFX impostate direttamente qui */
     -fx-font-family: "Segoe UI", Helvetica, Arial, sans-serif;
     -fx-font-size: 14px;
     -fx-background-color: -color-bg-app;
@@ -65,16 +64,10 @@
     -shadow-modal: dropshadow(gaussian, rgba(15, 23, 42, 0.18), 48, 0.0, 0, 24);
 }
 
-/* ==========================================================================
-   2. RESET & BASE
-   ========================================================================== */
 .label {
     -fx-text-fill: -color-text-primary;
 }
 
-/* ==========================================================================
-   3. TIPOGRAFIA
-   ========================================================================== */
 .page-title {
     -fx-font-size: 28px;
     -fx-font-weight: bold;
@@ -99,16 +92,10 @@
 .font-medium { -fx-font-weight: normal; }
 .font-semibold { -fx-font-weight: bold; }
 
-/* ==========================================================================
-   4. LAYOUT APPLICATIVO (Shell)
-   ========================================================================== */
 .app-main {
     -fx-padding: 24px;
 }
 
-/* ==========================================================================
-   5. SIDEBAR
-   ========================================================================== */
 .sidebar {
     -fx-background-color: -color-navy-900;
     -fx-padding: 16px;
@@ -182,9 +169,6 @@
     -fx-alignment: center;
 }
 
-/* ==========================================================================
-   6. TOPBAR
-   ========================================================================== */
 .topbar {
     -fx-background-color: -color-surface;
     -fx-border-color: transparent transparent -color-border transparent;
@@ -220,9 +204,6 @@
     -fx-border-width: 1px;
 }
 
-/* ==========================================================================
-   7. CARD GENERICHE & STATISTICHE
-   ========================================================================== */
 .card, .stat-card, .task-card, .chart-card {
     -fx-background-color: -color-surface;
     -fx-border-color: -color-border;
@@ -265,10 +246,6 @@
 .stat-card__trend.is-positive { -fx-text-fill: -color-success-text; }
 .stat-card__trend.is-negative { -fx-text-fill: -color-danger-text; }
 .stat-card__trend.is-neutral { -fx-text-fill: -color-text-muted; }
-
-/* ==========================================================================
-   8. BOTTONI
-   ========================================================================== */
 .button {
     -fx-font-size: 13px;
     -fx-font-weight: bold;
@@ -311,10 +288,6 @@
 .button.btn--ghost:hover {
     -fx-background-color: -color-surface-alt;
 }
-
-/* ==========================================================================
-   9. BADGE
-   ========================================================================== */
 .badge {
     -fx-padding: 4px 10px;
     -fx-background-radius: 999px;
@@ -341,10 +314,6 @@
     -fx-text-fill: -color-danger-text;
     -fx-border-color: -color-danger-border;
 }
-
-/* ==========================================================================
-   10. AVATAR
-   ========================================================================== */
 .avatar {
     -fx-pref-width: 32px;
     -fx-pref-height: 32px;
@@ -362,10 +331,6 @@
     -fx-font-weight: bold;
     -fx-text-fill: -color-primary-700;
 }
-
-/* ==========================================================================
-   13. FORM (Input, Select, Textarea)
-   ========================================================================== */
 .text-field, .text-area, .combo-box {
     -fx-background-color: -color-surface;
     -fx-border-color: -color-border;
@@ -413,10 +378,6 @@
 .check-box:selected .mark, .radio-button:selected .dot {
     -fx-background-color: -color-primary-600;
 }
-
-/* ==========================================================================
-   14. TABELLE
-   ========================================================================== */
 .table-view {
     -fx-background-color: -color-surface;
     -fx-border-color: -color-border;
@@ -450,9 +411,6 @@
     -fx-background-color: derive(-color-surface-alt, -5%);
 }
 
-/* ==========================================================================
-   15. TABS
-   ========================================================================== */
 .tab-pane .tab-header-area .tab-header-background {
     -fx-background-color: transparent;
     -fx-border-color: transparent transparent -color-border transparent;
@@ -483,10 +441,6 @@
 .tab-pane .tab:selected .tab-label {
     -fx-text-fill: -color-primary-600;
 }
-
-/* ==========================================================================
-   16. MODALI
-   ========================================================================== */
 .dialog-pane {
     -fx-background-color: -color-surface;
     -fx-background-radius: 14px;
@@ -509,10 +463,6 @@
     -fx-border-color: -color-divider transparent transparent transparent;
     -fx-border-width: 1px 0 0 0;
 }
-
-/* ==========================================================================
-   19. PROGRESS BAR
-   ========================================================================== */
 .progress-bar > .track {
     -fx-background-color: -color-neutral-bg;
     -fx-background-radius: 999px;
@@ -524,9 +474,22 @@
     -fx-padding: 0;
 }
 
-/* ==========================================================================
-   21. ACCESSIBILITÀ (Focus)
-   ========================================================================== */
 .text-field:focused, .button:focused, .check-box:focused {
     -fx-border-color: -color-primary-500;
+}
+
+.btn--icon-danger-solid {
+    -fx-background-color: -color-danger-text;
+    -fx-text-fill: white;
+    -fx-border-color: transparent;
+    -fx-padding: 4px 10px;      
+    -fx-font-size: 12px;      
+    -fx-font-weight: bold;
+    -fx-background-radius: 4px;
+    -fx-border-radius: 4px;
+    -fx-cursor: hand;
+}
+
+.btn--icon-danger-solid:hover {
+    -fx-background-color: derive(-color-danger-text, 30%); 
 }

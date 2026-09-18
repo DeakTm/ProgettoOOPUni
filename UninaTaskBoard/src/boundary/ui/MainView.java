@@ -7,68 +7,55 @@ import javafx.scene.chart.*;
 
 public class MainView {
 
-    // COMPONENTI PRINCIPALI (campi, non variabili locali)
+    // COMPONENTI PRINCIPALI
     private BorderPane root;
     
-    // Sidebar
+    // Sidebar (Solo le voci richieste)
     private HBox itemDashboard;
     private HBox itemProgetti;
     private HBox itemAttivita;
-    private HBox itemReport;
-    private HBox itemNotifiche;
     
     // Topbar
     private TextField searchField;
     private Button btnNotif;
+    private Label lblAvatar;
     
-    // Tab 1: Attività
-    private ComboBox<String> filtroStato;
-    private ComboBox<String> filtroTipo;
-    private ComboBox<String> filtroScadenza;
-    private ComboBox<String> filtroMembro;
-    private Button btnNuovaAttivita;
-    private TableView<Object> tabellaAttivita;
-    // Tab 2: Report
+    // Dashboard (Home)
+    private Label lblBenvenuto;
+    private Button btnVaiAiProgetti;
+
+    // TabPane centrale
+    private TabPane tabPane;
+    
+    // Tab Report e Metriche (Mantenuti i campi nel caso servano in futuro)
     private Label statTotale;
     private Label statCompletate;
     private Label statInCorso;
     private Label statSviluppo;
     private PieChart pieChart;
     private BarChart<String, Number> barChart;
-    private TabPane tabPane;
-
-    // COSTRUTTORE: costruisce la UI
 
     public MainView() {
         root = new BorderPane();
         root.getStyleClass().add("app-shell");
 
-        // --- SIDEBAR ---
-        VBox sidebar = new VBox();
+        // --- SIDEBAR MINIMALE ---
+        VBox sidebar = new VBox(20); // Spaziatura generosa tra logo e menu
         sidebar.getStyleClass().add("sidebar");
         sidebar.setPrefWidth(260);
 
         HBox brandBox = createBrandBox();
-        Label lblPrinc = new Label("PRINCIPALE");
-        lblPrinc.getStyleClass().add("sidebar__section-label");
         
-        VBox navPrinc = new VBox(4);
-        navPrinc.getStyleClass().add("sidebar__nav");
-        itemDashboard = createNavItem("📊", "Dashboard", true);
+        VBox navMenu = new VBox(4);
+        navMenu.getStyleClass().add("sidebar__nav");
+        // Modificato in "Home" con un'icona adatta
+        itemDashboard = createNavItem("🏠", "Home", true);
         itemProgetti = createNavItem("📁", "Progetti", false);
-        navPrinc.getChildren().addAll(itemDashboard, itemProgetti);
-
-        Label lblCurr = new Label("PROGETTO CORRENTE");
-        lblCurr.getStyleClass().add("sidebar__section-label");
-
-        VBox navCurr = new VBox(4);
-        navCurr.getStyleClass().add("sidebar__nav");
         itemAttivita = createNavItem("✓", "Attività", false);
-        itemReport = createNavItem("📈", "Report e Metriche", false);
-        itemNotifiche = createNavItem("🔔", "Notifiche", false);
-        navCurr.getChildren().addAll(itemAttivita, itemReport, itemNotifiche);
+        
+        navMenu.getChildren().addAll(itemDashboard, itemProgetti, itemAttivita);
 
-        sidebar.getChildren().addAll(brandBox, lblPrinc, navPrinc, lblCurr, navCurr);
+        sidebar.getChildren().addAll(brandBox, navMenu);
         root.setLeft(sidebar);
 
         // --- TOPBAR ---
@@ -80,63 +67,63 @@ public class MainView {
         tabPane.getStyleClass().add("app-main");
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
 
-        Tab tabAttivita = createTabAttivita();
-        Tab tabReport = createTabReport();
+        Tab tabDashboard = createTabDashboard();
+        Tab tabReport = createTabReport(); // Mantenuto nascosto nel tabpane per eventuali usi futuri
 
-        tabPane.getTabs().addAll(tabAttivita, tabReport);
+        tabPane.getTabs().addAll(tabDashboard, tabReport);
         root.setCenter(tabPane);
     }
 
-    // CREAZIONE TAB ATTIVITÀ
-    private Tab createTabAttivita() {
-        Tab tab = new Tab("Elenco Attività");
-        VBox content = new VBox(24);
+    // CREAZIONE TAB DASHBOARD (Home)
+    private Tab createTabDashboard() {
+        Tab tab = new Tab("Home");
+        VBox content = new VBox(32);
         content.getStyleClass().add("app-content");
+        content.setAlignment(javafx.geometry.Pos.TOP_LEFT);
 
-        // Header
-        VBox header = new VBox(8);
-        Label title = new Label("Attività del Progetto");
+        // --- INTESTAZIONE BENVENUTO CON AVATAR ---
+        HBox welcomeBox = new HBox(20);
+        welcomeBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        
+        StackPane pfp = new StackPane();
+        pfp.getStyleClass().add("avatar");
+        pfp.setPrefSize(60, 60);
+        lblAvatar = new Label("UT");
+        lblAvatar.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;");
+        pfp.getChildren().add(lblAvatar);
+
+        VBox textVBox = new VBox(4);
+        Label title = new Label("UninaTaskBoard");
         title.getStyleClass().add("page-title");
-        Label sub = new Label("Gestisci e monitora lo stato delle attività collaborative");
-        sub.getStyleClass().add("page-subtitle");
-        header.getChildren().addAll(title, sub);
-
-        // Toolbar filtri
-        HBox toolbar = new HBox();
-        toolbar.getStyleClass().add("toolbar");
-        HBox filters = new HBox(12);
-        filters.getStyleClass().add("toolbar__filters");
         
-        filtroStato = new ComboBox<>();
-        filtroStato.setPromptText("Stato");
-        filtroTipo = new ComboBox<>();
-        filtroTipo.setPromptText("Tipo");
-        filtroScadenza = new ComboBox<>();
-        filtroScadenza.setPromptText("Scadenza");
-        filtroMembro = new ComboBox<>();
-        filtroMembro.setPromptText("Membro");
-        
-        filters.getChildren().addAll(filtroStato, filtroTipo, filtroScadenza, filtroMembro);
+        lblBenvenuto = new Label("Benvenuto");
+        lblBenvenuto.getStyleClass().add("page-subtitle");
+        textVBox.getChildren().addAll(title, lblBenvenuto);
 
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-        
-        btnNuovaAttivita = new Button("+ Nuova Attività");
-        btnNuovaAttivita.getStyleClass().addAll("button", "btn--primary");
-        
-        toolbar.getChildren().addAll(filters, spacer, btnNuovaAttivita);
+        welcomeBox.getChildren().addAll(pfp, textVBox);
 
-        // Tabella
-        tabellaAttivita = new TableView<>();
-        tabellaAttivita.getStyleClass().add("table-view");
-        VBox.setVgrow(tabellaAttivita, Priority.ALWAYS);
+        // --- CARD CENTRALE "I TUOI PROGETTI" ---
+        VBox projectCard = new VBox(16);
+        projectCard.getStyleClass().add("chart-card");
+        projectCard.setMaxWidth(500);
+        projectCard.setPadding(new Insets(24));
 
-        content.getChildren().addAll(header, toolbar, tabellaAttivita);
+        Label cardTitle = new Label("I tuoi Progetti");
+        cardTitle.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+        Label cardDesc = new Label("Accedi all'elenco completo dei progetti assegnati e monitora lo stato delle attività.");
+        cardDesc.getStyleClass().add("text-muted");
+
+        btnVaiAiProgetti = new Button("Visualizza i tuoi Progetti →");
+        btnVaiAiProgetti.getStyleClass().addAll("button", "btn--primary");
+
+        projectCard.getChildren().addAll(cardTitle, cardDesc, btnVaiAiProgetti);
+
+        content.getChildren().addAll(welcomeBox, new Separator(), projectCard);
         tab.setContent(content);
         return tab;
     }
 
-    // CREAZIONE TAB REPORT
+    // CREAZIONE TAB REPORT (Nascosto ma disponibile)
     private Tab createTabReport() {
         Tab tab = new Tab("Report e Metriche");
         ScrollPane scroll = new ScrollPane();
@@ -146,7 +133,6 @@ public class MainView {
         VBox content = new VBox(24);
         content.getStyleClass().add("app-content");
 
-        // Header
         VBox header = new VBox(8);
         Label title = new Label("Report di Progetto");
         title.getStyleClass().add("page-title");
@@ -154,7 +140,6 @@ public class MainView {
         sub.getStyleClass().add("page-subtitle");
         header.getChildren().addAll(title, sub);
 
-        // Stat cards
         GridPane statGrid = new GridPane();
         statGrid.setHgap(20);
         statGrid.setVgap(20);
@@ -169,7 +154,6 @@ public class MainView {
         statGrid.add(createStatCard("In Corso", statInCorso), 2, 0);
         statGrid.add(createStatCard("Attività di Sviluppo", statSviluppo), 3, 0);
 
-        // Chart
         GridPane chartGrid = new GridPane();
         chartGrid.setHgap(20);
         chartGrid.setVgap(20);
@@ -191,7 +175,7 @@ public class MainView {
         return tab;
     }
 
-    // METODI DI SUPPORTO (creazione componenti)
+    // METODI DI SUPPORTO
     private HBox createBrandBox() {
         HBox brandBox = new HBox();
         brandBox.getStyleClass().add("sidebar__brand");
@@ -244,7 +228,7 @@ public class MainView {
         
         StackPane avatar = new StackPane();
         avatar.getStyleClass().add("avatar");
-        Label avatarLabel = new Label("MR");
+        Label avatarLabel = new Label("UT");
         avatar.getChildren().add(avatarLabel);
         
         actions.getChildren().addAll(btnNotif, avatar);
@@ -273,8 +257,6 @@ public class MainView {
         card.getChildren().addAll(header, chart);
         return card;
     }
-    
- // In MainView.java
 
     public void mostraProgettiView(ProgettiView progettiView) {
         root.setCenter(progettiView.getRoot());
@@ -284,26 +266,32 @@ public class MainView {
         root.setCenter(tabPane);
     }
 
+    public void setUtenteLoggato(String matricola) {
+        if (lblBenvenuto != null) {
+            lblBenvenuto.setText("Benvenuto, " + matricola);
+        }
+        if (lblAvatar != null && matricola != null && !matricola.isEmpty()) {
+            String initials = matricola.length() >= 2 ? matricola.substring(0, 2).toUpperCase() : matricola.toUpperCase();
+            lblAvatar.setText(initials);
+        }
+    }
+
     // GETTER PER IL CONTROLLER
     public BorderPane getRoot() { return root; }
     public HBox getItemDashboard() { return itemDashboard; }
     public HBox getItemProgetti() { return itemProgetti; }
     public HBox getItemAttivita() { return itemAttivita; }
-    public HBox getItemReport() { return itemReport; }
-    public HBox getItemNotifiche() { return itemNotifiche; }
     public TextField getSearchField() { return searchField; }
     public Button getBtnNotif() { return btnNotif; }
-    public ComboBox<String> getFiltroStato() { return filtroStato; }
-    public ComboBox<String> getFiltroTipo() { return filtroTipo; }
-    public ComboBox<String> getFiltroScadenza() { return filtroScadenza; }
-    public ComboBox<String> getFiltroMembro() { return filtroMembro; }
-    public Button getBtnNuovaAttivita() { return btnNuovaAttivita; }
-    public TableView<Object> getTabellaAttivita() { return tabellaAttivita; }
+    public Button getBtnVaiAiProgetti() { return btnVaiAiProgetti; }
+    public TabPane getTabPane() { return tabPane; }
+    
+    // I getter per i componenti del report non sono più essenziali, 
+    // ma li manteniamo in caso tu voglia integrarli successivamente altrove.
     public Label getStatTotale() { return statTotale; }
     public Label getStatCompletate() { return statCompletate; }
     public Label getStatInCorso() { return statInCorso; }
     public Label getStatSviluppo() { return statSviluppo; }
     public PieChart getPieChart() { return pieChart; }
     public BarChart<String, Number> getBarChart() { return barChart; }
-    public TabPane getTabPane() { return tabPane; }
 }
