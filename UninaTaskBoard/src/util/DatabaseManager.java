@@ -42,17 +42,6 @@ public class DatabaseManager {
         return conn;
     }
 
-    /**
-     * Overload del metodo getConnection().
-     * Consente di collegarsi al database impostando un determinato "schema" di lavoro 
-     * (una partizione logica in cui sono raggruppate le tabelle).
-     * 
-     * N.B: Se su pgAdmin non sono stati definiti schemi personalizzati, PostgreSQL 
-     * utilizza in automatico lo schema predefinito chiamato "public". In tal caso, 
-     * è sufficiente richiamare il metodo getConnection() senza parametri.
-     */    
-    
-    
     public Connection getConnection(String schema_name) {
         System.out.println("Richiesta connessione...");
 
@@ -82,7 +71,6 @@ public class DatabaseManager {
         return conn;
     }
 
-    // Metodo di supporto per il caricamento sicuro di db.properties via ClassLoader
     private Properties loadProperties() throws IOException {
         Properties props = new Properties();
         try (InputStream input = getClass().getClassLoader().getResourceAsStream("db.properties"))// ClassLoader.getResourceAsStream

@@ -12,12 +12,10 @@ import java.util.List;
 
 public class FileCodiceBoundaryJdbc implements FileCodiceDAO {
 
-    // ============================================
-    // CREA FILE (4 parametri)
-    // ============================================
+
     @Override
     public int creaFile(FileCodice file, int idAttivita) {
-        String query = "{ ? = call fn_crea_filecodice(?, ?, ?, ?) }";  // ✅ Nome giusto + 4 parametri
+        String query = "{ ? = call fn_crea_filecodice(?, ?, ?, ?) }"; 
         int idGenerato = -1;
 
         try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
@@ -38,9 +36,7 @@ public class FileCodiceBoundaryJdbc implements FileCodiceDAO {
         return idGenerato;
     }
 
-    // ============================================
-    // LEGGI FILE PER ATTIVITÀ
-    // ============================================
+
     @Override
     public List<FileCodice> leggiFilePerAttivita(int idAttivita) {
         List<FileCodice> lista = new ArrayList<>();
@@ -52,13 +48,13 @@ public class FileCodiceBoundaryJdbc implements FileCodiceDAO {
             stmt.setInt(1, idAttivita);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    int id = rs.getInt("id_file");                   // ✅ id_file
+                    int id = rs.getInt("id_file");                   
                     String nome = rs.getString("nome_file");
                     String contenuto = rs.getString("contenuto");
                     String langDb = rs.getString("linguaggio");
-                    TipoLinguaggio linguaggioEnum = TipoLinguaggio.valueOf(langDb);  // ✅ senza toUpperCase
+                    TipoLinguaggio linguaggioEnum = TipoLinguaggio.valueOf(langDb);  
 
-                    Timestamp ts = rs.getTimestamp("data_modifica");  // ✅ data_modifica
+                    Timestamp ts = rs.getTimestamp("data_modifica");  
                     LocalDateTime dataModifica = (ts != null) ? ts.toLocalDateTime() : null;
 
                     FileCodice f = new FileCodice(id, nome, linguaggioEnum, contenuto, dataModifica, null);
@@ -71,12 +67,9 @@ public class FileCodiceBoundaryJdbc implements FileCodiceDAO {
         return lista;
     }
 
-    // ============================================
-    // AGGIORNA FILE (solo contenuto)
-    // ============================================
     @Override
     public void aggiornaFile(FileCodice file) {
-        String query = "CALL pr_aggiorna_filecodice(?, ?)";  // ✅ CALL + 2 parametri
+        String query = "CALL pr_aggiorna_filecodice(?, ?)";  
 
         try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -90,12 +83,10 @@ public class FileCodiceBoundaryJdbc implements FileCodiceDAO {
         }
     }
 
-    // ============================================
-    // ELIMINA FILE
-    // ============================================
+
     @Override
     public void eliminaFile(int id) {
-        String query = "CALL pr_elimina_filecodice(?)";  // ✅ CALL
+        String query = "CALL pr_elimina_filecodice(?)";  
 
         try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {

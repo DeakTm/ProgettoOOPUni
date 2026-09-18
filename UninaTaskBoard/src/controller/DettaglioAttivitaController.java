@@ -10,6 +10,7 @@ import entity.FileCodice;
 import entity.Revisione;
 import entity.enums.TipoLinguaggio;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextInputDialog;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -24,12 +25,14 @@ import java.util.Optional;
 
 public class DettaglioAttivitaController {
 
+
     private DettagliAttivitaView view;
     private FileCodiceDAO fileDAO;
     private RevisioneDAO revisioneDAO;
     private Attivita attivita;
     private String matricolaUtente;
     private FileCodice fileCorrente;
+
 
     public DettaglioAttivitaController(Stage owner, Attivita attivita, String matricolaUtente) {
         this.attivita = attivita;
@@ -39,43 +42,47 @@ public class DettaglioAttivitaController {
         this.revisioneDAO = new RevisioneBoundaryJdbc();
 
         view.setAttivita(attivita);
-        caricaFile();
-        configuraListener();
+        configuraListener();   
+        caricaFile();          
 
         view.mostra();
     }
 
 
     private void configuraListener() {
-        // Importa file
         view.getBtnImportaFile().setOnAction(e -> importaFile());
 
-        // Seleziono un file → carico contenuto + revisioni
-        view.getListaFile().getSelectionModel().selectedItemProperty().addListener((obs, oldF, newF) -> {
-            this.fileCorrente = newF;
-            view.setContenutoEditor(newF);
-            if (newF != null) {
-                List<Revisione> revs = revisioneDAO.getRevisioniFile(newF.getId());
-                view.setRevisioni(newF, revs);
+        view.getListaFile().getSelectionModel().selectedItemProperty().addListener(
+            (obs, oldF, newF) -> {
+                this.fileCorrente = newF;
+                view.setContenutoEditor(newF);
+                if (newF != null) {
+                    List<Revisione> revs = revisioneDAO.getRevisioniFile(newF.getId());
+                    view.setRevisioni(newF, revs);
+                }
             }
-        });
+        );
 
-        // Salva modifiche al file
         view.getBtnSalvaFile().setOnAction(e -> salvaModifiche());
 
-        // Elimina file
-        view.getBtnEliminaFile().setOnAction(e -> eliminaFile());
-
-        // Aggiungi revisione
         view.getBtnAggiungiRevisione().setOnAction(e -> aggiungiRevisione());
+        view.getBtnEliminaFile().setOnAction(e -> eliminaFile());
     }
 
-
+ 
     private void caricaFile() {
         List<FileCodice> files = fileDAO.leggiFilePerAttivita(attivita.getId());
         view.setFile(files);
+
         if (!files.isEmpty()) {
             view.getListaFile().getSelectionModel().select(0);
+            this.fileCorrente = files.get(0);
+            view.setContenutoEditor(fileCorrente);
+            List<Revisione> revs = revisioneDAO.getRevisioniFile(fileCorrente.getId());
+            view.setRevisioni(fileCorrente, revs);
+        } else {
+            this.fileCorrente = null;
+            view.setContenutoEditor(null);
         }
     }
 
@@ -93,20 +100,20 @@ public class DettaglioAttivitaController {
         if (file == null) return;
 
         try {
-            // 1. Leggi contenuto
+           
             String contenuto = new String(Files.readAllBytes(file.toPath()));
 
-            // 2. Rileva linguaggio dall'estensione
+           
             TipoLinguaggio linguaggio = rilevaLinguaggio(file.getName());
 
-            // 3. Crea oggetto FileCodice
+       
             FileCodice nuovo = new FileCodice();
             nuovo.setNome_file(file.getName());
             nuovo.setContenuto(contenuto);
             nuovo.setLinguaggio(linguaggio);
             nuovo.setDataUltimaModifica(LocalDateTime.now());
 
-            // 4. Salva nel DB
+        
             int idGenerato = fileDAO.creaFile(nuovo, attivita.getId());
 
             if (idGenerato > 0) {
@@ -123,7 +130,10 @@ public class DettaglioAttivitaController {
 
 
     private void salvaModifiche() {
-        if (fileCorrente == null) return;
+        if (fileCorrente == null) {
+            mostraErrore("Seleziona prima un file");
+            return;
+        }
 
         String nuovoContenuto = view.getTxtContenuto().getText();
         fileCorrente.setContenuto(nuovoContenuto);
@@ -131,47 +141,60 @@ public class DettaglioAttivitaController {
 
         fileDAO.aggiornaFile(fileCorrente);
 
+     
         caricaFile();
         mostraInfo("Modifiche salvate!");
     }
 
 
     private void aggiungiRevisione() {
-        if (fileCorrente == null) return;
+        if (fileCorrente == null) {
+            mostraErrore("Seleziona prima un file");
+            return;
+        }
 
+        // 1. Chiedi la nota
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Nuova Revisione");
-        dialog.setHeaderText("Descrivi brevemente la modifica");
+        dialog.setHeaderText("Descrivi l'intervento effettuato su \"" + fileCorrente.getNome_file() + "\"");
         dialog.setContentText("Nota:");
 
         Optional<String> nota = dialog.showAndWait();
-        if (nota.isEmpty() || nota.get().trim().isEmpty()) return;
+        if (nota.isEmpty() || nota.get().trim().isEmpty()) {
+            mostraErrore("Devi inserire una nota");
+            return;
+        }
 
+       
         Revisione rev = new Revisione();
-        rev.setData(LocalDate.now());  // ⚠️ o LocalDateTime.now() se la tua entity usa LocalDateTime
-        rev.setNota(nota.get());
+        rev.setData(LocalDate.now());   
 
         int idRev = revisioneDAO.creaRevisione(rev, fileCorrente.getId(), matricolaUtente);
 
         if (idRev > 0) {
+            
             List<Revisione> revs = revisioneDAO.getRevisioniFile(fileCorrente.getId());
             view.setRevisioni(fileCorrente, revs);
+            mostraInfo("Revisione aggiunta con successo!");
         } else {
             mostraErrore("Errore nel salvataggio della revisione");
         }
     }
 
-
     private void eliminaFile() {
-        if (fileCorrente == null) return;
+        if (fileCorrente == null) {
+            mostraErrore("Seleziona prima un file");
+            return;
+        }
 
         Alert conferma = new Alert(Alert.AlertType.CONFIRMATION);
         conferma.setTitle("Conferma eliminazione");
         conferma.setHeaderText(null);
-        conferma.setContentText("Eliminare il file \"" + fileCorrente.getNome_file() + "\"?");
-        Optional<javafx.scene.control.ButtonType> risposta = conferma.showAndWait();
+        conferma.setContentText("Eliminare il file \"" + fileCorrente.getNome_file() + "\"?\n" +
+                                "Verranno eliminate anche tutte le sue revisioni.");
 
-        if (risposta.isPresent() && risposta.get() == javafx.scene.control.ButtonType.OK) {
+        Optional<ButtonType> risposta = conferma.showAndWait();
+        if (risposta.isPresent() && risposta.get() == ButtonType.OK) {
             fileDAO.eliminaFile(fileCorrente.getId());
             caricaFile();
         }

@@ -38,7 +38,6 @@ public class RevisioneBoundaryJdbc implements RevisioneDAO {
 
     @Override
     public List<Revisione> leggiRevisioniPerFile(int idFile) {
-        // Stessa logica di getRevisioniFile (alias per chiarezza)
         return getRevisioniFile(idFile);
     }
 
@@ -57,7 +56,6 @@ public class RevisioneBoundaryJdbc implements RevisioneDAO {
                     Revisione r = new Revisione();
                     r.setId(rs.getInt("id"));
 
-                    // Data (LocalDate)
                     Timestamp ts = rs.getTimestamp("data");
                     if (ts != null) {
                         r.setData(ts.toLocalDateTime().toLocalDate());
@@ -65,12 +63,10 @@ public class RevisioneBoundaryJdbc implements RevisioneDAO {
 
                     r.setNota(rs.getString("nota"));
 
-                    // FileCodice (oggetto parziale)
                     FileCodice fc = new FileCodice();
                     fc.setId(idFileCodice);
                     r.setId_filecodice(fc);
 
-                    // Studente (oggetto parziale con sola matricola)
                     String matricolaStr = rs.getString("matricola_studente");
                     if (matricolaStr != null) {
                         Studente s = new Studente();
