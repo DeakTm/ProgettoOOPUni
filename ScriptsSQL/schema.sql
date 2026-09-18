@@ -67,7 +67,7 @@ CREATE TABLE Studente(
 CREATE TABLE Progetto(
     id SERIAL PRIMARY KEY,
     Scadenza DATE CHECK (Scadenza > CURRENT_DATE),
-    Stato StatoAvanzamento DEFAULT 'Creato';
+    Stato StatoAvanzamento DEFAULT 'Creato',
     Nome VARCHAR(255) 
 );
 
@@ -84,7 +84,7 @@ CREATE TABLE Attivita(
     DataCreazione TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     DataScadenza TIMESTAMP CHECK(DataScadenza > CURRENT_DATE),
     Stato StatoAttivita DEFAULT 'Non_Iniziata',
-    id_progetto INT,
+    id_progetto INT
 );
 
 CREATE TABLE Studente_Attivita(
