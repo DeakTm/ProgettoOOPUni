@@ -108,13 +108,18 @@ public class ProgettiView {
         card.setPadding(new Insets(22));
         card.setStyle("-fx-cursor: hand;");
 
-        // Header card: ID Progetto + Badge stato colorato
+        // Header card: Nome Progetto + Badge stato colorato
         HBox headerBox = new HBox(10);
         headerBox.setAlignment(Pos.CENTER_LEFT);
 
-        Label lblId = new Label("Progetto #" + progetto.getId());
-        lblId.getStyleClass().add("card__title");
-        HBox.setHgrow(lblId, Priority.ALWAYS);
+        // Mostriamo il nome del progetto come titolo principale della card
+        String nomeVisualizzato = (progetto.getNome() != null && !progetto.getNome().isEmpty()) 
+                                    ? progetto.getNome() 
+                                    : "Progetto #" + progetto.getId();
+                                    
+        Label lblNome = new Label(nomeVisualizzato);
+        lblNome.getStyleClass().add("card__title");
+        HBox.setHgrow(lblNome, Priority.ALWAYS);
 
         // Badge dinamico basato sullo stato
         Label lblStato = new Label(progetto.getStato() != null ? progetto.getStato().toString() : "Attivo");
@@ -128,25 +133,33 @@ public class ProgettiView {
             lblStato.getStyleClass().add("badge--in-corso");
         }
 
-        headerBox.getChildren().addAll(lblId, lblStato);
+        headerBox.getChildren().addAll(lblNome, lblStato);
 
         // Linea divisoria sottile interna
         Separator sep = new Separator();
         sep.getStyleClass().add("divider");
 
-        // Dettaglio scadenza
+        // Dettaglio scadenza e ID secondario
+        VBox infoBox = new VBox(4);
+        
+        Label lblIdSub = new Label("ID: #" + progetto.getId());
+        lblIdSub.getStyleClass().add("text-muted");
+        lblIdSub.setStyle("-fx-font-size: 11px;");
+
         HBox scadenzaBox = new HBox(8);
         scadenzaBox.setAlignment(Pos.CENTER_LEFT);
         Label lblScadenzaIcon = new Label("📅");
         Label lblScadenzaText = new Label("Scadenza: " + formatScadenza(progetto));
         lblScadenzaText.getStyleClass().add("text-secondary");
         scadenzaBox.getChildren().addAll(lblScadenzaIcon, lblScadenzaText);
+        
+        infoBox.getChildren().addAll(lblIdSub, scadenzaBox);
 
         // Footer: Bottone a sinistra, spaziatore al centro, Testo a destra
         HBox footer = new HBox();
         footer.setAlignment(Pos.CENTER_LEFT);
         
-        // 🗑 BOTTONE ELIMINA (ora è a sinistra)
+        // 🗑 BOTTONE ELIMINA
         Button btnElimina = new Button("Elimina");
         btnElimina.setTooltip(new Tooltip("Elimina definitivamente il progetto"));
         btnElimina.getStyleClass().add("btn--icon-danger-solid");
@@ -162,12 +175,11 @@ public class ProgettiView {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        // Testo Hint (ora è spinto tutto a destra)
+        // Testo Hint
         Label lblHint = new Label("Apri dashboard ");
         lblHint.getStyleClass().add("text-muted");
         lblHint.setStyle("-fx-font-size: 12px;");
 
-        // Aggiungiamo i componenti nell'ordine corretto
         footer.getChildren().addAll(btnElimina, spacer, lblHint);
 
         // Click sull'intera card → apre il progetto
@@ -177,13 +189,13 @@ public class ProgettiView {
             }
         });
 
-        card.getChildren().addAll(headerBox, sep, scadenzaBox, footer);
+        card.getChildren().addAll(headerBox, sep, infoBox, footer);
         return card;
-    } // <--- MANCAVA QUESTA GRAFFA!
+    }
 
     private String formatScadenza(Progetto progetto) {
-        if (progetto.getScadenze() == null) return "Nessuna";
-        return progetto.getScadenze().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        if (progetto.getScadenza() == null) return "Nessuna";
+        return progetto.getScadenza().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
     }
     
     public void mostraProgetti(List<Progetto> progetti) {

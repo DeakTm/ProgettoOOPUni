@@ -1,7 +1,6 @@
 package controller;
 
 import boundary.ui.DettaglioProgettoView;
-import boundary.ui.FormProgettoView;
 import boundary.ui.MainView;
 import boundary.ui.ProgettiView;
 import boundary.persistence.dao.ProgettoDAO;
@@ -11,8 +10,9 @@ import boundary.persistence.jdbc.StudenteBoundaryJdbc;
 import entity.Progetto;
 import entity.Studente;
 import entity.enums.StatoAvanzamento;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
+import javafx.geometry.Insets;
+import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -65,6 +65,7 @@ public class ProgettoController {
         List<Progetto> filtrati = listaProgetti.stream()
             .filter(p -> 
                 String.valueOf(p.getId()).contains(q) ||
+                (p.getNome() != null && p.getNome().toLowerCase().contains(q)) ||
                 (p.getStato() != null && p.getStato().toString().toLowerCase().contains(q))
             )
             .collect(Collectors.toList());
@@ -72,12 +73,42 @@ public class ProgettoController {
     }
     
     private void apriFormNuovoProgetto() {
-        FormProgettoView form = new FormProgettoView();
-        LocalDate scadenza = form.showAndWait().orElse(null);
+        // Dialog per inserire Nome e Scadenza del nuovo progetto
+        Dialog<Progetto> dialog = new Dialog<>();
+        dialog.setTitle("Nuovo Progetto");
+        dialog.setHeaderText("Inserisci i dettagli del progetto:");
 
-        if (scadenza == null) return;
+        ButtonType btnCrea = new ButtonType("Crea", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(btnCrea, ButtonType.CANCEL);
 
-        Progetto nuovo = new Progetto(StatoAvanzamento.Creato, scadenza);
+        TextField txtNome = new TextField();
+        txtNome.setPromptText("Es. Sviluppo Backend");
+
+        DatePicker datePicker = new DatePicker(LocalDate.now().plusWeeks(2));
+
+        VBox content = new VBox(10);
+        content.getChildren().addAll(
+            new Label("Nome Progetto:"), txtNome,
+            new Label("Data di Scadenza:"), datePicker
+        );
+        content.setPadding(new Insets(16));
+        dialog.getDialogPane().setContent(content);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == btnCrea) {
+                String nome = txtNome.getText();
+                LocalDate scadenza = datePicker.getValue();
+                if (nome != null && !nome.trim().isEmpty() && scadenza != null) {
+                    return new Progetto(StatoAvanzamento.Creato, scadenza, nome.trim());
+                }
+            }
+            return null;
+        });
+
+        Optional<Progetto> risultato = dialog.showAndWait();
+        if (risultato.isEmpty()) return;
+
+        Progetto nuovo = risultato.get();
         int id = progettoDAO.creaProgetto(nuovo);
 
         if (id > 0) {
@@ -93,7 +124,7 @@ public class ProgettoController {
         conferma.setTitle("Conferma eliminazione");
         conferma.setHeaderText(null);
         conferma.setContentText("Sei sicuro di voler eliminare il progetto #" 
-            + progetto.getId() + "?");
+            + progetto.getId() + " (" + progetto.getNome() + ")?");
 
         Optional<ButtonType> risposta = conferma.showAndWait();
         if (risposta.isPresent() && risposta.get() == ButtonType.OK) {
@@ -109,7 +140,6 @@ public class ProgettoController {
             mainView.mostraProgettiView(view);
         });
 
-       
         List<Studente> membriAttuali = progettoDAO.leggiStudentiPerProgetto(progetto.getId());
         dettaglioView.mostraMembri(membriAttuali);
 
@@ -117,7 +147,6 @@ public class ProgettoController {
             List<Studente> tuttiStudenti = studenteDAO.leggiTuttiStudenti(); 
             List<Studente> membriAttualiList = progettoDAO.leggiStudentiPerProgetto(progetto.getId());
             
-            // FILTRO: Tiene solo gli studenti che NON sono già nel progetto
             List<Studente> studentiDisponibili = tuttiStudenti.stream()
                 .filter(s -> membriAttualiList.stream().noneMatch(m -> m.getMatricola().equals(s.getMatricola())))
                 .collect(Collectors.toList());
@@ -149,7 +178,6 @@ public class ProgettoController {
             
             Optional<ButtonType> risposta = conferma.showAndWait();
             if (risposta.isPresent() && risposta.get() == ButtonType.OK) {
-
                 progettoDAO.rimuoviStudenteProgetto(studente.getMatricola(), progetto.getId());
                 dettaglioView.mostraMembri(progettoDAO.leggiStudentiPerProgetto(progetto.getId()));
             }

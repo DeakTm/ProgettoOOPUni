@@ -78,7 +78,7 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
                         a.setDataScadenza(tsScadenza.toLocalDateTime().toLocalDate());
                     }
 
-                    a.setProgetto(new Progetto(idProgetto, null, null));
+                    a.setProgetto(new Progetto(idProgetto, null, null,null));
                     lista.add(a);
                 }
             }
@@ -225,7 +225,7 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
 
                     // ✅ Progetto
                     int idProg = rs.getInt("id_progetto");
-                    a.setProgetto(new Progetto(idProg, null, null));
+                    a.setProgetto(new Progetto(idProg, null, null,null));
 
                     lista.add(a);
                 }

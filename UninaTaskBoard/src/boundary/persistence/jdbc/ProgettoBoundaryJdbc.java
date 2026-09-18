@@ -14,14 +14,15 @@ public class ProgettoBoundaryJdbc implements ProgettoDAO {
 
     @Override
     public int creaProgetto(Progetto progetto) {
-        String query = "{ ? = call fn_crea_progetto(?) }";
+        String query = "{ ? = call fn_crea_progetto(?, ?) }";
         int idGenerato = -1;
 
         try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
              CallableStatement stmt = conn.prepareCall(query)) {
 
             stmt.registerOutParameter(1, Types.INTEGER);
-            stmt.setDate(2, Date.valueOf(progetto.getScadenze()));
+            stmt.setString(2, progetto.getNome());
+            stmt.setDate(3, Date.valueOf(progetto.getScadenza()));
 
             stmt.execute();
             idGenerato = stmt.getInt(1);
@@ -34,6 +35,7 @@ public class ProgettoBoundaryJdbc implements ProgettoDAO {
 
     @Override
     public Progetto leggiProgettoPerId(int id) {
+        // CORRETTO: La funzione accetta solo l'id
         String query = "SELECT * FROM fn_leggi_progetto_id(?)";
         Progetto progetto = null;
 
@@ -45,10 +47,11 @@ public class ProgettoBoundaryJdbc implements ProgettoDAO {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     progetto = new Progetto(
-                        rs.getInt("id"),
-                        StatoAvanzamento.valueOf(rs.getString("stato")),
-                        rs.getDate("scadenza").toLocalDate()
-                    );
+                    	    rs.getInt("id"),
+                    	    StatoAvanzamento.valueOf(rs.getString("stato")),
+                    	    rs.getDate("scadenza") != null ? rs.getDate("scadenza").toLocalDate() : null,
+                    	    rs.getString("nome")
+                    	);
                 }
             }
         } catch (SQLException e) {
@@ -59,14 +62,15 @@ public class ProgettoBoundaryJdbc implements ProgettoDAO {
 
     @Override
     public void aggiornaProgetto(Progetto progetto) {
-        String query = "CALL pr_aggiorna_progetto(?, ?, ?)";
+        String query = "CALL pr_aggiorna_progetto(?, ?, ?, ?)";
 
         try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setInt(1, progetto.getId());
-            stmt.setDate(2, Date.valueOf(progetto.getScadenze()));
-            stmt.setString(3, progetto.getStato().name());
+            stmt.setString(2, progetto.getNome());
+            stmt.setDate(3, Date.valueOf(progetto.getScadenza()));
+            stmt.setString(4, progetto.getStato().name());
 
             stmt.executeUpdate();
             
@@ -110,7 +114,6 @@ public class ProgettoBoundaryJdbc implements ProgettoDAO {
 
     @Override
     public void rimuoviStudenteProgetto(String matricola, int idProgetto) {
-      
         String query = "CALL pr_rimuovi_studente_progetto(?, ?)";
 
         try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
@@ -124,7 +127,6 @@ public class ProgettoBoundaryJdbc implements ProgettoDAO {
             e.printStackTrace();
         }
     }
-
 
     @Override
     public List<Studente> leggiStudentiPerProgetto(int idProgetto) {
@@ -161,13 +163,13 @@ public class ProgettoBoundaryJdbc implements ProgettoDAO {
             stmt.setString(1, matricola);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
+    
                     lista.add(new Progetto(
-                        rs.getInt("id"),
-                        StatoAvanzamento.valueOf(rs.getString("stato")),
-                        rs.getDate("scadenza") != null 
-                            ? rs.getDate("scadenza").toLocalDate() 
-                            : null
-                    ));
+                    	    rs.getInt("id"),
+                    	    StatoAvanzamento.valueOf(rs.getString("stato")),
+                    	    rs.getDate("scadenza") != null ? rs.getDate("scadenza").toLocalDate() : null,
+                    	    rs.getString("nome")
+                    	));
                 }
             }
         } catch (SQLException e) {

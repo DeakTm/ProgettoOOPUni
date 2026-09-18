@@ -66,7 +66,7 @@ public class DettaglioProgettoView {
         HBox titleBox = new HBox(16);
         titleBox.setAlignment(Pos.CENTER_LEFT);
 
-        Label lblTitolo = new Label("Progetto #" + progetto.getId());
+        Label lblTitolo = new Label(progetto.getNome());
         lblTitolo.getStyleClass().add("page-title");
 
         Label lblStato = new Label(progetto.getStato() != null ? progetto.getStato().toString() : "Attivo");

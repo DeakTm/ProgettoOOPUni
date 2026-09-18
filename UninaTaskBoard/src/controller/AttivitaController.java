@@ -59,7 +59,7 @@ public class AttivitaController {
         nuovaAttivita.setTipo(tipo);
         nuovaAttivita.setDataScadenza(scadenza);
 
-        Progetto progettoRiferimento = new Progetto(idProgetto, null, null);
+        Progetto progettoRiferimento = new Progetto(idProgetto, null, null,null);
         nuovaAttivita.setProgetto(progettoRiferimento);
 
         return attivitaDAO.inserisciAttivitaConAssegnazione(nuovaAttivita, matricola);
