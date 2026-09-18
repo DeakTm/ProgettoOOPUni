@@ -10,13 +10,12 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.function.Consumer;  
 
 public class AttivitaView {
 
-    // COMPONENTI
     private BorderPane root;
 
-    // Header
     private Label lblTitolo;
     private Label lblSottotitolo;
     private Label lblTotale;
@@ -24,18 +23,18 @@ public class AttivitaView {
     private ComboBox<String> filtroStato;
     private ComboBox<String> filtroTipo;
 
-    // Tabella
+    
     private TableView<Attivita> tabellaAttivita;
+
+    private Consumer<Attivita> onAttivitaDoppioClick;
 
     public AttivitaView() {
         root = new BorderPane();
         root.getStyleClass().add("app-shell");
 
-        // --- HEADER ---
         VBox header = createHeader();
         root.setTop(header);
 
-        // --- TABELLA ---
         tabellaAttivita = createTabella();
         VBox.setVgrow(tabellaAttivita, Priority.ALWAYS);
 
@@ -54,7 +53,6 @@ public class AttivitaView {
         VBox header = new VBox(20);
         header.setPadding(new Insets(24, 24, 16, 24));
 
-        // Titolo + sottotitolo + contatore
         VBox titles = new VBox(6);
         HBox titleRow = new HBox(12);
         titleRow.setAlignment(Pos.CENTER_LEFT);
@@ -76,11 +74,9 @@ public class AttivitaView {
         lblSottotitolo.getStyleClass().add("page-subtitle");
         titles.getChildren().addAll(titleRow, lblSottotitolo);
 
-        // Toolbar: ricerca + filtri (senza bottone "Nuova Attività")
         HBox toolbar = new HBox(12);
         toolbar.setAlignment(Pos.CENTER_LEFT);
 
-        // Ricerca
         HBox searchBox = new HBox(8);
         searchBox.getStyleClass().add("topbar__search");
         searchBox.setAlignment(Pos.CENTER_LEFT);
@@ -93,7 +89,6 @@ public class AttivitaView {
         searchBox.getChildren().addAll(searchIcon, searchField);
         searchBox.setMaxWidth(320);
 
-        // Filtri
         filtroStato = new ComboBox<>();
         filtroStato.setPromptText("Stato");
         filtroStato.setPrefWidth(160);
@@ -112,7 +107,6 @@ public class AttivitaView {
     }
 
 
-    // TABELLA
 
     private TableView<Attivita> createTabella() {
         TableView<Attivita> table = new TableView<>();
@@ -120,7 +114,6 @@ public class AttivitaView {
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table.setPlaceholder(createEmptyPlaceholder());
 
-        // COLONNA DESCRIZIONE
         TableColumn<Attivita, Void> colDesc = new TableColumn<>("Attività");
         colDesc.setPrefWidth(340);
         colDesc.setCellFactory(col -> new TableCell<>() {
@@ -147,7 +140,6 @@ public class AttivitaView {
             }
         });
 
-        //COLONNA TIPO
         TableColumn<Attivita, String> colTipo = new TableColumn<>("Tipo");
         colTipo.setPrefWidth(150);
         colTipo.setCellValueFactory(cellData -> 
@@ -163,7 +155,6 @@ public class AttivitaView {
                 Label badge = new Label(tipo);
                 badge.getStyleClass().add("badge");
 
-                // Colori diversi per tipo
                 if ("Sviluppo".equalsIgnoreCase(tipo)) {
                     badge.setStyle(
                         "-fx-background-color: -color-indigo-bg; " +
@@ -182,7 +173,6 @@ public class AttivitaView {
             }
         });
 
-        //COLONNA STATO
         TableColumn<Attivita, String> colStato = new TableColumn<>("Stato");
         colStato.setPrefWidth(150);
         colStato.setCellValueFactory(cellData -> 
@@ -216,7 +206,6 @@ public class AttivitaView {
             }
         });
 
-        //COLONNA SCADENZA
         TableColumn<Attivita, LocalDate> colScadenza = new TableColumn<>("Scadenza");
         colScadenza.setPrefWidth(180);
         colScadenza.setCellValueFactory(cellData -> 
@@ -245,7 +234,7 @@ public class AttivitaView {
                 Label relLbl = new Label(relativeTime(data));
                 relLbl.setStyle("-fx-font-size: 11px;");
 
-                // Colore in base a quanto manca
+        
                 long giorni = ChronoUnit.DAYS.between(LocalDate.now(), data);
                 if (giorni < 0) {
                     dataLbl.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: -color-danger-text;");
@@ -263,7 +252,7 @@ public class AttivitaView {
             }
         });
 
-        // COLONNA PROGETTO 
+ 
         TableColumn<Attivita, Void> colProgetto = new TableColumn<>("Progetto");
         colProgetto.setPrefWidth(120);
         colProgetto.setCellFactory(col -> new TableCell<>() {
@@ -302,6 +291,20 @@ public class AttivitaView {
         });
 
         table.getColumns().addAll(colDesc, colTipo, colStato, colScadenza, colProgetto);
+
+   
+        table.setRowFactory(tv -> {
+            TableRow<Attivita> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && !row.isEmpty()) {
+                    if (onAttivitaDoppioClick != null) {
+                        onAttivitaDoppioClick.accept(row.getItem());
+                    }
+                }
+            });
+            return row;
+        });
+
         return table;
     }
 
@@ -361,10 +364,16 @@ public class AttivitaView {
         return tabellaAttivita.getSelectionModel().getSelectedItem();
     }
 
+    public void setOnAttivitaDoppioClick(Consumer<Attivita> handler) {
+        this.onAttivitaDoppioClick = handler;
+    }
+
 
     public BorderPane getRoot() { return root; }
     public TableView<Attivita> getTabellaAttivita() { return tabellaAttivita; }
     public TextField getSearchField() { return searchField; }
     public ComboBox<String> getFiltroStato() { return filtroStato; }
     public ComboBox<String> getFiltroTipo() { return filtroTipo; }
+
+
 }
