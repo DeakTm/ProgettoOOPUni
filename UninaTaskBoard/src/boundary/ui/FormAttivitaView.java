@@ -10,7 +10,6 @@ public class FormAttivitaView {
 
     private VBox root;
 
-
     private TextArea txtDescrizione;
     private ComboBox<TipoAttivita> cmbTipo;
     private DatePicker dataScadenza;
@@ -20,74 +19,90 @@ public class FormAttivitaView {
     private Button btnAnnulla;
 
     public FormAttivitaView() {
-        root = new VBox(20);
+
+        root = new VBox(18);
         root.setPadding(new Insets(24));
-        root.getStyleClass().add("app-content");
+        root.getStyleClass().add("card");
+        root.setPrefWidth(460);
 
-
+        VBox headerBox = new VBox(4);
         Label title = new Label("Nuova Attività");
-        title.getStyleClass().add("page-title");
-        Label subtitle = new Label("Aggiungi un'attività al progetto corrente");
-        subtitle.getStyleClass().add("page-subtitle");
+        title.getStyleClass().add("section-title");
         
-        VBox headerBox = new VBox(5, title, subtitle);
+        Label subtitle = new Label("Definisci i dettagli e assegna l'attività a un membro");
+        subtitle.getStyleClass().add("text-secondary");
+        subtitle.setStyle("-fx-font-size: 12px;");
+        headerBox.getChildren().addAll(title, subtitle);
 
-        // FORM
-        GridPane grid = new GridPane();
-        grid.setVgap(16);
-        grid.setHgap(16);
+        Separator sep = new Separator();
+        sep.getStyleClass().add("divider");
 
-        Label lblDescrizione = new Label("Descrizione:");
+        // Contenitore dei campi del form
+        VBox formFieldsBox = new VBox(14);
+
+        //  Descrizione 
+        VBox descBox = new VBox(6);
+        Label lblDescrizione = new Label("Descrizione Attività");
+        lblDescrizione.getStyleClass().add("form-label");
+        
         txtDescrizione = new TextArea();
-        txtDescrizione.setPrefRowCount(3); 
-        txtDescrizione.setPromptText("Descrivi cosa c'è da fare...");
-        txtDescrizione.getStyleClass().add("text-field");
+        txtDescrizione.setPrefRowCount(3);
+        txtDescrizione.setMaxHeight(85);
+        txtDescrizione.setPromptText("Descrivi dettagliatamente cosa c'è da fare...");
+        txtDescrizione.getStyleClass().add("text-area");
 
-        Label lblTipo = new Label("Tipo Attività:");
+        descBox.getChildren().addAll(lblDescrizione, txtDescrizione);
+
+        //  Tipo Attività e Data Scadenza 
+        HBox row1 = new HBox(14);
+        row1.setAlignment(Pos.CENTER_LEFT);
+
+        VBox tipoBox = new VBox(6);
+        Label lblTipo = new Label("Tipo Attività");
+        lblTipo.getStyleClass().add("form-label");
         cmbTipo = new ComboBox<>();
-        cmbTipo.getItems().addAll(TipoAttivita.values()); 
+        cmbTipo.getItems().addAll(TipoAttivita.values());
         cmbTipo.setPromptText("Seleziona tipo...");
         cmbTipo.setMaxWidth(Double.MAX_VALUE);
+        tipoBox.getChildren().addAll(lblTipo, cmbTipo);
+        HBox.setHgrow(tipoBox, Priority.ALWAYS);
 
-        Label lblScadenza = new Label("Scadenza:");
+        VBox scadenzaBox = new VBox(6);
+        Label lblScadenza = new Label("Data Scadenza");
+        lblScadenza.getStyleClass().add("form-label");
         dataScadenza = new DatePicker();
         dataScadenza.setPromptText("gg/mm/aaaa");
         dataScadenza.setMaxWidth(Double.MAX_VALUE);
+        scadenzaBox.getChildren().addAll(lblScadenza, dataScadenza);
+        HBox.setHgrow(scadenzaBox, Priority.ALWAYS);
 
+        row1.getChildren().addAll(tipoBox, scadenzaBox);
 
-        Label lblMatricola = new Label("Assegna a:");
+        VBox studenteBox = new VBox(6);
+        Label lblMatricola = new Label("Assegna a Membro");
+        lblMatricola.getStyleClass().add("form-label");
         cmbStudenteAssegnato = new ComboBox<>();
         cmbStudenteAssegnato.setPromptText("Seleziona membro del progetto...");
         cmbStudenteAssegnato.setMaxWidth(Double.MAX_VALUE);
+        studenteBox.getChildren().addAll(lblMatricola, cmbStudenteAssegnato);
 
-        grid.add(lblDescrizione, 0, 0);
-        grid.add(txtDescrizione, 1, 0);
-        grid.add(lblTipo, 0, 1);
-        grid.add(cmbTipo, 1, 1);
-        grid.add(lblScadenza, 0, 2);
-        grid.add(dataScadenza, 1, 2);
-        grid.add(lblMatricola, 0, 3);
-        grid.add(cmbStudenteAssegnato, 1, 3); 
+        formFieldsBox.getChildren().addAll(descBox, row1, studenteBox);
 
-        ColumnConstraints col1 = new ColumnConstraints();
-        ColumnConstraints col2 = new ColumnConstraints();
-        col2.setHgrow(Priority.ALWAYS); 
-        grid.getColumnConstraints().addAll(col1, col2);
-
+        // Footer 
         HBox buttonBox = new HBox(12);
         buttonBox.setAlignment(Pos.CENTER_RIGHT);
-        
-        btnAnnulla = new Button("Annulla");
-        btnAnnulla.getStyleClass().add("button");
+        buttonBox.setPadding(new Insets(10, 0, 0, 0));
 
-        btnSalva = new Button("Salva Attività");
+        btnAnnulla = new Button("Annulla");
+        btnAnnulla.getStyleClass().addAll("button", "btn--secondary");
+
+        btnSalva = new Button("Crea Attività");
         btnSalva.getStyleClass().addAll("button", "btn--primary");
 
         buttonBox.getChildren().addAll(btnAnnulla, btnSalva);
 
-        root.getChildren().addAll(headerBox, grid, buttonBox);
+        root.getChildren().addAll(headerBox, sep, formFieldsBox, buttonBox);
     }
-
 
     public VBox getRoot() { return root; }
     public TextArea getTxtDescrizione() { return txtDescrizione; }

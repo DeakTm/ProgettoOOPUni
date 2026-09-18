@@ -123,7 +123,7 @@ public class DettaglioProgettoView {
         header.setAlignment(Pos.CENTER_LEFT);
 
         Label lblSectionTitle = new Label("Membri del Team");
-        lblSectionTitle.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+        lblSectionTitle.getStyleClass().add("section-title");
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -154,7 +154,7 @@ public class DettaglioProgettoView {
             HBox item = new HBox(12);
             item.setAlignment(Pos.CENTER_LEFT);
             item.setPadding(new Insets(8, 12, 8, 12));
-            item.setStyle("-fx-background-color: -color-surface-alt; -fx-background-radius: 6px;");
+            item.getStyleClass().add("card");
 
             StackPane avatar = new StackPane();
             avatar.getStyleClass().add("avatar");
@@ -163,7 +163,7 @@ public class DettaglioProgettoView {
 
             VBox info = new VBox(2);
             Label lblNome = new Label(s.getNome() + " " + s.getCognome());
-            lblNome.setStyle("-fx-font-weight: bold; -fx-font-size: 13px;");
+            lblNome.getStyleClass().add("form-label");
             Label lblMatricola = new Label("Matricola: " + s.getMatricola());
             lblMatricola.getStyleClass().add("text-muted");
             info.getChildren().addAll(lblNome, lblMatricola);
@@ -184,25 +184,26 @@ public class DettaglioProgettoView {
         }
     }
 
- // Dialog per Selezione Multipla di Studenti (con Ricerca)
+    // Dialog selezione multipla di studenti
     public List<Studente> mostraDialogAggiungiMembri(List<Studente> studentiDisponibili) {
         Dialog<List<Studente>> dialog = new Dialog<>();
         dialog.setTitle("Aggiungi Membri al Progetto");
         dialog.setHeaderText("Cerca e seleziona gli studenti da aggiungere:");
 
-        ButtonType btnAggiungiType = new ButtonType("Aggiungi Selezionati", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(btnAggiungiType, ButtonType.CANCEL);
+        DialogPane dialogPane = dialog.getDialogPane();
+        dialogPane.getStyleClass().add("dialog-pane");
 
-        // --- BARRA DI RICERCA ---
+        ButtonType btnAggiungiType = new ButtonType("Aggiungi Selezionati", ButtonBar.ButtonData.OK_DONE);
+        dialogPane.getButtonTypes().addAll(btnAggiungiType, ButtonType.CANCEL);
+
         TextField searchField = new TextField();
         searchField.setPromptText("🔍 Cerca per nome, cognome o matricola...");
         searchField.getStyleClass().add("text-field");
 
-        // --- LISTA OSSERVABILE E FILTRABILE ---
+ 
         ObservableList<Studente> observableList = FXCollections.observableArrayList(studentiDisponibili);
         FilteredList<Studente> filteredData = new FilteredList<>(observableList, p -> true);
 
-        // Aggiungo il listener per filtrare dinamicamente mentre si digita
         searchField.textProperty().addListener((obs, oldVal, newVal) -> {
             filteredData.setPredicate(studente -> {
                 if (newVal == null || newVal.trim().isEmpty()) {
@@ -215,13 +216,13 @@ public class DettaglioProgettoView {
             });
         });
 
-        // --- 3. LISTVIEW ---
+        // --- LISTVIEW ---
         ListView<Studente> listView = new ListView<>();
         listView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        listView.setItems(filteredData); // Imposto i dati filtrati, non la lista base
-        listView.setPrefHeight(250);
+        listView.setItems(filteredData);
+        listView.setPrefHeight(260);
+        listView.getStyleClass().add("table-view");
 
-        // Visualizzazione personalizzata delle celle
         listView.setCellFactory(param -> new ListCell<>() {
             @Override
             protected void updateItem(Studente item, boolean empty) {
@@ -234,22 +235,20 @@ public class DettaglioProgettoView {
             }
         });
 
-        // --- 4. LAYOUT ---
-        VBox content = new VBox(12);
-        Label hint = new Label("Tieni premuto CTRL per selezionare più studenti.");
+        // --- LAYOUT ---
+        VBox content = new VBox(14);
+        Label hint = new Label("💡 Tieni premuto CTRL per selezionare più studenti.");
         hint.getStyleClass().add("text-muted");
-        hint.setStyle("-fx-font-size: 11px;");
+        hint.setStyle("-fx-font-size: 12px;");
 
         content.getChildren().addAll(searchField, listView, hint);
-        content.setPadding(new Insets(16));
-        content.setPrefWidth(350);
+        content.setPadding(new Insets(20));
+        content.setPrefWidth(420);
         
-        dialog.getDialogPane().setContent(content);
+        dialogPane.setContent(content);
 
-        // Gestione del risultato
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == btnAggiungiType) {
-                // Ritorna gli elementi attualmente selezionati nella vista
                 return listView.getSelectionModel().getSelectedItems();
             }
             return null;

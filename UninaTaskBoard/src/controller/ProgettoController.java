@@ -1,23 +1,29 @@
 package controller;
 
 import boundary.ui.DettaglioProgettoView;
+import boundary.ui.FormAttivitaView;
 import boundary.ui.MainView;
 import boundary.ui.ProgettiView;
 import boundary.persistence.dao.ProgettoDAO;
 import boundary.persistence.jdbc.ProgettoBoundaryJdbc;
 import boundary.persistence.dao.StudenteDAO;
 import boundary.persistence.jdbc.StudenteBoundaryJdbc;
+import boundary.persistence.dao.AttivitaDAO;
+import boundary.persistence.jdbc.AttivitaBoundaryJdbc;
 import entity.Progetto;
 import entity.Studente;
+import entity.Attivita;
 import entity.enums.StatoAvanzamento;
+import entity.enums.TipoAttivita;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
-
+import javafx.scene.Node;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 
 public class ProgettoController {
 
@@ -73,7 +79,6 @@ public class ProgettoController {
     }
     
     private void apriFormNuovoProgetto() {
-        // Dialog per inserire Nome e Scadenza del nuovo progetto
         Dialog<Progetto> dialog = new Dialog<>();
         dialog.setTitle("Nuovo Progetto");
         dialog.setHeaderText("Inserisci i dettagli del progetto:");
@@ -142,6 +147,78 @@ public class ProgettoController {
 
         List<Studente> membriAttuali = progettoDAO.leggiStudentiPerProgetto(progetto.getId());
         dettaglioView.mostraMembri(membriAttuali);
+
+        
+        dettaglioView.getBtnNuovaAttivita().setOnAction(e -> {
+            FormAttivitaView formView = new FormAttivitaView();
+            
+            Dialog<Void> dialog = new Dialog<>();
+            dialog.setTitle("Nuova Attività");
+            dialog.setHeaderText(null);
+            
+            DialogPane dialogPane = dialog.getDialogPane();
+            dialogPane.setContent(formView.getRoot());
+            dialogPane.setStyle("-fx-background-color: transparent; -fx-padding: 0;");
+            
+            // collega css anche al dialog altrimenti non va
+            try {
+                String css = getClass().getResource("/css/style.css").toExternalForm();
+                dialogPane.getStylesheets().add(css);
+            } catch (Exception ex) {
+                System.err.println("Impossibile caricare il CSS nel dialog: " + ex.getMessage());
+            }
+
+            dialogPane.getButtonTypes().add(ButtonType.CANCEL);
+            Node closeButton = dialogPane.lookupButton(ButtonType.CANCEL);
+            if (closeButton != null) {
+                closeButton.setVisible(false);
+                closeButton.setManaged(false);
+            }
+
+            // Popoliamo la tendina studenti
+            List<Studente> studentiProgetto = progettoDAO.leggiStudentiPerProgetto(progetto.getId());
+            if (studentiProgetto != null && !studentiProgetto.isEmpty()) {
+                List<String> studentiFormattati = studentiProgetto.stream()
+                    .map(s -> s.getMatricola() + " - " + s.getNome() + " " + s.getCognome())
+                    .collect(Collectors.toList());
+                formView.getCmbStudenteAssegnato().getItems().addAll(studentiFormattati);
+            }
+
+            // Listener Salva
+            formView.getBtnSalva().setOnAction(ev -> {
+                String descrizione = formView.getTxtDescrizione().getText();
+                TipoAttivita tipo = formView.getCmbTipo().getValue();
+                LocalDate scadenza = formView.getDataScadenza().getValue();
+                String studenteSelezionato = formView.getCmbStudenteAssegnato().getValue();
+
+                if (descrizione == null || descrizione.trim().isEmpty() || tipo == null || scadenza == null || studenteSelezionato == null) {
+                    mostraErrore("Compila tutti i campi obbligatori e seleziona uno studente.");
+                    return;
+                }
+
+                String matricolaStudente = studenteSelezionato.split(" - ")[0];
+
+                AttivitaDAO attivitaDAO = new AttivitaBoundaryJdbc();
+                Attivita nuovaAttivita = new Attivita();
+                nuovaAttivita.setDescrizione(descrizione.trim());
+                nuovaAttivita.setTipo(tipo);
+                nuovaAttivita.setDataScadenza(scadenza);
+                nuovaAttivita.setProgetto(progetto);
+
+                boolean successo = attivitaDAO.inserisciAttivitaConAssegnazione(nuovaAttivita, matricolaStudente);
+
+                if (successo) {
+                    dialog.close();
+                } else {
+                    mostraErrore("Errore durante il salvataggio dell'attività nel database.");
+                }
+            });
+
+            // Listener Annulla
+            formView.getBtnAnnulla().setOnAction(ev -> dialog.close());
+
+            dialog.showAndWait();
+        });
 
         dettaglioView.getBtnAggiungiMembro().setOnAction(e -> {
             List<Studente> tuttiStudenti = studenteDAO.leggiTuttiStudenti(); 
