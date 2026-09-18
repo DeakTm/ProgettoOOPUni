@@ -24,6 +24,9 @@ public class Studente {
 		this.Cognome = Cognome;
 	}
 	
+	public Studente() {
+	}
+	
 
 	public String getMatricola() {
 		return Matricola;

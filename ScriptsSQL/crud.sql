@@ -463,3 +463,25 @@ BEGIN
     ORDER BY A.DataCreazione DESC;
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION fn_crea_filecodice(
+    p_nome_file VARCHAR(255),
+    p_contenuto valid_text,
+    p_linguaggio VARCHAR,
+    p_id_attivita INT
+) RETURNS INT AS $$
+DECLARE
+    v_id INT;
+BEGIN
+    INSERT INTO FileCodice (nome_file, contenuto, linguaggio, id_attivita)
+    VALUES (
+        p_nome_file,
+        p_contenuto,                    
+        p_linguaggio::TipoLinguaggio,
+        p_id_attivita
+    )
+    RETURNING id_file INTO v_id;
+
+    RETURN v_id;
+END;
+$$ LANGUAGE plpgsql;

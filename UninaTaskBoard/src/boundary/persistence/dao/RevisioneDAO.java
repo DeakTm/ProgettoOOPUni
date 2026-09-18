@@ -7,4 +7,5 @@ public interface RevisioneDAO {
     
     int creaRevisione(Revisione revisione, int idFile, String matricolaRevisore);
     List<Revisione> leggiRevisioniPerFile(int idFile);
+    List<Revisione> getRevisioniFile(int idFileCodice);
 }

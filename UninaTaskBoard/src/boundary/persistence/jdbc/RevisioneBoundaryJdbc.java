@@ -1,20 +1,21 @@
 package boundary.persistence.jdbc;
 
 import boundary.persistence.dao.RevisioneDAO;
+import entity.FileCodice;
 import entity.Revisione;
 import entity.Studente;
 import util.DatabaseManager;
 
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class RevisioneBoundaryJdbc implements RevisioneDAO {
 
+
     @Override
     public int creaRevisione(Revisione revisione, int idFile, String matricolaRevisore) {
-        String query = "{ ? = call fn_crea_revisione(?, ?, ?, ?) }";
+        String query = "{ ? = call fn_crea_revisione(?, ?, ?) }";
         int idGenerato = -1;
 
         try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
@@ -22,9 +23,8 @@ public class RevisioneBoundaryJdbc implements RevisioneDAO {
 
             stmt.registerOutParameter(1, Types.INTEGER);
             stmt.setString(2, revisione.getNota());
-            stmt.setTimestamp(3, Timestamp.valueOf(revisione.getData()));
-            stmt.setInt(4, idFile);
-            stmt.setString(5, matricolaRevisore);
+            stmt.setInt(3, idFile);
+            stmt.setString(4, matricolaRevisore);
 
             stmt.execute();
             idGenerato = stmt.getInt(1);
@@ -35,29 +35,52 @@ public class RevisioneBoundaryJdbc implements RevisioneDAO {
         return idGenerato;
     }
 
+
     @Override
     public List<Revisione> leggiRevisioniPerFile(int idFile) {
-        String query = "SELECT * FROM fn_leggi_revisioni_file(?)";
+        // Stessa logica di getRevisioniFile (alias per chiarezza)
+        return getRevisioniFile(idFile);
+    }
+
+    @Override
+    public List<Revisione> getRevisioniFile(int idFileCodice) {
         List<Revisione> lista = new ArrayList<>();
+        String query = "SELECT * FROM fn_leggi_revisioni_file(?)";
 
         try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            stmt.setInt(1, idFile);
+            stmt.setInt(1, idFileCodice);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    int id = rs.getInt("id");
-                    String nota = rs.getString("nota");
-                    LocalDateTime data = rs.getTimestamp("data_revisione").toLocalDateTime();          
-                    String matricolaDb = rs.getString("matricola_studente");
-                    Studente revisoreFantasma = new Studente(matricolaDb, null, null);
+                    Revisione r = new Revisione();
+                    r.setId(rs.getInt("id"));
 
-                    Revisione r = new Revisione(id, data, nota, null, revisoreFantasma);
+                    // Data (LocalDate)
+                    Timestamp ts = rs.getTimestamp("data");
+                    if (ts != null) {
+                        r.setData(ts.toLocalDateTime().toLocalDate());
+                    }
+
+                    r.setNota(rs.getString("nota"));
+
+                    // FileCodice (oggetto parziale)
+                    FileCodice fc = new FileCodice();
+                    fc.setId(idFileCodice);
+                    r.setId_filecodice(fc);
+
+                    // Studente (oggetto parziale con sola matricola)
+                    String matricolaStr = rs.getString("matricola_studente");
+                    if (matricolaStr != null) {
+                        Studente s = new Studente();
+                        s.setMatricola(matricolaStr);
+                        r.setMatricola(s);
+                    }
+
                     lista.add(r);
                 }
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }

@@ -12,9 +12,12 @@ import java.util.List;
 
 public class FileCodiceBoundaryJdbc implements FileCodiceDAO {
 
+    // ============================================
+    // CREA FILE (4 parametri)
+    // ============================================
     @Override
     public int creaFile(FileCodice file, int idAttivita) {
-        String query = "{ ? = call fn_crea_file(?, ?, ?, ?, ?) }";
+        String query = "{ ? = call fn_crea_filecodice(?, ?, ?, ?) }";  // ✅ Nome giusto + 4 parametri
         int idGenerato = -1;
 
         try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
@@ -22,10 +25,9 @@ public class FileCodiceBoundaryJdbc implements FileCodiceDAO {
 
             stmt.registerOutParameter(1, Types.INTEGER);
             stmt.setString(2, file.getNome_file());
-            stmt.setString(3, file.getLinguaggio().name()); 
-            stmt.setString(4, file.getContenuto());
-            stmt.setTimestamp(5, Timestamp.valueOf(file.getDataUltimaModifica()));
-            stmt.setInt(6, idAttivita);
+            stmt.setString(3, file.getContenuto());
+            stmt.setString(4, file.getLinguaggio().name());
+            stmt.setInt(5, idAttivita);
 
             stmt.execute();
             idGenerato = stmt.getInt(1);
@@ -36,67 +38,70 @@ public class FileCodiceBoundaryJdbc implements FileCodiceDAO {
         return idGenerato;
     }
 
+    // ============================================
+    // LEGGI FILE PER ATTIVITÀ
+    // ============================================
     @Override
     public List<FileCodice> leggiFilePerAttivita(int idAttivita) {
-        String query = "SELECT * FROM fn_leggi_file_attivita(?)";
         List<FileCodice> lista = new ArrayList<>();
+        String query = "SELECT * FROM fn_leggi_file_attivita(?)";
 
         try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setInt(1, idAttivita);
-
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    int id = rs.getInt("id");
+                    int id = rs.getInt("id_file");                   // ✅ id_file
                     String nome = rs.getString("nome_file");
                     String contenuto = rs.getString("contenuto");
                     String langDb = rs.getString("linguaggio");
-                    TipoLinguaggio linguaggioEnum = TipoLinguaggio.valueOf(langDb.toUpperCase());
+                    TipoLinguaggio linguaggioEnum = TipoLinguaggio.valueOf(langDb);  // ✅ senza toUpperCase
 
-                    LocalDateTime dataModifica = rs.getTimestamp("data_ultima_modifica").toLocalDateTime();
+                    Timestamp ts = rs.getTimestamp("data_modifica");  // ✅ data_modifica
+                    LocalDateTime dataModifica = (ts != null) ? ts.toLocalDateTime() : null;
+
                     FileCodice f = new FileCodice(id, nome, linguaggioEnum, contenuto, dataModifica, null);
-                    
                     lista.add(f);
                 }
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return lista;
     }
 
+    // ============================================
+    // AGGIORNA FILE (solo contenuto)
+    // ============================================
     @Override
     public void aggiornaFile(FileCodice file) {
-        String query = "{ call pr_aggiorna_file(?, ?, ?, ?, ?) }";
+        String query = "CALL pr_aggiorna_filecodice(?, ?)";  // ✅ CALL + 2 parametri
 
         try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-             CallableStatement stmt = conn.prepareCall(query)) {
+             PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setInt(1, file.getId());
-            stmt.setString(2, file.getNome_file());
-            stmt.setString(3, file.getLinguaggio().name());
-            stmt.setString(4, file.getContenuto());
-            stmt.setTimestamp(5, Timestamp.valueOf(file.getDataUltimaModifica()));
+            stmt.setString(2, file.getContenuto());
 
             stmt.execute();
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
+    // ============================================
+    // ELIMINA FILE
+    // ============================================
     @Override
     public void eliminaFile(int id) {
-        String query = "{ call pr_elimina_file(?) }";
+        String query = "CALL pr_elimina_filecodice(?)";  // ✅ CALL
 
         try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-             CallableStatement stmt = conn.prepareCall(query)) {
+             PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setInt(1, id);
             stmt.execute();
-
         } catch (SQLException e) {
             e.printStackTrace();
         }

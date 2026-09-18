@@ -1,27 +1,29 @@
 package entity;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public class Revisione {
 	private int id;
-	private LocalDateTime Data;
+	private LocalDate Data;
 	private String Nota;
-	
 	private FileCodice id_filecodice;
 	private Studente matricola;
 	
-	public Revisione(int id, LocalDateTime Data, String Nota, FileCodice id_filecodice , Studente matricola) {
+	public Revisione(int id, LocalDate Data, String Nota, FileCodice id_filecodice , Studente matricola) {
 		this.id = id;
 		this.Data = Data;
 		this.Nota = Nota;
 		this.id_filecodice = id_filecodice;
 		this.matricola = matricola;
 	}
-	public Revisione(LocalDateTime Data, String Nota, FileCodice id_filecodice , Studente matricola) {
+	public Revisione(LocalDate Data, String Nota, FileCodice id_filecodice , Studente matricola) {
 		this.Data = Data;
 		this.Nota = Nota;
 		this.id_filecodice = id_filecodice;
 		this.matricola = matricola;
+	}
+	
+	public Revisione() {
 	}
 
 	public int getId() {
@@ -32,11 +34,11 @@ public class Revisione {
 		this.id = id;
 	}
 
-	public LocalDateTime getData() {
+	public LocalDate getData() {
 		return Data;
 	}
 
-	public void setData(LocalDateTime data) {
+	public void setData(LocalDate data) {
 		Data = data;
 	}
 

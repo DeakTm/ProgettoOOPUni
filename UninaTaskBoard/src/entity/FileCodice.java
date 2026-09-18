@@ -31,6 +31,9 @@ public class FileCodice {
 		this.DataUltimaModifica = DataUltimaModifica;
 		this.id_attivita = id_attivita;
 	}
+	
+	public FileCodice() {
+	}
 
 	public int getId() {
 		return id;
