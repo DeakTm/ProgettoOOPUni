@@ -1,6 +1,7 @@
 package boundary.ui;
 
 import entity.Attivita;
+import entity.Commento;
 import entity.FileCodice;
 import entity.Revisione;
 import javafx.geometry.Insets;
@@ -19,26 +20,36 @@ public class DettagliAttivitaView {
     private Stage stage;
     private BorderPane root;
 
-    // Header
     private Label lblDescrizione;
     private Label lblTipo;
     private Label lblStato;
     private Label lblScadenza;
 
-    // File (sinistra)
+    // File
     private ListView<FileCodice> listaFile;
     private Button btnImportaFile;
     private Button btnEliminaFile;
 
-    // Editor (centro)
+    // Editor
     private TextArea txtContenuto;
     private Button btnSalvaFile;
     private Label lblFileCorrente;
 
-    // Revisioni (destra)
+    // Revisioni
     private TableView<Revisione> tabellaRevisioni;
     private Button btnAggiungiRevisione;
     private Label lblNomeFileSelezionato;
+
+    // Commenti
+    private ListView<Commento> listaCommenti;
+    private TextArea txtNuovoCommento;
+    private Button btnInviaCommento;
+    private Button btnEliminaCommento;
+
+    // TabPane
+    private TabPane tabPane;
+    private Tab tabFileRevisioni;
+    private Tab tabCommenti;
 
     public DettagliAttivitaView(Stage owner) {
         stage = new Stage();
@@ -52,14 +63,20 @@ public class DettagliAttivitaView {
 
         root.setTop(createHeader());
 
-        // SplitPane orizzontale: sinistra (file) + destra (revisioni)
-        SplitPane mainSplit = new SplitPane();
-        mainSplit.setDividerPositions(0.45);
-        mainSplit.getItems().addAll(createLeftBox(), createRightBox());
-        BorderPane.setMargin(mainSplit, new Insets(16, 0, 0, 0));
+        // --- TABPANE ---
+        tabPane = new TabPane();
+        tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
+        tabPane.getStyleClass().add("app-main");
 
-        root.setCenter(mainSplit);
+        tabFileRevisioni = createTabFileRevisioni();
+        tabCommenti = createTabCommenti();
+
+        tabPane.getTabs().addAll(tabFileRevisioni, tabCommenti);
+        BorderPane.setMargin(tabPane, new Insets(16, 0, 0, 0));
+
+        root.setCenter(tabPane);
     }
+
 
     private VBox createHeader() {
         VBox box = new VBox(6);
@@ -83,10 +100,21 @@ public class DettagliAttivitaView {
     }
 
 
+    private Tab createTabFileRevisioni() {
+        Tab tab = new Tab("📄 File e Revisioni");
+
+        SplitPane split = new SplitPane();
+        split.setDividerPositions(0.45);
+        split.getItems().addAll(createLeftBox(), createRightBox());
+        split.setPadding(new Insets(16));
+
+        tab.setContent(split);
+        return tab;
+    }
+
     private VBox createLeftBox() {
         VBox box = new VBox(10);
 
-        // Titolo + bottone importa
         HBox titoloRow = new HBox(12);
         titoloRow.setAlignment(Pos.CENTER_LEFT);
         Label titolo = new Label("📄 File di Codice");
@@ -98,7 +126,6 @@ public class DettagliAttivitaView {
 
         titoloRow.getChildren().addAll(titolo, btnImportaFile);
 
-        // Lista file (compatta)
         listaFile = new ListView<>();
         listaFile.setPlaceholder(new Label("Nessun file associato"));
         listaFile.setPrefHeight(150);
@@ -125,7 +152,6 @@ public class DettagliAttivitaView {
             }
         });
 
-        // Editor
         lblFileCorrente = new Label("Seleziona un file per modificarlo");
         lblFileCorrente.getStyleClass().add("text-muted");
 
@@ -139,7 +165,6 @@ public class DettagliAttivitaView {
         btnSalvaFile.getStyleClass().addAll("button", "btn--primary");
         btnSalvaFile.setDisable(true);
 
-        // Bottone elimina file (sotto la lista)
         btnEliminaFile = new Button("🗑 Elimina file");
         btnEliminaFile.getStyleClass().add("button");
         btnEliminaFile.setDisable(true);
@@ -173,20 +198,17 @@ public class DettagliAttivitaView {
         tabellaRevisioni.setPlaceholder(new Label("Nessuna revisione"));
         VBox.setVgrow(tabellaRevisioni, Priority.ALWAYS);
 
-        // Colonna Data
         TableColumn<Revisione, String> colData = new TableColumn<>("Data");
         colData.setPrefWidth(140);
         colData.setCellValueFactory(c -> {
             if (c.getValue().getData() == null) {
                 return new javafx.beans.property.SimpleStringProperty("—");
             }
-            // ⚠️ ADATTA: se getData() è LocalDateTime usa "dd/MM/yyyy HH:mm"
             return new javafx.beans.property.SimpleStringProperty(
                 c.getValue().getData().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
             );
         });
 
-        // Colonna Autore
         TableColumn<Revisione, String> colAutore = new TableColumn<>("Autore");
         colAutore.setPrefWidth(120);
         colAutore.setCellValueFactory(c -> {
@@ -197,7 +219,6 @@ public class DettagliAttivitaView {
             return new javafx.beans.property.SimpleStringProperty(r.getMatricola().getMatricola());
         });
 
-        // Colonna Nota
         TableColumn<Revisione, String> colNota = new TableColumn<>("Nota");
         colNota.setPrefWidth(300);
         colNota.setCellValueFactory(c ->
@@ -207,6 +228,83 @@ public class DettagliAttivitaView {
 
         box.getChildren().addAll(titoloRow, tabellaRevisioni);
         return box;
+    }
+
+
+    private Tab createTabCommenti() {
+        Tab tab = new Tab("💬 Commenti");
+
+        BorderPane content = new BorderPane();
+        content.setPadding(new Insets(16));
+
+        listaCommenti = new ListView<>();
+        listaCommenti.setPlaceholder(new Label("Nessun commento"));
+        listaCommenti.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(Commento c, boolean empty) {
+                super.updateItem(c, empty);
+                if (empty || c == null) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                }
+                VBox cell = new VBox(4);
+                cell.setPadding(new Insets(8));
+
+                HBox headerBox = new HBox(8);
+                headerBox.setAlignment(Pos.CENTER_LEFT);
+
+                String matricola = (c.getMatricola() != null) ? c.getMatricola().getMatricola() : "Anonimo";
+                Label autore = new Label("👤 " + matricola);
+                autore.setStyle("-fx-font-weight: bold; -fx-font-size: 13px;");
+                HBox.setHgrow(autore, Priority.ALWAYS);
+
+                String dataStr = (c.getDataCommento() != null)
+                    ? c.getDataCommento().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
+                    : "";
+                Label data = new Label(dataStr);
+                data.getStyleClass().add("text-muted");
+                data.setStyle("-fx-font-size: 11px;");
+
+                headerBox.getChildren().addAll(autore, data);
+
+                Label testo = new Label(c.getTesto());
+                testo.setWrapText(true);
+                testo.setStyle("-fx-font-size: 13px;");
+
+                cell.getChildren().addAll(headerBox, testo);
+                setGraphic(cell);
+            }
+        });
+        content.setCenter(listaCommenti);
+
+
+        VBox bottomBox = new VBox(10);
+        bottomBox.setPadding(new Insets(12, 0, 0, 0));
+
+        btnEliminaCommento = new Button("🗑 Elimina commento selezionato");
+        btnEliminaCommento.getStyleClass().add("button");
+        btnEliminaCommento.setDisable(true);
+
+        txtNuovoCommento = new TextArea();
+        txtNuovoCommento.setPromptText("Scrivi un commento...");
+        txtNuovoCommento.setPrefRowCount(3);
+        txtNuovoCommento.setWrapText(true);
+
+        btnInviaCommento = new Button("📨 Invia commento");
+        btnInviaCommento.getStyleClass().addAll("button", "btn--primary");
+        btnInviaCommento.setMaxWidth(Double.MAX_VALUE);
+
+        bottomBox.getChildren().addAll(
+            new Separator(),
+            btnEliminaCommento,
+            txtNuovoCommento,
+            btnInviaCommento
+        );
+        content.setBottom(bottomBox);
+
+        tab.setContent(content);
+        return tab;
     }
 
 
@@ -248,8 +346,31 @@ public class DettagliAttivitaView {
         }
     }
 
+    public void setCommenti(List<Commento> commenti) {
+        listaCommenti.getItems().clear();
+        if (commenti != null) listaCommenti.getItems().addAll(commenti);
+    }
+
+    public Commento getCommentoSelezionato() {
+        return listaCommenti.getSelectionModel().getSelectedItem();
+    }
+
+    public String getTestoNuovoCommento() {
+        return txtNuovoCommento.getText();
+    }
+
+    public void pulisciCampoCommento() {
+        txtNuovoCommento.clear();
+    }
+
+
+    public void mostraSoloDocumentazione() {
+        tabPane.getTabs().remove(tabFileRevisioni);
+        tabPane.getSelectionModel().select(tabCommenti);
+    }
+
     public void mostra() {
-        Scene scene = new Scene(root, 1100, 700);
+        Scene scene = new Scene(root, 1200, 750);
         try {
             String css = getClass().getResource("/css/style.css").toExternalForm();
             scene.getStylesheets().add(css);
@@ -260,7 +381,7 @@ public class DettagliAttivitaView {
         stage.show();
     }
 
-
+ 
     public Stage getStage() { return stage; }
     public BorderPane getRoot() { return root; }
     public ListView<FileCodice> getListaFile() { return listaFile; }
@@ -269,4 +390,7 @@ public class DettagliAttivitaView {
     public Button getBtnSalvaFile() { return btnSalvaFile; }
     public Button getBtnAggiungiRevisione() { return btnAggiungiRevisione; }
     public TextArea getTxtContenuto() { return txtContenuto; }
+    public ListView<Commento> getListaCommenti() { return listaCommenti; }
+    public Button getBtnInviaCommento() { return btnInviaCommento; }
+    public Button getBtnEliminaCommento() { return btnEliminaCommento; }
 }

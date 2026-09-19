@@ -25,6 +25,10 @@ public class Commento {
 		this.id_attivita = id_attivita;
 	}
 	
+	public Commento() {
+		
+	}
+	
 
 	public int getId() {
 		return id;

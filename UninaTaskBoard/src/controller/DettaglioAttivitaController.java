@@ -25,14 +25,12 @@ import java.util.Optional;
 
 public class DettaglioAttivitaController {
 
-
     private DettagliAttivitaView view;
     private FileCodiceDAO fileDAO;
     private RevisioneDAO revisioneDAO;
     private Attivita attivita;
     private String matricolaUtente;
     private FileCodice fileCorrente;
-
 
     public DettaglioAttivitaController(Stage owner, Attivita attivita, String matricolaUtente) {
         this.attivita = attivita;
@@ -42,12 +40,21 @@ public class DettaglioAttivitaController {
         this.revisioneDAO = new RevisioneBoundaryJdbc();
 
         view.setAttivita(attivita);
-        configuraListener();   
-        caricaFile();          
+
+        boolean isSviluppo = (attivita.getTipo() != null
+                              && attivita.getTipo().toString().equalsIgnoreCase("Sviluppo"));
+
+        if (!isSviluppo) {
+            view.mostraSoloDocumentazione();
+            view.mostra();
+            return;
+        }
+
+        configuraListener();
+        caricaFile();
 
         view.mostra();
     }
-
 
     private void configuraListener() {
         view.getBtnImportaFile().setOnAction(e -> importaFile());
@@ -64,12 +71,10 @@ public class DettaglioAttivitaController {
         );
 
         view.getBtnSalvaFile().setOnAction(e -> salvaModifiche());
-
         view.getBtnAggiungiRevisione().setOnAction(e -> aggiungiRevisione());
         view.getBtnEliminaFile().setOnAction(e -> eliminaFile());
     }
 
- 
     private void caricaFile() {
         List<FileCodice> files = fileDAO.leggiFilePerAttivita(attivita.getId());
         view.setFile(files);
@@ -86,7 +91,6 @@ public class DettaglioAttivitaController {
         }
     }
 
-
     private void importaFile() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Seleziona un file di codice");
@@ -100,20 +104,15 @@ public class DettaglioAttivitaController {
         if (file == null) return;
 
         try {
-           
             String contenuto = new String(Files.readAllBytes(file.toPath()));
-
-           
             TipoLinguaggio linguaggio = rilevaLinguaggio(file.getName());
 
-       
             FileCodice nuovo = new FileCodice();
             nuovo.setNome_file(file.getName());
             nuovo.setContenuto(contenuto);
             nuovo.setLinguaggio(linguaggio);
             nuovo.setDataUltimaModifica(LocalDateTime.now());
 
-        
             int idGenerato = fileDAO.creaFile(nuovo, attivita.getId());
 
             if (idGenerato > 0) {
@@ -128,7 +127,6 @@ public class DettaglioAttivitaController {
         }
     }
 
-
     private void salvaModifiche() {
         if (fileCorrente == null) {
             mostraErrore("Seleziona prima un file");
@@ -141,11 +139,9 @@ public class DettaglioAttivitaController {
 
         fileDAO.aggiornaFile(fileCorrente);
 
-     
         caricaFile();
         mostraInfo("Modifiche salvate!");
     }
-
 
     private void aggiungiRevisione() {
         if (fileCorrente == null) {
@@ -153,7 +149,6 @@ public class DettaglioAttivitaController {
             return;
         }
 
-        // 1. Chiedi la nota
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Nuova Revisione");
         dialog.setHeaderText("Descrivi l'intervento effettuato su \"" + fileCorrente.getNome_file() + "\"");
@@ -165,14 +160,13 @@ public class DettaglioAttivitaController {
             return;
         }
 
-       
         Revisione rev = new Revisione();
-        rev.setData(LocalDate.now());   
+        rev.setData(LocalDate.now());
+        rev.setNota(nota.get());
 
         int idRev = revisioneDAO.creaRevisione(rev, fileCorrente.getId(), matricolaUtente);
 
         if (idRev > 0) {
-            
             List<Revisione> revs = revisioneDAO.getRevisioniFile(fileCorrente.getId());
             view.setRevisioni(fileCorrente, revs);
             mostraInfo("Revisione aggiunta con successo!");
@@ -199,7 +193,6 @@ public class DettaglioAttivitaController {
             caricaFile();
         }
     }
-
 
     private TipoLinguaggio rilevaLinguaggio(String nomeFile) {
         String lower = nomeFile.toLowerCase();

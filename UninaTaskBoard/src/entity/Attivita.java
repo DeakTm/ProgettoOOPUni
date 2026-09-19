@@ -45,7 +45,9 @@ public class Attivita {
 		this.Stato = Stato;
 		this.Tipo = Tipo;
 	}
-	public Attivita() {}
+	public Attivita() {
+		
+	}
 
 
 	public int getId() {

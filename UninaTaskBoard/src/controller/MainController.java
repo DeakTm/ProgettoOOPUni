@@ -58,6 +58,12 @@ public class MainController {
             view.getItemAttivita().getStyleClass().add("is-active");
             new AttivitaController(view, matricolaLoggata);
         });
+        
+        view.getItemCommenti().setOnMouseClicked(event -> {
+            rimuoviAttivi();
+            view.getItemCommenti().getStyleClass().add("is-active");
+            new CommentoController(view, matricolaLoggata);
+        });
 
         
         view.getBtnLogout().setOnAction(event -> {
@@ -70,6 +76,7 @@ public class MainController {
         view.getItemDashboard().getStyleClass().remove("is-active");
         view.getItemProgetti().getStyleClass().remove("is-active");
         view.getItemAttivita().getStyleClass().remove("is-active");
+        view.getItemCommenti().getStyleClass().remove("is-active");
     }
 
     private void mostraProgetti() {

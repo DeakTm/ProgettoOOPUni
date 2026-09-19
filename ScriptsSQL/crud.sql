@@ -485,3 +485,63 @@ BEGIN
     RETURN v_id;
 END;
 $$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION fn_commenti_studente(p_matricola VARCHAR(9))
+RETURNS TABLE (
+    id INT,
+    data_commento TIMESTAMP,
+    testo TEXT,
+    id_attivita INT,
+    descrizione_attivita TEXT
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        C.id,
+        C.DataCommento,
+        C.Testo::TEXT,
+        C.id_attivita,
+        A.Descrizione::TEXT
+    FROM Commento C
+    JOIN Attivita A ON C.id_attivita = A.id
+    WHERE C.matricola_studente = p_matricola
+    ORDER BY C.DataCommento DESC;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Crea commento
+CREATE OR REPLACE FUNCTION fn_crea_commento(
+    p_testo TEXT,
+    p_data TIMESTAMP,
+    p_matricola VARCHAR(9),
+    p_id_attivita INT
+) RETURNS INT AS $$
+DECLARE v_id INT;
+BEGIN
+    INSERT INTO Commento (Testo, DataCommento, matricola_studente, id_attivita)
+    VALUES (p_testo::valid_text, p_data, p_matricola, p_id_attivita)
+    RETURNING id INTO v_id;
+    RETURN v_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Leggi commenti attività
+CREATE OR REPLACE FUNCTION fn_leggi_commenti_attivita(p_id_attivita INT)
+RETURNS TABLE (id INT, data_commento TIMESTAMP, testo TEXT, matricola_studente VARCHAR(9)) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT c.id, c.DataCommento, c.Testo::TEXT, c.matricola_studente
+    FROM Commento c
+    WHERE c.id_attivita = p_id_attivita
+    ORDER BY c.DataCommento ASC;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Elimina commento
+CREATE OR REPLACE PROCEDURE pr_elimina_commento(IN p_id INT)
+LANGUAGE plpgsql AS $$
+BEGIN
+    DELETE FROM Commento WHERE id = p_id;
+END;
+$$;

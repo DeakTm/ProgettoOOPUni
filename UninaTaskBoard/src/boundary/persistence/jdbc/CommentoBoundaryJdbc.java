@@ -1,6 +1,7 @@
 package boundary.persistence.jdbc;
 
 import boundary.persistence.dao.CommentoDAO;
+import entity.Attivita;
 import entity.Commento;
 import entity.Studente;
 import util.DatabaseManager;
@@ -78,5 +79,40 @@ public class CommentoBoundaryJdbc implements CommentoDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+    
+    @Override
+    public List<Commento> leggiCommentiStudente(String matricola) {
+        List<Commento> lista = new ArrayList<>();
+        String query = "SELECT * FROM fn_commenti_studente(?)";
+
+        try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, matricola);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Commento c = new Commento();
+                    c.setId(rs.getInt("id"));
+
+                    Timestamp ts = rs.getTimestamp("data_commento");
+                    if (ts != null) {
+                        c.setDataCommento(ts.toLocalDateTime());
+                    }
+
+                    c.setTesto(rs.getString("testo"));
+
+                    Attivita a = new Attivita();
+                    a.setId(rs.getInt("id_attivita"));
+                    a.setDescrizione(rs.getString("descrizione_attivita"));
+                    c.setId_attivita(a);
+
+                    lista.add(c);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return lista;
     }
 }

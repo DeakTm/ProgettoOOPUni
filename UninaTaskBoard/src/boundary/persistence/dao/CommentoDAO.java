@@ -8,4 +8,5 @@ public interface CommentoDAO {
     int creaCommento(Commento commento, int idAttivita);
     List<Commento> leggiCommentiPerAttivita(int idAttivita);
     void eliminaCommento(int id);
+    List<Commento> leggiCommentiStudente(String matricola);
 }

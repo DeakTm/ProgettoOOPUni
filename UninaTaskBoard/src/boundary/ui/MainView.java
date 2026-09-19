@@ -13,6 +13,7 @@ public class MainView {
     private HBox itemDashboard;
     private HBox itemProgetti;
     private HBox itemAttivita;
+    private HBox itemCommenti;
     
     // Topbar
     private Button btnLogout;
@@ -50,8 +51,9 @@ public class MainView {
         itemDashboard = createNavItem("🏠", "Home", true);
         itemProgetti = createNavItem("📁", "Progetti", false);
         itemAttivita = createNavItem("✓", "Attività", false);
+        itemCommenti = createNavItem("💬", "Commenti", false);
         
-        navMenu.getChildren().addAll(itemDashboard, itemProgetti, itemAttivita);
+        navMenu.getChildren().addAll(itemDashboard, itemProgetti, itemAttivita, itemCommenti);
 
         sidebar.getChildren().addAll(brandBox, navMenu);
         root.setLeft(sidebar);
@@ -277,6 +279,10 @@ public class MainView {
     public void mostraAttivitaView(AttivitaView attivitaView) {
         root.setCenter(attivitaView.getRoot());
     }
+    
+    public void mostraCommentiView(CommentoView commentoView) {
+        root.setCenter(commentoView.getRoot());
+    }
 
     public BorderPane getRoot() { return root; }
     public HBox getItemDashboard() { return itemDashboard; }
@@ -285,6 +291,7 @@ public class MainView {
     public Button getBtnLogout() { return btnLogout; }
     public Button getBtnVaiAiProgetti() { return btnVaiAiProgetti; }
     public TabPane getTabPane() { return tabPane; }
+    public HBox getItemCommenti() { return itemCommenti; }
     
     public Label getStatTotale() { return statTotale; }
     public Label getStatCompletate() { return statCompletate; }
