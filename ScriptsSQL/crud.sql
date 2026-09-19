@@ -545,3 +545,13 @@ BEGIN
     DELETE FROM Commento WHERE id = p_id;
 END;
 $$;
+
+CREATE OR REPLACE FUNCTION fn_leggi_studenti_attivita(p_id_attivita INT)
+RETURNS TABLE (matricola VARCHAR(9)) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT SA.matricola_studente
+    FROM Studente_Attivita SA
+    WHERE SA.id_attivita = p_id_attivita;
+END;
+$$ LANGUAGE plpgsql;
