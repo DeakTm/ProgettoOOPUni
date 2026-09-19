@@ -150,7 +150,10 @@ public class ProgettoController {
         List<Studente> membriAttuali = progettoDAO.leggiStudentiPerProgetto(progetto.getId());
         dettaglioView.mostraMembri(membriAttuali);
 
-       
+        Map<String, Studente> studentiMap = membriAttuali != null ? 
+            membriAttuali.stream().collect(Collectors.toMap(Studente::getMatricola, s -> s, (s1, s2) -> s1)) : 
+            new HashMap<>();
+
         Map<String, Integer> completatePerMembro = new HashMap<>();
 
         AttivitaDAO attivitaDAO = new AttivitaBoundaryJdbc();
@@ -174,6 +177,20 @@ public class ProgettoController {
                 }
                 if (statoStr.contains("completat")) {
                     completate++;
+                    List<String> assegnatari = attivitaDAO.getAssegnatariAttivita(a.getId());
+                    if (assegnatari != null) {
+                        for (String matricola : assegnatari) {
+                            Studente st = studentiMap.get(matricola);
+                            String chiaveMembro;
+                            if (st != null) {
+                                // Formato leggibile con Nome, Cognome e matricola in piccolo sotto
+                                chiaveMembro = st.getNome() + " " + st.getCognome() + "\n(" + st.getMatricola() + ")";
+                            } else {
+                                chiaveMembro = matricola;
+                            }
+                            completatePerMembro.put(chiaveMembro, completatePerMembro.getOrDefault(chiaveMembro, 0) + 1);
+                        }
+                    }
                 } else if (statoStr.contains("corso")) {
                     inCorso++;
                 } else {
@@ -182,7 +199,6 @@ public class ProgettoController {
             }
         }
         
-        // --- Popola la UI con i dati calcolati ---
         dettaglioView.aggiornaStatistiche(totali, completate, inCorso);
         dettaglioView.mostraAttivita(listaAttivita);
 
@@ -252,7 +268,7 @@ public class ProgettoController {
 
                 if (successo) {
                     dialog.close();
-                    apriDettaglioProgetto(progetto); // Ricarica la vista intera per aggiornare stats, lista e report
+                    apriDettaglioProgetto(progetto);
                 } else {
                     mostraErrore("Errore durante il salvataggio dell'attività nel database.");
                 }

@@ -67,16 +67,17 @@ public class CommentoBoundaryJdbc implements CommentoDAO {
     }
 
     @Override
-    public void eliminaCommento(int id) {
-        String query = "{ call pr_elimina_commento(?) }";
+    public void eliminaCommento(int idCommento) {
+        String query = "CALL pr_elimina_commento(?)";
 
         try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-             CallableStatement stmt = conn.prepareCall(query)) {
+             PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            stmt.setInt(1, id);
-            stmt.execute();
+            stmt.setInt(1, idCommento);
+            stmt.execute(); 
 
         } catch (SQLException e) {
+            System.err.println("Errore Database (eliminaCommento): " + e.getMessage());
             e.printStackTrace();
         }
     }

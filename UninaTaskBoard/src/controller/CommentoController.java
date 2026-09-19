@@ -33,7 +33,6 @@ public class CommentoController {
         view.getSearchField().textProperty().addListener(
             (obs, oldV, newV) -> cercaCommenti(newV)
         );
-        view.getBtnRicarica().setOnAction(e -> caricaCommenti());
     }
 
     private void caricaCommenti() {

@@ -32,11 +32,10 @@ public class ProgettiView {
         root = new BorderPane();
         root.getStyleClass().add("app-shell");
 
-        // --- HEADER 
+        //HEADER 
         VBox header = createHeader();
         root.setTop(header);
 
-        // --- CENTRO:
         ScrollPane scroll = new ScrollPane();
         scroll.setFitToWidth(true);
         scroll.setStyle("-fx-background-color: transparent;");
@@ -45,7 +44,6 @@ public class ProgettiView {
         grigliaProgetti.setHgap(24);
         grigliaProgetti.setVgap(24);
         grigliaProgetti.getStyleClass().add("app-content");
-        // Spaziatura generosa per staccarsi dai bordi e dalla sidebar
         grigliaProgetti.setPadding(new Insets(24, 36, 36, 36));
         grigliaProgetti.setAlignment(Pos.TOP_LEFT);
 
@@ -53,15 +51,11 @@ public class ProgettiView {
         root.setCenter(scroll);
     }
 
-    // ============================================
-    // CREAZIONE HEADER
-    // ============================================
     private VBox createHeader() {
         VBox header = new VBox(20);
         header.getStyleClass().add("app-content");
         header.setPadding(new Insets(32, 36, 16, 36));
 
-        // Titolo + sottotitolo
         VBox titles = new VBox(6);
         lblTitolo = new Label("I Miei Progetti");
         lblTitolo.getStyleClass().add("page-title");
@@ -69,7 +63,6 @@ public class ProgettiView {
         lblSottotitolo.getStyleClass().add("page-subtitle");
         titles.getChildren().addAll(lblTitolo, lblSottotitolo);
 
-        // Toolbar: search + bottone
         HBox toolbar = new HBox();
         toolbar.getStyleClass().add("toolbar");
         toolbar.setAlignment(Pos.CENTER_LEFT);
@@ -79,7 +72,7 @@ public class ProgettiView {
         Label searchIcon = new Label("🔍");
         searchIcon.getStyleClass().add("text-muted");
         searchField = new TextField();
-        searchField.setPromptText("Cerca progetto per nome o ID...");
+        searchField.setPromptText("Cerca progetto per nome...");
         searchField.setStyle("-fx-background-color: transparent; -fx-border-width: 0;");
         HBox.setHgrow(searchField, Priority.ALWAYS);
         searchBox.getChildren().addAll(searchIcon, searchField);
@@ -97,9 +90,6 @@ public class ProgettiView {
         return header;
     }
 
-    // ============================================
-    // CREAZIONE CARD PROGETTO ELEGANTE
-    // ============================================
     private VBox createProjectCard(Progetto progetto) {
         VBox card = new VBox(14);
         card.getStyleClass().add("card");
@@ -108,20 +98,16 @@ public class ProgettiView {
         card.setPadding(new Insets(22));
         card.setStyle("-fx-cursor: hand;");
 
-        // Header card: Nome Progetto + Badge stato colorato
         HBox headerBox = new HBox(10);
         headerBox.setAlignment(Pos.CENTER_LEFT);
 
-        // Mostriamo il nome del progetto come titolo principale della card
         String nomeVisualizzato = (progetto.getNome() != null && !progetto.getNome().isEmpty()) 
-                                    ? progetto.getNome() 
-                                    : "Progetto #" + progetto.getId();
-                                    
+                                ? progetto.getNome() 
+                                : "Progetto senza nome";
+                                
         Label lblNome = new Label(nomeVisualizzato);
         lblNome.getStyleClass().add("card__title");
         HBox.setHgrow(lblNome, Priority.ALWAYS);
-
-        // Badge dinamico basato sullo stato
         Label lblStato = new Label(progetto.getStato() != null ? progetto.getStato().toString() : "Attivo");
         lblStato.getStyleClass().add("badge");
         String statoStr = lblStato.getText().toLowerCase();
@@ -135,17 +121,10 @@ public class ProgettiView {
 
         headerBox.getChildren().addAll(lblNome, lblStato);
 
-        // Linea divisoria sottile interna
         Separator sep = new Separator();
         sep.getStyleClass().add("divider");
-
-        // Dettaglio scadenza e ID secondario
         VBox infoBox = new VBox(4);
         
-        Label lblIdSub = new Label("ID: #" + progetto.getId());
-        lblIdSub.getStyleClass().add("text-muted");
-        lblIdSub.setStyle("-fx-font-size: 11px;");
-
         HBox scadenzaBox = new HBox(8);
         scadenzaBox.setAlignment(Pos.CENTER_LEFT);
         Label lblScadenzaIcon = new Label("📅");
@@ -153,36 +132,33 @@ public class ProgettiView {
         lblScadenzaText.getStyleClass().add("text-secondary");
         scadenzaBox.getChildren().addAll(lblScadenzaIcon, lblScadenzaText);
         
-        infoBox.getChildren().addAll(lblIdSub, scadenzaBox);
+        infoBox.getChildren().add(scadenzaBox);
 
-        // Footer: Bottone a sinistra, spaziatore al centro, Testo a destra
+        // Footer
         HBox footer = new HBox();
         footer.setAlignment(Pos.CENTER_LEFT);
         
-        // 🗑 BOTTONE ELIMINA
         Button btnElimina = new Button("Elimina");
         btnElimina.setTooltip(new Tooltip("Elimina definitivamente il progetto"));
         btnElimina.getStyleClass().add("btn--icon-danger-solid");
 
         btnElimina.setOnAction(e -> {
-            e.consume(); // Evita che il click apra il progetto
+            e.consume(); 
             if (onEliminaClick != null) {
                 onEliminaClick.accept(progetto);
             }
         });
-
-        // Spaziatore flessibile che allontana i due elementi
+     
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        // Testo Hint
         Label lblHint = new Label("Apri dashboard ");
         lblHint.getStyleClass().add("text-muted");
         lblHint.setStyle("-fx-font-size: 12px;");
 
         footer.getChildren().addAll(btnElimina, spacer, lblHint);
 
-        // Click sull'intera card → apre il progetto
+       
         card.setOnMouseClicked(e -> {
             if (onProgettoClick != null) {
                 onProgettoClick.accept(progetto);
@@ -219,9 +195,6 @@ public class ProgettiView {
         }
     }
 
-    // ============================================
-    // LISTENER E GETTER
-    // ============================================
     public void setOnProgettoClick(Consumer<Progetto> handler) {
         this.onProgettoClick = handler;
     }

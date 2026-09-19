@@ -4,7 +4,6 @@ import entity.Commento;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 
 import java.time.format.DateTimeFormatter;
@@ -18,7 +17,6 @@ public class CommentoView {
     private Label lblSottotitolo;
     private Label lblTotale;
     private TextField searchField;
-    private Button btnRicarica;
 
     private TableView<Commento> tabellaCommenti;
 
@@ -77,10 +75,7 @@ public class CommentoView {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        btnRicarica = new Button("🔄 Ricarica");
-        btnRicarica.getStyleClass().add("button");
-
-        toolbar.getChildren().addAll(searchBox, spacer, btnRicarica);
+        toolbar.getChildren().addAll(searchBox, spacer);
 
         header.getChildren().addAll(titles, toolbar);
         return header;
@@ -104,17 +99,15 @@ public class CommentoView {
             );
         });
 
-        // Colonna Attività
+        // Colonna Attività (Solo il nome/descrizione dell'attività)
         TableColumn<Commento, String> colAttivita = new TableColumn<>("Attività");
         colAttivita.setPrefWidth(280);
         colAttivita.setCellValueFactory(c -> {
             Commento comm = c.getValue();
-            if (comm.getId_attivita() == null) {
+            if (comm.getId_attivita() == null || comm.getId_attivita().getDescrizione() == null) {
                 return new javafx.beans.property.SimpleStringProperty("—");
             }
-            String desc = comm.getId_attivita().getDescrizione();
-            String id = String.valueOf(comm.getId_attivita().getId());
-            return new javafx.beans.property.SimpleStringProperty("#" + id + " - " + desc);
+            return new javafx.beans.property.SimpleStringProperty(comm.getId_attivita().getDescrizione());
         });
 
         // Colonna Testo
@@ -160,5 +153,4 @@ public class CommentoView {
     public BorderPane getRoot() { return root; }
     public TableView<Commento> getTabellaCommenti() { return tabellaCommenti; }
     public TextField getSearchField() { return searchField; }
-    public Button getBtnRicarica() { return btnRicarica; }
 }

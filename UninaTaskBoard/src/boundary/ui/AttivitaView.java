@@ -22,10 +22,8 @@ public class AttivitaView {
     private TextField searchField;
     private ComboBox<String> filtroStato;
     private ComboBox<String> filtroTipo;
-
     
     private TableView<Attivita> tabellaAttivita;
-
     private Consumer<Attivita> onAttivitaDoppioClick;
 
     public AttivitaView() {
@@ -47,13 +45,11 @@ public class AttivitaView {
         configuraFiltri();
     }
 
-    // HEADER
-
     private VBox createHeader() {
-        VBox header = new VBox(20);
-        header.setPadding(new Insets(24, 24, 16, 24));
+        VBox header = new VBox(16);
+        header.setPadding(new Insets(28, 32, 20, 32));
 
-        VBox titles = new VBox(6);
+        VBox titles = new VBox(4);
         HBox titleRow = new HBox(12);
         titleRow.setAlignment(Pos.CENTER_LEFT);
 
@@ -65,12 +61,13 @@ public class AttivitaView {
         lblTotale.setStyle(
             "-fx-background-color: -color-primary-50; " +
             "-fx-text-fill: -color-primary-700; " +
-            "-fx-border-color: -color-primary-100;"
+            "-fx-border-color: -color-primary-100; " +
+            "-fx-font-weight: bold; -fx-padding: 2 8;"
         );
 
         titleRow.getChildren().addAll(lblTitolo, lblTotale);
 
-        lblSottotitolo = new Label("Tutte le attività a cui sei assegnato, anche su progetti diversi");
+        lblSottotitolo = new Label("Tutte le attività assegnate, monitorate in tempo reale sui diversi progetti");
         lblSottotitolo.getStyleClass().add("page-subtitle");
         titles.getChildren().addAll(titleRow, lblSottotitolo);
 
@@ -82,31 +79,31 @@ public class AttivitaView {
         searchBox.setAlignment(Pos.CENTER_LEFT);
         Label searchIcon = new Label("🔍");
         searchIcon.getStyleClass().add("text-muted");
+        
         searchField = new TextField();
         searchField.setPromptText("Cerca per descrizione...");
         searchField.setStyle("-fx-background-color: transparent; -fx-border-width: 0;");
         HBox.setHgrow(searchField, Priority.ALWAYS);
+        
         searchBox.getChildren().addAll(searchIcon, searchField);
+        searchBox.setPrefWidth(320);
         searchBox.setMaxWidth(320);
 
         filtroStato = new ComboBox<>();
-        filtroStato.setPromptText("Stato");
-        filtroStato.setPrefWidth(160);
+        filtroStato.setPromptText("Filtra Stato");
+        filtroStato.setPrefWidth(150);
 
         filtroTipo = new ComboBox<>();
-        filtroTipo.setPromptText("Tipo");
-        filtroTipo.setPrefWidth(160);
+        filtroTipo.setPromptText("Filtra Tipo");
+        filtroTipo.setPrefWidth(150);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         toolbar.getChildren().addAll(searchBox, filtroStato, filtroTipo, spacer);
-
         header.getChildren().addAll(titles, toolbar);
         return header;
     }
-
-
 
     private TableView<Attivita> createTabella() {
         TableView<Attivita> table = new TableView<>();
@@ -114,8 +111,9 @@ public class AttivitaView {
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table.setPlaceholder(createEmptyPlaceholder());
 
-        TableColumn<Attivita, Void> colDesc = new TableColumn<>("Attività");
-        colDesc.setPrefWidth(340);
+        // Colonna Attività (Senza ID)
+        TableColumn<Attivita, Void> colDesc = new TableColumn<>("ATTIVITÀ");
+        colDesc.setPrefWidth(320);
         colDesc.setCellFactory(col -> new TableCell<>() {
             @Override
             protected void updateItem(Void item, boolean empty) {
@@ -126,22 +124,22 @@ public class AttivitaView {
                 }
                 Attivita a = getTableRow().getItem();
 
-                VBox box = new VBox(2);
+                VBox box = new VBox(3);
+                box.setAlignment(Pos.CENTER_LEFT);
+                box.setPadding(new Insets(6, 0, 6, 0));
+
                 Label desc = new Label(a.getDescrizione());
                 desc.getStyleClass().add("font-semibold");
-                desc.setStyle("-fx-font-size: 13px;");
+                desc.setStyle("-fx-font-size: 13px; -fx-text-fill: -color-text-primary;");
 
-                Label meta = new Label("ID #" + a.getId());
-                meta.getStyleClass().add("text-muted");
-                meta.setStyle("-fx-font-size: 11px;");
-
-                box.getChildren().addAll(desc, meta);
+                box.getChildren().add(desc);
                 setGraphic(box);
             }
         });
 
-        TableColumn<Attivita, String> colTipo = new TableColumn<>("Tipo");
-        colTipo.setPrefWidth(150);
+        // Colonna Tipo 
+        TableColumn<Attivita, String> colTipo = new TableColumn<>("TIPO");
+        colTipo.setPrefWidth(140);
         colTipo.setCellValueFactory(cellData -> 
             new javafx.beans.property.SimpleStringProperty(cellData.getValue().getTipo().toString()));
         colTipo.setCellFactory(col -> new TableCell<>() {
@@ -157,15 +155,17 @@ public class AttivitaView {
 
                 if ("Sviluppo".equalsIgnoreCase(tipo)) {
                     badge.setStyle(
-                        "-fx-background-color: -color-indigo-bg; " +
-                        "-fx-text-fill: -color-indigo-text; " +
-                        "-fx-border-color: -color-indigo-border;"
+                        "-fx-background-color: #e0e7ff; " +
+                        "-fx-text-fill: #3730a3; " +
+                        "-fx-border-color: #c7d2fe; " +
+                        "-fx-padding: 3 10; -fx-background-radius: 12; -fx-border-radius: 12;"
                     );
                 } else {
                     badge.setStyle(
-                        "-fx-background-color: -color-violet-bg; " +
-                        "-fx-text-fill: -color-violet-text; " +
-                        "-fx-border-color: -color-violet-border;"
+                        "-fx-background-color: #f3e8ff; " +
+                        "-fx-text-fill: #6b21a8; " +
+                        "-fx-border-color: #e9d5ff; " +
+                        "-fx-padding: 3 10; -fx-background-radius: 12; -fx-border-radius: 12;"
                     );
                 }
                 setGraphic(badge);
@@ -173,7 +173,8 @@ public class AttivitaView {
             }
         });
 
-        TableColumn<Attivita, String> colStato = new TableColumn<>("Stato");
+        // Colonna Stato 
+        TableColumn<Attivita, String> colStato = new TableColumn<>("STATO");
         colStato.setPrefWidth(150);
         colStato.setCellValueFactory(cellData -> 
             new javafx.beans.property.SimpleStringProperty(cellData.getValue().getStato().toString()));
@@ -190,15 +191,25 @@ public class AttivitaView {
 
                 String s = stato.toLowerCase();
                 if (s.contains("completata")) {
-                    badge.getStyleClass().add("badge--completata");
-                } else if (s.contains("corso")) {
-                    badge.getStyleClass().add("badge--in-corso");
-                } else {
-                    // Non_Iniziata → neutro
                     badge.setStyle(
-                        "-fx-background-color: -color-neutral-bg; " +
-                        "-fx-text-fill: -color-neutral-text; " +
-                        "-fx-border-color: -color-neutral-border;"
+                        "-fx-background-color: #d1fae5; " +
+                        "-fx-text-fill: #065f46; " +
+                        "-fx-border-color: #a7f3d0; " +
+                        "-fx-padding: 3 10; -fx-background-radius: 12; -fx-border-radius: 12;"
+                    );
+                } else if (s.contains("corso")) {
+                    badge.setStyle(
+                        "-fx-background-color: #fef3c7; " +
+                        "-fx-text-fill: #92400e; " +
+                        "-fx-border-color: #fde68a; " +
+                        "-fx-padding: 3 10; -fx-background-radius: 12; -fx-border-radius: 12;"
+                    );
+                } else {
+                    badge.setStyle(
+                        "-fx-background-color: #eff6ff; " +
+                        "-fx-text-fill: #1e40af; " +
+                        "-fx-border-color: #bfdbfe; " +
+                        "-fx-padding: 3 10; -fx-background-radius: 12; -fx-border-radius: 12;"
                     );
                 }
                 setGraphic(badge);
@@ -206,8 +217,9 @@ public class AttivitaView {
             }
         });
 
-        TableColumn<Attivita, LocalDate> colScadenza = new TableColumn<>("Scadenza");
-        colScadenza.setPrefWidth(180);
+        // Colonna Scadenza
+        TableColumn<Attivita, LocalDate> colScadenza = new TableColumn<>("SCADENZA");
+        colScadenza.setPrefWidth(170);
         colScadenza.setCellValueFactory(cellData -> 
             new javafx.beans.property.SimpleObjectProperty<>(cellData.getValue().getDataScadenza()));
         colScadenza.setCellFactory(col -> new TableCell<>() {
@@ -228,21 +240,20 @@ public class AttivitaView {
                 }
 
                 VBox box = new VBox(2);
+                box.setAlignment(Pos.CENTER_LEFT);
                 Label dataLbl = new Label(data.format(DateTimeFormatter.ofPattern("dd MMM yyyy")));
-                dataLbl.setStyle("-fx-font-size: 13px; -fx-font-weight: bold;");
-
                 Label relLbl = new Label(relativeTime(data));
                 relLbl.setStyle("-fx-font-size: 11px;");
 
-        
                 long giorni = ChronoUnit.DAYS.between(LocalDate.now(), data);
                 if (giorni < 0) {
-                    dataLbl.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: -color-danger-text;");
-                    relLbl.setStyle("-fx-font-size: 11px; -fx-text-fill: -color-danger-text;");
+                    dataLbl.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #dc2626;");
+                    relLbl.setStyle("-fx-font-size: 11px; -fx-text-fill: #dc2626;");
                 } else if (giorni <= 3) {
-                    dataLbl.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: -color-warning-text;");
-                    relLbl.setStyle("-fx-font-size: 11px; -fx-text-fill: -color-warning-text;");
+                    dataLbl.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #d97706;");
+                    relLbl.setStyle("-fx-font-size: 11px; -fx-text-fill: #d97706;");
                 } else {
+                    dataLbl.setStyle("-fx-font-size: 12px; -fx-font-weight: bold;");
                     relLbl.getStyleClass().add("text-muted");
                 }
 
@@ -252,8 +263,8 @@ public class AttivitaView {
             }
         });
 
- 
-        TableColumn<Attivita, Void> colProgetto = new TableColumn<>("Progetto");
+        // Colonna Progetto 
+        TableColumn<Attivita, Void> colProgetto = new TableColumn<>("PROGETTO");
         colProgetto.setPrefWidth(160); 
         colProgetto.setCellFactory(col -> new TableCell<>() {
             @Override
@@ -275,15 +286,15 @@ public class AttivitaView {
                     lbl.getStyleClass().add("text-muted");
                     setGraphic(lbl);
                 } else {
-                    Label lbl = new Label(nomeProgetto);
+                    Label lbl = new Label("📁 " + nomeProgetto);
                     lbl.setStyle(
-                        "-fx-background-color: -color-surface-alt; " +
-                        "-fx-text-fill: -color-text-secondary; " +
-                        "-fx-border-color: -color-border; " +
-                        "-fx-border-radius: 6; " +
-                        "-fx-background-radius: 6; " +
-                        "-fx-padding: 3 10; " +
-                        "-fx-font-size: 12px; " +
+                        "-fx-background-color: #dbeafe; " +
+                        "-fx-text-fill: #1d4ed8; " +
+                        "-fx-border-color: #93c5fd; " +
+                        "-fx-border-radius: 14; " +
+                        "-fx-background-radius: 14; " +
+                        "-fx-padding: 4 12; " +
+                        "-fx-font-size: 11.5px; " +
                         "-fx-font-weight: bold;"
                     );
                     setGraphic(lbl);
@@ -291,9 +302,9 @@ public class AttivitaView {
                 setText(null);
             }
         });
+
         table.getColumns().addAll(colDesc, colTipo, colStato, colScadenza, colProgetto);
 
-   
         table.setRowFactory(tv -> {
             TableRow<Attivita> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
@@ -320,7 +331,7 @@ public class AttivitaView {
         Label title = new Label("Nessuna attività trovata");
         title.getStyleClass().add("card__title");
 
-        Label desc = new Label("Non sei ancora assegnato a nessuna attività.\nQuando il tuo gruppo ti assegnerà un compito, apparirà qui.");
+        Label desc = new Label("Non sei ancora assegnato a nessuna attività.\nQuando ti verrà assegnato un compito, apparirà qui.");
         desc.getStyleClass().add("text-muted");
         desc.setStyle("-fx-text-alignment: center; -fx-font-size: 12px;");
         desc.setWrapText(true);
@@ -345,7 +356,6 @@ public class AttivitaView {
         return "tra ~" + mesi + (mesi == 1 ? " mese" : " mesi");
     }
 
-
     private void configuraFiltri() {
         filtroStato.getItems().addAll("Tutti", "Non_Iniziata", "In_Corso", "Completata");
         filtroTipo.getItems().addAll("Tutti", "Sviluppo", "Documentazione");
@@ -369,12 +379,9 @@ public class AttivitaView {
         this.onAttivitaDoppioClick = handler;
     }
 
-
     public BorderPane getRoot() { return root; }
     public TableView<Attivita> getTabellaAttivita() { return tabellaAttivita; }
     public TextField getSearchField() { return searchField; }
     public ComboBox<String> getFiltroStato() { return filtroStato; }
     public ComboBox<String> getFiltroTipo() { return filtroTipo; }
-
-
 }

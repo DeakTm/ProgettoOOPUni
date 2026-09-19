@@ -79,9 +79,8 @@ public class DettagliAttivitaView {
         root.setCenter(tabPane);
     }
 
-
     private VBox createHeader() {
-        VBox box = new VBox(6);
+        VBox box = new VBox(8);
 
         lblDescrizione = new Label("");
         lblDescrizione.getStyleClass().add("page-title");
@@ -91,26 +90,34 @@ public class DettagliAttivitaView {
 
         lblTipo = new Label("");
         lblTipo.getStyleClass().add("badge");
+        
         lblStato = new Label("");
         lblStato.getStyleClass().add("badge");
+        
         lblScadenza = new Label("");
         lblScadenza.getStyleClass().add("text-muted");
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        btnCambiaStato = new Button("🔄 Cambia stato");
-        btnCambiaStato.getStyleClass().add("button");
+        btnCambiaStato = new Button("🔄 Segna come Completata");
+        btnCambiaStato.getStyleClass().addAll("button", "btn--primary");
 
         btnGestisciMembri = new Button("👥 Gestisci membri");
         btnGestisciMembri.getStyleClass().add("button");
+        btnGestisciMembri.setStyle(
+            "-fx-background-color: #e0f2fe; " + 
+            "-fx-text-fill: #0369a1; " +       
+            "-fx-border-color: #bae6fd; " +     
+            "-fx-border-width: 1; " +
+            "-fx-background-radius: 6; " +
+            "-fx-border-radius: 6;" //hard-coddado lo style 
+        );
 
         meta.getChildren().addAll(lblTipo, lblStato, lblScadenza, spacer, btnCambiaStato, btnGestisciMembri);
         box.getChildren().addAll(lblDescrizione, meta);
         return box;
     }
-
-
 
     private Tab createTabFileRevisioni() {
         Tab tab = new Tab("📄 File e Revisioni");
@@ -180,6 +187,14 @@ public class DettagliAttivitaView {
         btnEliminaFile = new Button("🗑 Elimina file");
         btnEliminaFile.getStyleClass().add("button");
         btnEliminaFile.setDisable(true);
+        btnEliminaFile.setStyle(
+            "-fx-background-color: #fee2e2; " + 
+            "-fx-text-fill: #991b1b; " +        
+            "-fx-border-color: #fecaca; " +     
+            "-fx-border-width: 1; " +
+            "-fx-background-radius: 6; " +
+            "-fx-border-radius: 6;"
+        );
 
         HBox fileActions = new HBox(8);
         fileActions.setAlignment(Pos.CENTER_RIGHT);
@@ -206,10 +221,12 @@ public class DettagliAttivitaView {
         titoloRow.getChildren().addAll(lblNomeFileSelezionato, btnAggiungiRevisione);
 
         tabellaRevisioni = new TableView<>();
+        tabellaRevisioni.getStyleClass().add("table-view");
         tabellaRevisioni.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         tabellaRevisioni.setPlaceholder(new Label("Nessuna revisione"));
         VBox.setVgrow(tabellaRevisioni, Priority.ALWAYS);
 
+        // Colonna Data
         TableColumn<Revisione, String> colData = new TableColumn<>("Data");
         colData.setPrefWidth(140);
         colData.setCellValueFactory(c -> {
@@ -220,7 +237,21 @@ public class DettagliAttivitaView {
                 c.getValue().getData().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
             );
         });
+        colData.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    setText(item);
+                    setGraphic(null);
+                }
+            }
+        });
 
+        // Colonna Autore
         TableColumn<Revisione, String> colAutore = new TableColumn<>("Autore");
         colAutore.setPrefWidth(120);
         colAutore.setCellValueFactory(c -> {
@@ -230,18 +261,44 @@ public class DettagliAttivitaView {
             }
             return new javafx.beans.property.SimpleStringProperty(r.getMatricola().getMatricola());
         });
+        colAutore.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    setText(item);
+                    setGraphic(null);
+                }
+            }
+        });
 
+        // Colonna Nota
         TableColumn<Revisione, String> colNota = new TableColumn<>("Nota");
         colNota.setPrefWidth(300);
         colNota.setCellValueFactory(c ->
             new javafx.beans.property.SimpleStringProperty(c.getValue().getNota()));
+        colNota.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    setText(item);
+                    setGraphic(null);
+                }
+            }
+        });
 
         tabellaRevisioni.getColumns().addAll(colData, colAutore, colNota);
 
         box.getChildren().addAll(titoloRow, tabellaRevisioni);
         return box;
     }
-
 
     private Tab createTabCommenti() {
         Tab tab = new Tab("💬 Commenti");
@@ -290,13 +347,20 @@ public class DettagliAttivitaView {
         });
         content.setCenter(listaCommenti);
 
-
         VBox bottomBox = new VBox(10);
         bottomBox.setPadding(new Insets(12, 0, 0, 0));
 
         btnEliminaCommento = new Button("🗑 Elimina commento selezionato");
         btnEliminaCommento.getStyleClass().add("button");
         btnEliminaCommento.setDisable(true);
+        btnEliminaCommento.setStyle(
+            "-fx-background-color: #fee2e2; " +
+            "-fx-text-fill: #991b1b; " +     
+            "-fx-border-color: #fecaca; " +      
+            "-fx-border-width: 1; " +
+            "-fx-background-radius: 6; " +
+            "-fx-border-radius: 6;"
+        );
 
         txtNuovoCommento = new TextArea();
         txtNuovoCommento.setPromptText("Scrivi un commento...");
@@ -319,16 +383,36 @@ public class DettagliAttivitaView {
         return tab;
     }
 
-
     public void setAttivita(Attivita a) {
         lblDescrizione.setText(a.getDescrizione());
-        lblTipo.setText(a.getTipo() != null ? a.getTipo().toString() : "—");
-        lblStato.setText(a.getStato() != null ? a.getStato().toString() : "—");
+        
+        String tipoStr = a.getTipo() != null ? a.getTipo().toString() : "—";
+        lblTipo.setText(tipoStr);
+        if ("Sviluppo".equalsIgnoreCase(tipoStr)) {
+            lblTipo.setStyle("-fx-background-color: #e0e7ff; -fx-text-fill: #3730a3; -fx-border-color: #c7d2fe; -fx-padding: 3 10; -fx-background-radius: 12; -fx-border-radius: 12;");
+        } else {
+            lblTipo.setStyle("-fx-background-color: #f3e8ff; -fx-text-fill: #6b21a8; -fx-border-color: #e9d5ff; -fx-padding: 3 10; -fx-background-radius: 12; -fx-border-radius: 12;");
+        }
+
+        String statoStr = a.getStato() != null ? a.getStato().toString() : "—";
+        lblStato.setText(prettifyStato(statoStr));
+        if (statoStr.toLowerCase().contains("completata")) {
+            lblStato.setStyle("-fx-background-color: #d1fae5; -fx-text-fill: #065f46; -fx-border-color: #a7f3d0; -fx-padding: 3 10; -fx-background-radius: 12; -fx-border-radius: 12;");
+        } else if (statoStr.toLowerCase().contains("corso")) {
+            lblStato.setStyle("-fx-background-color: #fef3c7; -fx-text-fill: #92400e; -fx-border-color: #fde68a; -fx-padding: 3 10; -fx-background-radius: 12; -fx-border-radius: 12;");
+        } else {
+            lblStato.setStyle("-fx-background-color: #eff6ff; -fx-text-fill: #1e40af; -fx-border-color: #bfdbfe; -fx-padding: 3 10; -fx-background-radius: 12; -fx-border-radius: 12;");
+        }
+
         if (a.getDataScadenza() != null) {
             lblScadenza.setText("📅 " + a.getDataScadenza().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
         } else {
             lblScadenza.setText("📅 Nessuna scadenza");
         }
+    }
+
+    private String prettifyStato(String stato) {
+        return stato.replace("_", " ");
     }
 
     public void setFile(List<FileCodice> files) {
@@ -375,7 +459,6 @@ public class DettagliAttivitaView {
         txtNuovoCommento.clear();
     }
 
-
     public void mostraSoloDocumentazione() {
         tabPane.getTabs().remove(tabFileRevisioni);
         tabPane.getSelectionModel().select(tabCommenti);
@@ -399,9 +482,13 @@ public class DettagliAttivitaView {
             btnGestisciMembri.setManaged(false);
         }
     }
+    
     public void aggiornaLabelStato(String nuovoStato) {
         if (lblStato != null) {
-            lblStato.setText(nuovoStato);
+            lblStato.setText(prettifyStato(nuovoStato));
+            if (nuovoStato.toLowerCase().contains("completata")) {
+                lblStato.setStyle("-fx-background-color: #d1fae5; -fx-text-fill: #065f46; -fx-border-color: #a7f3d0; -fx-padding: 3 10; -fx-background-radius: 12; -fx-border-radius: 12;");
+            }
         }
     }
 
