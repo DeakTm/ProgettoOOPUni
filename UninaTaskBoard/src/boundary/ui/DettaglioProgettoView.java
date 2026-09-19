@@ -6,6 +6,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.chart.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -25,6 +26,9 @@ public class DettaglioProgettoView {
     private Label lblStatCompletate;
     private Label lblStatInCorso;
 
+    private PieChart pieChart;
+    private BarChart<String, Number> barChart;
+
     private VBox containerMembri;
     private Consumer<Studente> onRimuoviMembroClick;
 
@@ -42,16 +46,13 @@ public class DettaglioProgettoView {
         mainContent.getStyleClass().add("app-content");
         mainContent.setPadding(new Insets(32, 36, 36, 36));
 
-        // 1. Navigation + Header Progetto
         VBox headerBox = createHeader();
 
-        // 2. Statistiche
         GridPane statsGrid = createStatsGrid();
-
-        // 3. Sezione Membri del Progetto
         VBox membriBox = createMembriSection();
 
-        mainContent.getChildren().addAll(headerBox, statsGrid, membriBox);
+        GridPane chartGrid = createChartGrid();
+        mainContent.getChildren().addAll(headerBox, statsGrid, membriBox, chartGrid);
         scroll.setContent(mainContent);
         
         root.setCenter(scroll);
@@ -139,7 +140,37 @@ public class DettaglioProgettoView {
         return card;
     }
 
-    // Mostra la lista degli studenti associati al progetto
+    private GridPane createChartGrid() {
+        GridPane chartGrid = new GridPane();
+        chartGrid.setHgap(20);
+        chartGrid.setVgap(20);
+        
+        pieChart = new PieChart();
+        pieChart.setPrefHeight(300);
+        VBox pieCard = createChartCard("Distribuzione per Stato", pieChart);
+        
+        barChart = new BarChart<>(new CategoryAxis(), new NumberAxis());
+        barChart.setPrefHeight(300);
+        VBox barCard = createChartCard("Attività Completate per Membro", barChart);
+
+        chartGrid.add(pieCard, 0, 0);
+        chartGrid.add(barCard, 1, 0);
+        
+        return chartGrid;
+    }
+
+    private VBox createChartCard(String title, javafx.scene.Node chart) {
+        VBox card = new VBox(12);
+        card.getStyleClass().add("chart-card");
+        HBox header = new HBox();
+        header.getStyleClass().add("chart-card__header");
+        Label titleLbl = new Label(title);
+        titleLbl.getStyleClass().add("card__title");
+        header.getChildren().add(titleLbl);
+        card.getChildren().addAll(header, chart);
+        return card;
+    }
+
     public void mostraMembri(List<Studente> studenti) {
         containerMembri.getChildren().clear();
 
@@ -184,7 +215,6 @@ public class DettaglioProgettoView {
         }
     }
 
-    // Dialog selezione multipla di studenti
     public List<Studente> mostraDialogAggiungiMembri(List<Studente> studentiDisponibili) {
         Dialog<List<Studente>> dialog = new Dialog<>();
         dialog.setTitle("Aggiungi Membri al Progetto");
@@ -200,7 +230,6 @@ public class DettaglioProgettoView {
         searchField.setPromptText("🔍 Cerca per nome, cognome o matricola...");
         searchField.getStyleClass().add("text-field");
 
- 
         ObservableList<Studente> observableList = FXCollections.observableArrayList(studentiDisponibili);
         FilteredList<Studente> filteredData = new FilteredList<>(observableList, p -> true);
 
@@ -216,7 +245,6 @@ public class DettaglioProgettoView {
             });
         });
 
-        // --- LISTVIEW ---
         ListView<Studente> listView = new ListView<>();
         listView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         listView.setItems(filteredData);
@@ -235,7 +263,6 @@ public class DettaglioProgettoView {
             }
         });
 
-        // --- LAYOUT ---
         VBox content = new VBox(14);
         Label hint = new Label("💡 Tieni premuto CTRL per selezionare più studenti.");
         hint.getStyleClass().add("text-muted");
@@ -257,7 +284,12 @@ public class DettaglioProgettoView {
         return dialog.showAndWait().orElse(null);
     }
 
-    // Getter e Setter
+    public void aggiornaStatistiche(int totali, int completate, int inCorso) {
+        if (lblStatTotale != null) lblStatTotale.setText(String.valueOf(totali));
+        if (lblStatCompletate != null) lblStatCompletate.setText(String.valueOf(completate));
+        if (lblStatInCorso != null) lblStatInCorso.setText(String.valueOf(inCorso));
+    }
+
     public BorderPane getRoot() { return root; }
     public Button getBtnTornaIndietro() { return btnTornaIndietro; }
     public Button getBtnAggiungiMembro() { return btnAggiungiMembro; }
@@ -265,5 +297,7 @@ public class DettaglioProgettoView {
     public Label getLblStatTotale() { return lblStatTotale; }
     public Label getLblStatCompletate() { return lblStatCompletate; }
     public Label getLblStatInCorso() { return lblStatInCorso; }
+    public PieChart getPieChart() { return pieChart; }
+    public BarChart<String, Number> getBarChart() { return barChart; }
     public void setOnRimuoviMembroClick(Consumer<Studente> listener) { this.onRimuoviMembroClick = listener; }
 }

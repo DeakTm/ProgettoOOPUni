@@ -43,8 +43,7 @@ public class MainController {
         view.getItemDashboard().setOnMouseClicked(event -> {
             rimuoviAttivi();
             view.getItemDashboard().getStyleClass().add("is-active");
-            view.mostraTabPane();
-            view.getTabPane().getSelectionModel().select(0);
+            view.mostraDashboard(); 
         });
 
         view.getItemProgetti().setOnMouseClicked(event -> {   
@@ -64,7 +63,6 @@ public class MainController {
             view.getItemCommenti().getStyleClass().add("is-active");
             new CommentoController(view, matricolaLoggata);
         });
-
         
         view.getBtnLogout().setOnAction(event -> {
             System.out.println("Logout effettuato per l'utente: " + matricolaLoggata);

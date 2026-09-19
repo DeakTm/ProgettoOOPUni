@@ -144,11 +144,29 @@ public class ProgettoController {
         dettaglioView.getBtnTornaIndietro().setOnAction(e -> {
             mainView.mostraProgettiView(view);
         });
-
         List<Studente> membriAttuali = progettoDAO.leggiStudentiPerProgetto(progetto.getId());
         dettaglioView.mostraMembri(membriAttuali);
 
+        AttivitaDAO attivitaDAO = new AttivitaBoundaryJdbc();
+        List<Attivita> listaAttivita = attivitaDAO.leggiAttivitaPerProgetto(progetto.getId()); 
         
+        int totali = 0;
+        int completate = 0;
+        int inCorso = 0;
+
+        if (listaAttivita != null) {
+            totali = listaAttivita.size();
+            for (Attivita a : listaAttivita) {
+                if (a.getStato() != null && a.getStato().toString().equalsIgnoreCase("Completata")) {
+                    completate++;
+                } else {
+                    inCorso++;
+                }
+            }
+        }
+        dettaglioView.aggiornaStatistiche(totali, completate, inCorso);
+
+        // Listener Nuova Attività
         dettaglioView.getBtnNuovaAttivita().setOnAction(e -> {
             FormAttivitaView formView = new FormAttivitaView();
             
@@ -160,7 +178,6 @@ public class ProgettoController {
             dialogPane.setContent(formView.getRoot());
             dialogPane.setStyle("-fx-background-color: transparent; -fx-padding: 0;");
             
-            // collega css anche al dialog altrimenti non va
             try {
                 String css = getClass().getResource("/css/style.css").toExternalForm();
                 dialogPane.getStylesheets().add(css);
@@ -175,7 +192,6 @@ public class ProgettoController {
                 closeButton.setManaged(false);
             }
 
-            // Popoliamo la tendina studenti
             List<Studente> studentiProgetto = progettoDAO.leggiStudentiPerProgetto(progetto.getId());
             if (studentiProgetto != null && !studentiProgetto.isEmpty()) {
                 List<String> studentiFormattati = studentiProgetto.stream()
@@ -184,7 +200,6 @@ public class ProgettoController {
                 formView.getCmbStudenteAssegnato().getItems().addAll(studentiFormattati);
             }
 
-            // Listener Salva
             formView.getBtnSalva().setOnAction(ev -> {
                 String descrizione = formView.getTxtDescrizione().getText();
                 TipoAttivita tipo = formView.getCmbTipo().getValue();
@@ -198,7 +213,6 @@ public class ProgettoController {
 
                 String matricolaStudente = studenteSelezionato.split(" - ")[0];
 
-                AttivitaDAO attivitaDAO = new AttivitaBoundaryJdbc();
                 Attivita nuovaAttivita = new Attivita();
                 nuovaAttivita.setDescrizione(descrizione.trim());
                 nuovaAttivita.setTipo(tipo);
@@ -209,12 +223,13 @@ public class ProgettoController {
 
                 if (successo) {
                     dialog.close();
+                    // Aggiorniamo le statistiche ricontando dal DB dopo il salvataggio
+                    apriDettaglioProgetto(progetto);
                 } else {
                     mostraErrore("Errore durante il salvataggio dell'attività nel database.");
                 }
             });
 
-            // Listener Annulla
             formView.getBtnAnnulla().setOnAction(ev -> dialog.close());
 
             dialog.showAndWait();
