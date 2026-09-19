@@ -21,6 +21,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.Node;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -144,29 +146,60 @@ public class ProgettoController {
         dettaglioView.getBtnTornaIndietro().setOnAction(e -> {
             mainView.mostraProgettiView(view);
         });
+
+        // 1. Carica i Membri
         List<Studente> membriAttuali = progettoDAO.leggiStudentiPerProgetto(progetto.getId());
         dettaglioView.mostraMembri(membriAttuali);
 
+        // Map per il grafico (Vuota finché non implementiamo i DAO lato DB)
+        Map<String, Integer> completatePerMembro = new HashMap<>();
+
+        // 2. Carica dati per Statistiche, Report e Lista visiva
         AttivitaDAO attivitaDAO = new AttivitaBoundaryJdbc();
         List<Attivita> listaAttivita = attivitaDAO.leggiAttivitaPerProgetto(progetto.getId()); 
         
         int totali = 0;
         int completate = 0;
         int inCorso = 0;
+        int nonIniziate = 0;
+        int sviluppo = 0;
+        double mediaRevisioni = 0.0;
 
         if (listaAttivita != null) {
             totali = listaAttivita.size();
             for (Attivita a : listaAttivita) {
-                if (a.getStato() != null && a.getStato().toString().equalsIgnoreCase("Completata")) {
+                String statoStr = a.getStato() != null ? a.getStato().toString().toLowerCase() : "";
+                String tipoStr = a.getTipo() != null ? a.getTipo().toString().toLowerCase() : "";
+
+                if (tipoStr.contains("sviluppo")) {
+                    sviluppo++;
+                }
+                if (statoStr.contains("completat")) {
                     completate++;
-                } else {
+                } else if (statoStr.contains("corso")) {
                     inCorso++;
+                } else {
+                    nonIniziate++;
                 }
             }
         }
+        
+        // --- Popola la UI con i dati calcolati ---
         dettaglioView.aggiornaStatistiche(totali, completate, inCorso);
+        dettaglioView.mostraAttivita(listaAttivita);
 
-        // Listener Nuova Attività
+        // --- LISTENER GENERA REPORT ---
+        final int fTotale = totali;
+        final int fCompletate = completate;
+        final int fInCorso = inCorso;
+        final int fNonIniziate = nonIniziate;
+        final int fSviluppo = sviluppo;
+        
+        dettaglioView.getBtnGeneraReport().setOnAction(e -> {
+            dettaglioView.mostraReportDialog(fTotale, fCompletate, fInCorso, fNonIniziate, fSviluppo, mediaRevisioni, completatePerMembro);
+        });
+
+        // --- LISTENER NUOVA ATTIVITA' ---
         dettaglioView.getBtnNuovaAttivita().setOnAction(e -> {
             FormAttivitaView formView = new FormAttivitaView();
             
@@ -223,15 +256,13 @@ public class ProgettoController {
 
                 if (successo) {
                     dialog.close();
-                    // Aggiorniamo le statistiche ricontando dal DB dopo il salvataggio
-                    apriDettaglioProgetto(progetto);
+                    apriDettaglioProgetto(progetto); // Ricarica la vista intera per aggiornare stats, lista e report
                 } else {
                     mostraErrore("Errore durante il salvataggio dell'attività nel database.");
                 }
             });
 
             formView.getBtnAnnulla().setOnAction(ev -> dialog.close());
-
             dialog.showAndWait();
         });
 
