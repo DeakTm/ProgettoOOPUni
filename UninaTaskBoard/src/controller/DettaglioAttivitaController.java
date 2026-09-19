@@ -14,9 +14,11 @@ import entity.Commento;
 import entity.FileCodice;
 import entity.Revisione;
 import entity.Studente;
+import entity.enums.StatoAttivita;
 import entity.enums.TipoLinguaggio;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.TextInputDialog;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -53,6 +55,8 @@ public class DettaglioAttivitaController {
 
         configuraListenerCommenti();
         configuraListenerMembri();
+        configuraListenerStato();
+
 
         boolean isSviluppo = (attivita.getTipo() != null
                               && attivita.getTipo().toString().equalsIgnoreCase("Sviluppo"));
@@ -310,4 +314,53 @@ public class DettaglioAttivitaController {
         alert.setContentText(messaggio);
         alert.showAndWait();
     }
+    
+    private void configuraListenerStato() {
+        view.getBtnCambiaStato().setOnAction(e -> cambiaStato());
+        aggiornaStatoPulsante();
+    }
+
+    private void cambiaStato() {
+        if (attivita.getStato() != StatoAttivita.In_Corso) {
+            mostraErrore("Puoi completare solo attività in stato 'In_Corso'.");
+            return;
+        }
+
+        Alert conferma = new Alert(Alert.AlertType.CONFIRMATION);
+        conferma.setTitle("Completa Attività");
+        conferma.setHeaderText("Segnare l'attività come COMPLETATA?");
+        conferma.setContentText("L'attività \"" + attivita.getDescrizione() + "\" verrà chiusa.");
+
+        Optional<ButtonType> risposta = conferma.showAndWait();
+        if (risposta.isEmpty() || risposta.get() != ButtonType.OK) {
+            return;
+        }
+
+        attivitaDAO.aggiornaStatoAttivita(attivita.getId(), StatoAttivita.Completata);
+
+        attivita.setStato(StatoAttivita.Completata);
+
+        view.aggiornaLabelStato(StatoAttivita.Completata.toString());
+        aggiornaStatoPulsante();
+
+        mostraInfo("Attività completata! Il progetto si aggiornerà automaticamente.");
+    }
+    
+    private void aggiornaStatoPulsante() {
+        boolean puoCompletare = attivita.getStato() == StatoAttivita.In_Corso;
+
+        view.getBtnCambiaStato().setDisable(!puoCompletare);
+
+        if (puoCompletare) {
+            view.getBtnCambiaStato().setText("✅ Segna come Completata");
+        } else if (attivita.getStato() == StatoAttivita.Completata) {
+            view.getBtnCambiaStato().setText("✅ Completata");
+        } else {
+            view.getBtnCambiaStato().setText("✅ Segna come Completata");
+        }
+        
+    }
+    
+
+
 }

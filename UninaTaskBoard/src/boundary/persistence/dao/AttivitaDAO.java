@@ -1,6 +1,8 @@
 package boundary.persistence.dao;
 
 import entity.Attivita;
+import entity.enums.StatoAttivita;
+
 import java.util.List;
 
 public interface AttivitaDAO {
@@ -14,4 +16,5 @@ public interface AttivitaDAO {
     List<Attivita> getAttivitaStudente(String matricola);
     List<String> getAssegnatariAttivita(int idAttivita);
     double getMediaRevisioniProgetto(int idProgetto);
+    void aggiornaStatoAttivita(int idAttivita, StatoAttivita nuovoStato);
 }

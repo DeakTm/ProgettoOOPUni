@@ -46,6 +46,7 @@ public class DettagliAttivitaView {
     private Button btnInviaCommento;
     private Button btnEliminaCommento;
     private Button btnGestisciMembri;
+    private Button btnCambiaStato;
 
     // TabPane
     private TabPane tabPane;
@@ -98,10 +99,13 @@ public class DettagliAttivitaView {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
+        btnCambiaStato = new Button("🔄 Cambia stato");
+        btnCambiaStato.getStyleClass().add("button");
+
         btnGestisciMembri = new Button("👥 Gestisci membri");
         btnGestisciMembri.getStyleClass().add("button");
 
-        meta.getChildren().addAll(lblTipo, lblStato, lblScadenza, spacer, btnGestisciMembri);
+        meta.getChildren().addAll(lblTipo, lblStato, lblScadenza, spacer, btnCambiaStato, btnGestisciMembri);
         box.getChildren().addAll(lblDescrizione, meta);
         return box;
     }
@@ -395,8 +399,12 @@ public class DettagliAttivitaView {
             btnGestisciMembri.setManaged(false);
         }
     }
+    public void aggiornaLabelStato(String nuovoStato) {
+        if (lblStato != null) {
+            lblStato.setText(nuovoStato);
+        }
+    }
 
- 
     public Stage getStage() { return stage; }
     public BorderPane getRoot() { return root; }
     public ListView<FileCodice> getListaFile() { return listaFile; }
@@ -409,4 +417,5 @@ public class DettagliAttivitaView {
     public Button getBtnInviaCommento() { return btnInviaCommento; }
     public Button getBtnEliminaCommento() { return btnEliminaCommento; }
     public Button getBtnGestisciMembri() { return btnGestisciMembri; }
+    public Button getBtnCambiaStato() { return btnCambiaStato; }
 }

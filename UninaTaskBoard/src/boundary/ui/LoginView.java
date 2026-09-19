@@ -15,16 +15,15 @@ public class LoginView {
 
     public LoginView() {
         root = new StackPane();
-        root.getStyleClass().add("app-shell"); // Mantiene lo stesso sfondo della MainView
+        root.getStyleClass().add("app-shell"); 
         root.setAlignment(Pos.CENTER);
 
         VBox loginCard = new VBox(24);
         loginCard.setMaxWidth(400);
         loginCard.setPadding(new Insets(40));
-        loginCard.getStyleClass().add("app-content"); // Usa lo stile dei pannelli bianchi
+        loginCard.getStyleClass().add("app-content"); 
         loginCard.setAlignment(Pos.CENTER);
         
-        // --- LOGO E BRAND ---
         HBox brandBox = new HBox(12);
         brandBox.setAlignment(Pos.CENTER);
         StackPane logoMark = new StackPane();
@@ -33,9 +32,9 @@ public class LoginView {
         logoMark.getChildren().add(logoText);
         Label brandName = new Label("UninaTaskBoard");
         brandName.getStyleClass().add("sidebar__brand-name");
+        brandName.setStyle("-fx-text-fill: -color-navy-900;");   
         brandBox.getChildren().addAll(logoMark, brandName);
 
-        // --- INTESTAZIONE ---
         VBox headerBox = new VBox(8);
         headerBox.setAlignment(Pos.CENTER);
         Label title = new Label("Bentornato");
@@ -44,10 +43,8 @@ public class LoginView {
         subtitle.getStyleClass().add("page-subtitle");
         headerBox.getChildren().addAll(title, subtitle);
 
-        // --- FORM ---
         VBox formBox = new VBox(16);
         
-        // Campo Matricola
         VBox matricolaBox = new VBox(4);
         Label lblMatricola = new Label("Matricola");
         txtMatricola = new TextField();
@@ -55,7 +52,6 @@ public class LoginView {
         txtMatricola.getStyleClass().add("text-field");
         matricolaBox.getChildren().addAll(lblMatricola, txtMatricola);
 
-        // Campo Password
         VBox passwordBox = new VBox(4);
         Label lblPassword = new Label("Password");
         txtPassword = new PasswordField();
@@ -65,7 +61,6 @@ public class LoginView {
 
         formBox.getChildren().addAll(matricolaBox, passwordBox);
 
-        // --- BOTTONI E LINK ---
         btnAccedi = new Button("Accedi");
         btnAccedi.setMaxWidth(Double.MAX_VALUE); // Il bottone si allunga a tutta larghezza
         btnAccedi.getStyleClass().addAll("button", "btn--primary");
@@ -75,7 +70,6 @@ public class LoginView {
         root.getChildren().add(loginCard);
     }
 
-    // --- GETTER PER IL CONTROLLER ---
     public StackPane getRoot() { return root; }
     public TextField getTxtMatricola() { return txtMatricola; }
     public PasswordField getTxtPassword() { return txtPassword; }
