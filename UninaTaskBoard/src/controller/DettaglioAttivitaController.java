@@ -1,13 +1,19 @@
 package controller;
 
 import boundary.ui.DettagliAttivitaView;
+import boundary.persistence.dao.AttivitaDAO;
+import boundary.persistence.dao.CommentoDAO;
 import boundary.persistence.dao.FileCodiceDAO;
 import boundary.persistence.dao.RevisioneDAO;
+import boundary.persistence.jdbc.AttivitaBoundaryJdbc;
+import boundary.persistence.jdbc.CommentoBoundaryJdbc;
 import boundary.persistence.jdbc.FileCodiceBoundaryJdbc;
 import boundary.persistence.jdbc.RevisioneBoundaryJdbc;
 import entity.Attivita;
+import entity.Commento;
 import entity.FileCodice;
 import entity.Revisione;
+import entity.Studente;
 import entity.enums.TipoLinguaggio;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -28,6 +34,8 @@ public class DettaglioAttivitaController {
     private DettagliAttivitaView view;
     private FileCodiceDAO fileDAO;
     private RevisioneDAO revisioneDAO;
+    private CommentoDAO commentoDAO;
+    private AttivitaDAO attivitaDAO;
     private Attivita attivita;
     private String matricolaUtente;
     private FileCodice fileCorrente;
@@ -38,25 +46,58 @@ public class DettaglioAttivitaController {
         this.view = new DettagliAttivitaView(owner);
         this.fileDAO = new FileCodiceBoundaryJdbc();
         this.revisioneDAO = new RevisioneBoundaryJdbc();
+        this.commentoDAO = new CommentoBoundaryJdbc();
+        this.attivitaDAO = new AttivitaBoundaryJdbc();
 
         view.setAttivita(attivita);
+
+        configuraListenerCommenti();
+        configuraListenerMembri();
 
         boolean isSviluppo = (attivita.getTipo() != null
                               && attivita.getTipo().toString().equalsIgnoreCase("Sviluppo"));
 
-        if (!isSviluppo) {
+        if (isSviluppo) {
+            configuraListenerFile();
+            caricaFile();
+        } else {
             view.mostraSoloDocumentazione();
-            view.mostra();
-            return;
+            view.nascondiGestioneMembri();
         }
 
-        configuraListener();
-        caricaFile();
-
+        caricaCommenti();
         view.mostra();
     }
 
-    private void configuraListener() {
+
+    private void configuraListenerMembri() {
+        view.getBtnGestisciMembri().setOnAction(e -> apriGestioneMembri());
+    }
+
+    private void apriGestioneMembri() {
+        List<String> assegnati = attivitaDAO.getAssegnatariAttivita(attivita.getId());
+
+        if (!assegnati.contains(matricolaUtente)) {
+            mostraErrore("Solo chi è assegnato all'attività può gestire i membri.\n" +
+                         "Contatta un membro già assegnato.");
+            return;
+        }
+
+        new GestioneMembriController(attivita, () -> caricaCommenti());
+    }
+
+
+    private void configuraListenerCommenti() {
+        view.getBtnInviaCommento().setOnAction(e -> aggiungiCommento());
+        view.getBtnEliminaCommento().setOnAction(e -> eliminaCommento());
+
+        view.getListaCommenti().getSelectionModel().selectedItemProperty().addListener(
+            (obs, oldC, newC) -> view.getBtnEliminaCommento().setDisable(newC == null)
+        );
+    }
+
+
+    private void configuraListenerFile() {
         view.getBtnImportaFile().setOnAction(e -> importaFile());
 
         view.getListaFile().getSelectionModel().selectedItemProperty().addListener(
@@ -74,6 +115,55 @@ public class DettaglioAttivitaController {
         view.getBtnAggiungiRevisione().setOnAction(e -> aggiungiRevisione());
         view.getBtnEliminaFile().setOnAction(e -> eliminaFile());
     }
+
+
+    private void caricaCommenti() {
+        List<Commento> commenti = commentoDAO.leggiCommentiPerAttivita(attivita.getId());
+        view.setCommenti(commenti);
+    }
+
+    private void aggiungiCommento() {
+        String testo = view.getTestoNuovoCommento();
+        if (testo == null || testo.trim().isEmpty()) {
+            mostraErrore("Il commento non può essere vuoto");
+            return;
+        }
+
+        Studente autore = new Studente(matricolaUtente, null, null, null);
+        Commento c = new Commento(LocalDateTime.now(), testo, autore, attivita);
+
+        int idGenerato = commentoDAO.creaCommento(c, attivita.getId());
+
+        if (idGenerato > 0) {
+            view.pulisciCampoCommento();
+            caricaCommenti();
+        } else {
+            mostraErrore("Errore nell'invio del commento.\nVerifica di essere membro del progetto.");
+        }
+    }
+
+    private void eliminaCommento() {
+        Commento selezionato = view.getCommentoSelezionato();
+        if (selezionato == null) return;
+
+        if (selezionato.getMatricola() == null
+            || !selezionato.getMatricola().getMatricola().equals(matricolaUtente)) {
+            mostraErrore("Puoi eliminare solo i tuoi commenti!");
+            return;
+        }
+
+        Alert conferma = new Alert(Alert.AlertType.CONFIRMATION);
+        conferma.setTitle("Conferma eliminazione");
+        conferma.setHeaderText(null);
+        conferma.setContentText("Eliminare questo commento?");
+
+        Optional<ButtonType> risposta = conferma.showAndWait();
+        if (risposta.isPresent() && risposta.get() == ButtonType.OK) {
+            commentoDAO.eliminaCommento(selezionato.getId());
+            caricaCommenti();
+        }
+    }
+
 
     private void caricaFile() {
         List<FileCodice> files = fileDAO.leggiFilePerAttivita(attivita.getId());
@@ -121,7 +211,6 @@ public class DettaglioAttivitaController {
             } else {
                 mostraErrore("Errore nel salvataggio del file");
             }
-
         } catch (IOException e) {
             mostraErrore("Errore lettura file: " + e.getMessage());
         }
@@ -138,7 +227,6 @@ public class DettaglioAttivitaController {
         fileCorrente.setDataUltimaModifica(LocalDateTime.now());
 
         fileDAO.aggiornaFile(fileCorrente);
-
         caricaFile();
         mostraInfo("Modifiche salvate!");
     }
@@ -193,6 +281,7 @@ public class DettaglioAttivitaController {
             caricaFile();
         }
     }
+
 
     private TipoLinguaggio rilevaLinguaggio(String nomeFile) {
         String lower = nomeFile.toLowerCase();

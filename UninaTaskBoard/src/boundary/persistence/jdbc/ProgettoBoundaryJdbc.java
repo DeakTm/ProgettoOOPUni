@@ -181,7 +181,22 @@ public class ProgettoBoundaryJdbc implements ProgettoDAO {
 
 	@Override
 	public List<String> getStudentiByProgetto(int idProgetto) {
-		// altrimenti da errore
-		return null;
+	    List<String> matricole = new ArrayList<>();
+	    String query = "SELECT * FROM fn_leggi_studenti_progetto(?)";
+
+	    try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
+	         PreparedStatement stmt = conn.prepareStatement(query)) {
+
+	        stmt.setInt(1, idProgetto);
+	        try (ResultSet rs = stmt.executeQuery()) {
+	            while (rs.next()) {
+	                matricole.add(rs.getString("Matricola"));   
+	            }
+	        }
+	    } catch (SQLException e) {
+	        System.err.println("ERRORE getStudentiByProgetto: " + e.getMessage());
+	        e.printStackTrace();
+	    }
+	    return matricole;
 	}
 }

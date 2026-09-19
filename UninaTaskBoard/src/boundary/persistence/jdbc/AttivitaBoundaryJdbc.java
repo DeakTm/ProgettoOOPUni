@@ -235,4 +235,24 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
         }
         return lista;
     }
+    
+    @Override
+    public List<String> getAssegnatariAttivita(int idAttivita) {
+        List<String> lista = new ArrayList<>();
+        String query = "SELECT * FROM fn_leggi_studenti_attivita(?)";
+
+        try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, idAttivita);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(rs.getString("matricola"));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return lista;
+    }
 }

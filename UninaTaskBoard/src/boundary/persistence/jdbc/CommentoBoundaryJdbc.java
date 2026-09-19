@@ -1,10 +1,10 @@
 package boundary.persistence.jdbc;
 
 import boundary.persistence.dao.CommentoDAO;
-import entity.Attivita;
 import entity.Commento;
 import entity.Studente;
 import util.DatabaseManager;
+import entity.Attivita;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -15,7 +15,7 @@ public class CommentoBoundaryJdbc implements CommentoDAO {
 
     @Override
     public int creaCommento(Commento commento, int idAttivita) {
-        String query = "{ ? = call fn_crea_commento(?, ?, ?, ?) }";
+        String query = "{ ? = call fn_crea_commento(?, ?, ?) }";
         int idGenerato = -1;
 
         try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
@@ -23,14 +23,14 @@ public class CommentoBoundaryJdbc implements CommentoDAO {
 
             stmt.registerOutParameter(1, Types.INTEGER);
             stmt.setString(2, commento.getTesto());
-            stmt.setTimestamp(3, Timestamp.valueOf(commento.getDataCommento()));
-            stmt.setString(4, commento.getMatricola().getMatricola());
-            stmt.setInt(5, idAttivita);
+            stmt.setString(3, commento.getMatricola().getMatricola());
+            stmt.setInt(4, idAttivita);
 
             stmt.execute();
             idGenerato = stmt.getInt(1);
 
         } catch (SQLException e) {
+            System.err.println("ERRORE creaCommento: " + e.getMessage());
             e.printStackTrace();
         }
         return idGenerato;
@@ -51,11 +51,11 @@ public class CommentoBoundaryJdbc implements CommentoDAO {
                     int id = rs.getInt("id");
                     String testo = rs.getString("testo");
                     LocalDateTime data = rs.getTimestamp("data_commento").toLocalDateTime();
-                    
-                    String matricolaDb = rs.getString("matricola_studente"); 
-                    Studente autoreFantasma = new Studente(matricolaDb, null, null);
-                    Commento c = new Commento(id, data, testo, autoreFantasma, null);
-                    
+
+                    String matricolaDb = rs.getString("matricola_studente");
+                    Studente autore = new Studente(matricolaDb, null, null, null);
+                    Commento c = new Commento(id, data, testo, autore, null);
+
                     lista.add(c);
                 }
             }
@@ -80,7 +80,7 @@ public class CommentoBoundaryJdbc implements CommentoDAO {
             e.printStackTrace();
         }
     }
-    
+
     @Override
     public List<Commento> leggiCommentiStudente(String matricola) {
         List<Commento> lista = new ArrayList<>();
@@ -110,6 +110,7 @@ public class CommentoBoundaryJdbc implements CommentoDAO {
                     lista.add(c);
                 }
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }

@@ -12,4 +12,5 @@ public interface AttivitaDAO {
     void rimuoviStudenteAttivita(String matricola, int idAttivita);
     boolean inserisciAttivitaConAssegnazione(Attivita attivita, String matricola);
     List<Attivita> getAttivitaStudente(String matricola);
+    List<String> getAssegnatariAttivita(int idAttivita);
 }

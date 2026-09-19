@@ -45,6 +45,7 @@ public class DettagliAttivitaView {
     private TextArea txtNuovoCommento;
     private Button btnInviaCommento;
     private Button btnEliminaCommento;
+    private Button btnGestisciMembri;
 
     // TabPane
     private TabPane tabPane;
@@ -94,10 +95,17 @@ public class DettagliAttivitaView {
         lblScadenza = new Label("");
         lblScadenza.getStyleClass().add("text-muted");
 
-        meta.getChildren().addAll(lblTipo, lblStato, lblScadenza);
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        btnGestisciMembri = new Button("👥 Gestisci membri");
+        btnGestisciMembri.getStyleClass().add("button");
+
+        meta.getChildren().addAll(lblTipo, lblStato, lblScadenza, spacer, btnGestisciMembri);
         box.getChildren().addAll(lblDescrizione, meta);
         return box;
     }
+
 
 
     private Tab createTabFileRevisioni() {
@@ -380,6 +388,13 @@ public class DettagliAttivitaView {
         stage.setScene(scene);
         stage.show();
     }
+    
+    public void nascondiGestioneMembri() {
+        if (btnGestisciMembri != null) {
+            btnGestisciMembri.setVisible(false);
+            btnGestisciMembri.setManaged(false);
+        }
+    }
 
  
     public Stage getStage() { return stage; }
@@ -393,4 +408,5 @@ public class DettagliAttivitaView {
     public ListView<Commento> getListaCommenti() { return listaCommenti; }
     public Button getBtnInviaCommento() { return btnInviaCommento; }
     public Button getBtnEliminaCommento() { return btnEliminaCommento; }
+    public Button getBtnGestisciMembri() { return btnGestisciMembri; }
 }
