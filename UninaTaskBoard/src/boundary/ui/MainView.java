@@ -1,8 +1,14 @@
 package boundary.ui;
 
+import entity.Attivita;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 public class MainView {
 
@@ -22,8 +28,11 @@ public class MainView {
     // Dashboard (Home)
     private VBox dashboardContent;
     private Label lblBenvenuto;
-    private Button btnVaiAiProgetti;
     private Label lblAvatarHome;
+    
+    // Quick Actions & Scadenze
+    private Button btnNuovoProgettoQuick;
+    private VBox containerScadenze;
 
     public MainView() {
         root = new BorderPane();
@@ -44,7 +53,6 @@ public class MainView {
         itemCommenti = createNavItem("💬", "Commenti", false);
         
         navMenu.getChildren().addAll(itemDashboard, itemProgetti, itemAttivita, itemCommenti);
-
         sidebar.getChildren().addAll(brandBox, navMenu);
         root.setLeft(sidebar);
 
@@ -52,55 +60,105 @@ public class MainView {
         HBox topbar = createTopbar();
         root.setTop(topbar);
         
-        
         this.dashboardContent = createDashboardContent();
         root.setCenter(dashboardContent);
     }
 
     private VBox createDashboardContent() {
-        VBox content = new VBox(32);
+        VBox content = new VBox(28);
         content.getStyleClass().add("app-content");
-        content.setAlignment(javafx.geometry.Pos.TOP_LEFT);
-        
+        content.setAlignment(Pos.TOP_LEFT);
         content.setPadding(new Insets(32, 36, 36, 36)); 
 
+        // 1. Header di Benvenuto
         HBox welcomeBox = new HBox(20);
-        welcomeBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        welcomeBox.setAlignment(Pos.CENTER_LEFT);
         
         StackPane pfp = new StackPane();
         pfp.getStyleClass().add("avatar");
-        pfp.setPrefSize(60, 60);
+        pfp.setPrefSize(56, 56);
         lblAvatarHome = new Label("UT");
-        lblAvatarHome.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;");
+        lblAvatarHome.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: white;");
         pfp.getChildren().add(lblAvatarHome);
 
         VBox textVBox = new VBox(4);
-        Label title = new Label("UninaTaskBoard");
+        Label title = new Label("Dashboard Personale");
         title.getStyleClass().add("page-title");
         
-        lblBenvenuto = new Label("Benvenuto");
+        lblBenvenuto = new Label("Bentornato! Ecco il punto della situazione.");
         lblBenvenuto.getStyleClass().add("page-subtitle");
         textVBox.getChildren().addAll(title, lblBenvenuto);
-
         welcomeBox.getChildren().addAll(pfp, textVBox);
 
-        VBox projectCard = new VBox(16);
-        projectCard.getStyleClass().add("chart-card");
-        projectCard.setMaxWidth(500);
-        projectCard.setPadding(new Insets(24));
+        // 2. Sezione Quick Actions (Azioni Rapide)
+        VBox quickActionsBox = new VBox(12);
+        Label lblQuickTitle = new Label("⚡ Azioni Rapide");
+        lblQuickTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+        
+        HBox actionsRow = new HBox(12);
+        btnNuovoProgettoQuick = new Button("+ Nuovo Progetto");
+        btnNuovoProgettoQuick.getStyleClass().addAll("button", "btn--primary");
+        
+        actionsRow.getChildren().add(btnNuovoProgettoQuick);
+        quickActionsBox.getChildren().addAll(lblQuickTitle, actionsRow);
 
-        Label cardTitle = new Label("I tuoi Progetti");
-        cardTitle.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
-        Label cardDesc = new Label("Accedi all'elenco completo dei progetti assegnati e monitora lo stato delle attività.");
-        cardDesc.getStyleClass().add("text-muted");
+        // 3. Sezione Scadenze Imminenti (Prossimi 7 giorni)
+        VBox scadenzeCard = new VBox(16);
+        scadenzeCard.getStyleClass().add("chart-card");
+        scadenzeCard.setPadding(new Insets(24));
+        
+        Label lblScadenzeTitle = new Label("⏳ Attività in Scadenza (Prossimi 7 giorni)");
+        lblScadenzeTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
 
-        btnVaiAiProgetti = new Button("Visualizza i tuoi Progetti →");
-        btnVaiAiProgetti.getStyleClass().addAll("button", "btn--primary");
+        containerScadenze = new VBox(10);
+        
+        scadenzeCard.getChildren().addAll(lblScadenzeTitle, new Separator(), containerScadenze);
 
-        projectCard.getChildren().addAll(cardTitle, cardDesc, btnVaiAiProgetti);
-
-        content.getChildren().addAll(welcomeBox, new Separator(), projectCard);
+        content.getChildren().addAll(welcomeBox, new Separator(), quickActionsBox, scadenzeCard);
         return content;
+    }
+
+    // Metodo per popolare dinamicamente le attività in scadenza nella Home
+    public void mostraScadenzeImminenti(List<Attivita> attivitaScadenza) {
+        containerScadenze.getChildren().clear();
+
+        if (attivitaScadenza == null || attivitaScadenza.isEmpty()) {
+            Label vuoto = new Label("🎉 Ottimo lavoro! Nessuna attività in scadenza nei prossimi 7 giorni.");
+            vuoto.getStyleClass().add("text-muted");
+            containerScadenze.getChildren().add(vuoto);
+            return;
+        }
+
+        for (Attivita a : attivitaScadenza) {
+            HBox item = new HBox(12);
+            item.setAlignment(Pos.CENTER_LEFT);
+            item.setPadding(new Insets(10, 14, 10, 14));
+            item.getStyleClass().add("card");
+
+            VBox info = new VBox(3);
+            Label desc = new Label(a.getDescrizione());
+            desc.setStyle("-fx-font-weight: bold; -fx-font-size: 13px;");
+            
+            String nomeProg = (a.getProgetto() != null && a.getProgetto().getNome() != null) 
+                ? a.getProgetto().getNome() : "Progetto #" + (a.getProgetto() != null ? a.getProgetto().getId() : "");
+            
+            Label sub = new Label("Progetto: " + nomeProg);
+            sub.getStyleClass().add("text-muted");
+            sub.setStyle("-fx-font-size: 11px;");
+            info.getChildren().addAll(desc, sub);
+
+            Region spacer = new Region();
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+
+            LocalDate scadenza = a.getDataScadenza();
+            long giorniRimanenti = ChronoUnit.DAYS.between(LocalDate.now(), scadenza);
+            
+            Label lblScad = new Label(scadenza.format(DateTimeFormatter.ofPattern("dd MMM yyyy")) + " (" + (giorniRimanenti == 0 ? "Oggi!" : "tra " + giorniRimanenti + " giorni") + ")");
+            lblScad.setStyle("-fx-font-weight: bold; -fx-font-size: 12px; -fx-text-fill: -color-warning-text;");
+
+            item.getChildren().addAll(info, spacer, lblScad);
+            containerScadenze.getChildren().add(item);
+        }
     }
 
     private HBox createBrandBox() {
@@ -131,14 +189,14 @@ public class MainView {
     private HBox createTopbar() {
         HBox topbar = new HBox();
         topbar.getStyleClass().add("topbar");
-        topbar.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        topbar.setAlignment(Pos.CENTER_LEFT);
         topbar.setPrefHeight(56);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         HBox userBox = new HBox(12);
-        userBox.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
+        userBox.setAlignment(Pos.CENTER_RIGHT);
 
         StackPane miniAvatar = new StackPane();
         miniAvatar.getStyleClass().add("avatar");
@@ -156,35 +214,21 @@ public class MainView {
         btnLogout = new Button("🚪 Esci");
         btnLogout.getStyleClass().addAll("button", "btn--secondary");
 
-        userBox.getChildren().addAll(miniAvatar, lblNomeTopbar, sep, btnLogout);
-
+        userBox.getChildren().addAll(miniAvatar, lblNomeTopbar, sep, logoutButtonReplacement(btnLogout));
         topbar.getChildren().addAll(spacer, userBox);
         return topbar;
     }
 
-    public void mostraDashboard() {
-        root.setCenter(dashboardContent);
-    }
+    private Button logoutButtonReplacement(Button btn) { return btn; }
 
-    public void mostraProgettiView(ProgettiView progettiView) {
-        root.setCenter(progettiView.getRoot());
-    }
-
-    public void mostraAttivitaView(AttivitaView attivitaView) {
-        root.setCenter(attivitaView.getRoot());
-    }
-    
-    public void mostraCommentiView(CommentoView commentoView) {
-        root.setCenter(commentoView.getRoot());
-    }
+    public void mostraDashboard() { root.setCenter(dashboardContent); }
+    public void mostraProgettiView(ProgettiView progettiView) { root.setCenter(progettiView.getRoot()); }
+    public void mostraAttivitaView(AttivitaView attivitaView) { root.setCenter(attivitaView.getRoot()); }
+    public void mostraCommentiView(CommentoView commentoView) { root.setCenter(commentoView.getRoot()); }
 
     public void setUtenteLoggato(String matricola) {
-        if (lblBenvenuto != null) {
-            lblBenvenuto.setText("Benvenuto, " + matricola);
-        }
-        if (lblNomeTopbar != null) {
-            lblNomeTopbar.setText(matricola);
-        }
+        if (lblBenvenuto != null) lblBenvenuto.setText("Bentornato, " + matricola + "! Ecco il riepilogo delle scadenze.");
+        if (lblNomeTopbar != null) lblNomeTopbar.setText(matricola);
         
         String initials = (matricola != null && matricola.length() >= 2) 
             ? matricola.substring(0, 2).toUpperCase() 
@@ -200,5 +244,5 @@ public class MainView {
     public HBox getItemAttivita() { return itemAttivita; }
     public HBox getItemCommenti() { return itemCommenti; }
     public Button getBtnLogout() { return btnLogout; }
-    public Button getBtnVaiAiProgetti() { return btnVaiAiProgetti; }
+    public Button getBtnNuovoProgettoQuick() { return btnNuovoProgettoQuick; }
 }

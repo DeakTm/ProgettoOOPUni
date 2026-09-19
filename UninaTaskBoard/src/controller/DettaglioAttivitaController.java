@@ -18,7 +18,6 @@ import entity.enums.StatoAttivita;
 import entity.enums.TipoLinguaggio;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.TextInputDialog;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -57,7 +56,6 @@ public class DettaglioAttivitaController {
         configuraListenerMembri();
         configuraListenerStato();
 
-
         boolean isSviluppo = (attivita.getTipo() != null
                               && attivita.getTipo().toString().equalsIgnoreCase("Sviluppo"));
 
@@ -72,7 +70,6 @@ public class DettaglioAttivitaController {
         caricaCommenti();
         view.mostra();
     }
-
 
     private void configuraListenerMembri() {
         view.getBtnGestisciMembri().setOnAction(e -> apriGestioneMembri());
@@ -90,7 +87,6 @@ public class DettaglioAttivitaController {
         new GestioneMembriController(attivita, () -> caricaCommenti());
     }
 
-
     private void configuraListenerCommenti() {
         view.getBtnInviaCommento().setOnAction(e -> aggiungiCommento());
         view.getBtnEliminaCommento().setOnAction(e -> eliminaCommento());
@@ -99,7 +95,6 @@ public class DettaglioAttivitaController {
             (obs, oldC, newC) -> view.getBtnEliminaCommento().setDisable(newC == null)
         );
     }
-
 
     private void configuraListenerFile() {
         view.getBtnImportaFile().setOnAction(e -> importaFile());
@@ -119,7 +114,6 @@ public class DettaglioAttivitaController {
         view.getBtnAggiungiRevisione().setOnAction(e -> aggiungiRevisione());
         view.getBtnEliminaFile().setOnAction(e -> eliminaFile());
     }
-
 
     private void caricaCommenti() {
         List<Commento> commenti = commentoDAO.leggiCommentiPerAttivita(attivita.getId());
@@ -167,7 +161,6 @@ public class DettaglioAttivitaController {
             caricaCommenti();
         }
     }
-
 
     private void caricaFile() {
         List<FileCodice> files = fileDAO.leggiFilePerAttivita(attivita.getId());
@@ -286,7 +279,6 @@ public class DettaglioAttivitaController {
         }
     }
 
-
     private TipoLinguaggio rilevaLinguaggio(String nomeFile) {
         String lower = nomeFile.toLowerCase();
         if (lower.endsWith(".java")) return TipoLinguaggio.Java;
@@ -336,14 +328,19 @@ public class DettaglioAttivitaController {
             return;
         }
 
-        attivitaDAO.aggiornaStatoAttivita(attivita.getId(), StatoAttivita.Completata);
-
         attivita.setStato(StatoAttivita.Completata);
 
-        view.aggiornaLabelStato(StatoAttivita.Completata.toString());
-        aggiornaStatoPulsante();
+        try {
+            attivitaDAO.aggiornaAttivita(attivita);
 
-        mostraInfo("Attività completata! Il progetto si aggiornerà automaticamente.");
+            view.aggiornaLabelStato(StatoAttivita.Completata.toString());
+            aggiornaStatoPulsante();
+
+            mostraInfo("Attività completata con successo!");
+        } catch (Exception e) {
+            attivita.setStato(StatoAttivita.In_Corso);
+            mostraErrore("Errore durante l'aggiornamento dello stato sul database: " + e.getMessage());
+        }
     }
     
     private void aggiornaStatoPulsante() {
@@ -352,15 +349,11 @@ public class DettaglioAttivitaController {
         view.getBtnCambiaStato().setDisable(!puoCompletare);
 
         if (puoCompletare) {
-            view.getBtnCambiaStato().setText("✅ Segna come Completata");
+            view.getBtnCambiaStato().setText(" Segna come Completata");
         } else if (attivita.getStato() == StatoAttivita.Completata) {
-            view.getBtnCambiaStato().setText("✅ Completata");
+            view.getBtnCambiaStato().setText(" Completata");
         } else {
-            view.getBtnCambiaStato().setText("✅ Segna come Completata");
+            view.getBtnCambiaStato().setText(" Segna come Completata");
         }
-        
     }
-    
-
-
 }

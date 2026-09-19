@@ -6,6 +6,7 @@ import entity.Progetto;
 import entity.enums.TipoAttivita;
 import entity.enums.StatoAttivita;
 import util.DatabaseManager;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -103,7 +104,7 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
             e.printStackTrace();
         }
     }
-
+    
     @Override
     public void eliminaAttivita(int id) {
         String query = "CALL pr_elimina_attivita(?)";  
@@ -252,22 +253,5 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
         }
 
         return media;
-    }
-    
-    @Override
-    public void aggiornaStatoAttivita(int idAttivita, StatoAttivita nuovoStato) {
-        String query = "CALL pr_cambia_stato_attivita(?, ?)";
-
-        try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-
-            stmt.setInt(1, idAttivita);
-            stmt.setString(2, nuovoStato.name());
-            stmt.execute();
-
-        } catch (SQLException e) {
-            System.err.println("ERRORE aggiornaStatoAttivita: " + e.getMessage());
-            e.printStackTrace();
-        }
     }
 }
