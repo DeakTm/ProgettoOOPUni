@@ -555,3 +555,23 @@ BEGIN
     WHERE SA.id_attivita = p_id_attivita;
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION fn_media_revisioni_progetto(
+    p_id_progetto INT
+) RETURNS NUMERIC AS $$
+DECLARE
+    v_media NUMERIC;
+BEGIN
+    SELECT COALESCE(AVG(sub.tot_rev), 0) INTO v_media
+    FROM (
+        SELECT COUNT(r.id) AS tot_rev
+        FROM FileCodice f
+        JOIN Attivita a ON f.id_attivita = a.id
+        LEFT JOIN Revisione r ON f.id_file = r.id_filecodice
+        WHERE a.id_progetto = p_id_progetto
+        GROUP BY f.id_file
+    ) sub;
+
+    RETURN v_media;
+END;
+$$ LANGUAGE plpgsql;

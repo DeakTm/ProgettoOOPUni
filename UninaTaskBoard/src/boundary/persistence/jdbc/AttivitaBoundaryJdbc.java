@@ -13,9 +13,7 @@ import java.util.List;
 
 public class AttivitaBoundaryJdbc implements AttivitaDAO {
 
-    // ============================================
-    // CREA ATTIVITÀ
-    // ============================================
+
     @Override
     public int creaAttivita(Attivita attivita) {
         String query = "{ ? = call fn_crea_attivita(?, ?, ?, ?) }";
@@ -49,9 +47,6 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
         return idGenerato;
     }
 
-    // ============================================
-    // LEGGI ATTIVITÀ DI UN PROGETTO
-    // ============================================
     @Override
     public List<Attivita> leggiAttivitaPerProgetto(int idProgetto) {
         List<Attivita> lista = new ArrayList<>();
@@ -68,11 +63,9 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
                     a.setId(rs.getInt("id"));
                     a.setDescrizione(rs.getString("descrizione"));
 
-                    // ✅ NIENTE toUpperCase!
                     a.setTipo(TipoAttivita.valueOf(rs.getString("tipo")));
                     a.setStato(StatoAttivita.valueOf(rs.getString("stato")));
 
-                    // Data scadenza (può essere null)
                     Timestamp tsScadenza = rs.getTimestamp("data_scadenza");
                     if (tsScadenza != null) {
                         a.setDataScadenza(tsScadenza.toLocalDateTime().toLocalDate());
@@ -88,9 +81,6 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
         return lista;
     }
 
-    // ============================================
-    // AGGIORNA ATTIVITÀ (PROCEDURA → CALL)
-    // ============================================
     @Override
     public void aggiornaAttivita(Attivita attivita) {
         String query = "CALL pr_aggiorna_attivita(?, ?, ?, ?)";  // ✅ CALL
@@ -115,13 +105,9 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
             e.printStackTrace();
         }
     }
-
-    // ============================================
-    // ELIMINA ATTIVITÀ (PROCEDURA → CALL)
-    // ============================================
     @Override
     public void eliminaAttivita(int id) {
-        String query = "CALL pr_elimina_attivita(?)";  // ✅ CALL
+        String query = "CALL pr_elimina_attivita(?)";  
 
         try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {  // ✅ PreparedStatement
@@ -134,9 +120,6 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
         }
     }
 
-    // ============================================
-    // ASSEGNA STUDENTE AD ATTIVITÀ
-    // ============================================
     @Override
     public boolean assegnaStudenteAttivita(String matricola, int idAttivita) {
         String query = "{ ? = call fn_assegna_studente_attivita(?, ?) }";
@@ -158,9 +141,6 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
         return risultato;
     }
 
-    // ============================================
-    // RIMUOVI STUDENTE DA ATTIVITÀ (PROCEDURA → CALL)
-    // ============================================
     @Override
     public void rimuoviStudenteAttivita(String matricola, int idAttivita) {
         String query = "CALL pr_rimuovi_studente_attivita(?, ?)";  // ✅ CALL
@@ -177,9 +157,6 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
         }
     }
 
-    // ============================================
-    // INSERISCI + ASSEGNA (helper)
-    // ============================================
     @Override
     public boolean inserisciAttivitaConAssegnazione(Attivita attivita, String matricola) {
         int idAttivita = creaAttivita(attivita);
@@ -190,9 +167,6 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
         return idAttivita != -1;
     }
 
-    // ============================================
-    // GET ATTIVITÀ DI UNO STUDENTE (tutti i progetti)
-    // ============================================
     @Override
     public List<Attivita> getAttivitaStudente(String matricola) {
         List<Attivita> lista = new ArrayList<>();
@@ -211,19 +185,14 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
                     a.setTipo(TipoAttivita.valueOf(rs.getString("tipo")));
                     a.setStato(StatoAttivita.valueOf(rs.getString("stato")));
 
-                    // ✅ DataCreazione → LocalDate
                     Timestamp tsCreazione = rs.getTimestamp("data_creazione");
                     if (tsCreazione != null) {
                         a.setDataCreazione(tsCreazione.toLocalDateTime().toLocalDate());
                     }
-
-                    // ✅ DataScadenza → LocalDate
                     Timestamp tsScadenza = rs.getTimestamp("data_scadenza");
                     if (tsScadenza != null) {
                         a.setDataScadenza(tsScadenza.toLocalDateTime().toLocalDate());
                     }
-
-                    // ✅ Progetto
                     int idProg = rs.getInt("id_progetto");
                     a.setProgetto(new Progetto(idProg, null, null,null));
 
@@ -254,5 +223,29 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
             e.printStackTrace();
         }
         return lista;
+    }
+    
+    @Override
+    public double getMediaRevisioniProgetto(int idProgetto) {
+        String query = "SELECT fn_media_revisioni_progetto(?)";
+        double media = 0.0;
+
+        try (Connection conn = util.DatabaseManager.getDatabaseManager().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, idProgetto);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    media = rs.getDouble(1);
+                }
+            }
+
+        } catch (java.sql.SQLException e) {
+            System.err.println("Errore SQL durante il calcolo della media revisioni per il progetto " + idProgetto);
+            e.printStackTrace();
+        }
+
+        return media;
     }
 }

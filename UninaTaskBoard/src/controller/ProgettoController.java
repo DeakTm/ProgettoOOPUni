@@ -147,14 +147,12 @@ public class ProgettoController {
             mainView.mostraProgettiView(view);
         });
 
-        // 1. Carica i Membri
         List<Studente> membriAttuali = progettoDAO.leggiStudentiPerProgetto(progetto.getId());
         dettaglioView.mostraMembri(membriAttuali);
 
-        // Map per il grafico (Vuota finché non implementiamo i DAO lato DB)
+       
         Map<String, Integer> completatePerMembro = new HashMap<>();
 
-        // 2. Carica dati per Statistiche, Report e Lista visiva
         AttivitaDAO attivitaDAO = new AttivitaBoundaryJdbc();
         List<Attivita> listaAttivita = attivitaDAO.leggiAttivitaPerProgetto(progetto.getId()); 
         
@@ -163,7 +161,7 @@ public class ProgettoController {
         int inCorso = 0;
         int nonIniziate = 0;
         int sviluppo = 0;
-        double mediaRevisioni = 0.0;
+        double mediaRevisioni = attivitaDAO.getMediaRevisioniProgetto(progetto.getId());
 
         if (listaAttivita != null) {
             totali = listaAttivita.size();
@@ -188,7 +186,6 @@ public class ProgettoController {
         dettaglioView.aggiornaStatistiche(totali, completate, inCorso);
         dettaglioView.mostraAttivita(listaAttivita);
 
-        // --- LISTENER GENERA REPORT ---
         final int fTotale = totali;
         final int fCompletate = completate;
         final int fInCorso = inCorso;
@@ -199,7 +196,6 @@ public class ProgettoController {
             dettaglioView.mostraReportDialog(fTotale, fCompletate, fInCorso, fNonIniziate, fSviluppo, mediaRevisioni, completatePerMembro);
         });
 
-        // --- LISTENER NUOVA ATTIVITA' ---
         dettaglioView.getBtnNuovaAttivita().setOnAction(e -> {
             FormAttivitaView formView = new FormAttivitaView();
             
