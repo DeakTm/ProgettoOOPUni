@@ -254,7 +254,7 @@ public class AttivitaView {
 
  
         TableColumn<Attivita, Void> colProgetto = new TableColumn<>("Progetto");
-        colProgetto.setPrefWidth(120);
+        colProgetto.setPrefWidth(160); 
         colProgetto.setCellFactory(col -> new TableCell<>() {
             @Override
             protected void updateItem(Void item, boolean empty) {
@@ -264,16 +264,18 @@ public class AttivitaView {
                     return;
                 }
                 Attivita a = getTableRow().getItem();
-                Integer idProg = null;
-                if (a.getProgetto() != null) {
-                    idProg = a.getProgetto().getId();
+                
+                String nomeProgetto = null;
+                if (a.getProgetto() != null && a.getProgetto().getNome() != null) {
+                    nomeProgetto = a.getProgetto().getNome();
                 }
-                if (idProg == null || idProg == 0) {
+
+                if (nomeProgetto == null || nomeProgetto.trim().isEmpty()) {
                     Label lbl = new Label("—");
                     lbl.getStyleClass().add("text-muted");
                     setGraphic(lbl);
                 } else {
-                    Label lbl = new Label("#" + idProg);
+                    Label lbl = new Label(nomeProgetto);
                     lbl.setStyle(
                         "-fx-background-color: -color-surface-alt; " +
                         "-fx-text-fill: -color-text-secondary; " +
@@ -289,7 +291,6 @@ public class AttivitaView {
                 setText(null);
             }
         });
-
         table.getColumns().addAll(colDesc, colTipo, colStato, colScadenza, colProgetto);
 
    

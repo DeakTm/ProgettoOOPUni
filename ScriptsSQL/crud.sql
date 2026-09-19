@@ -446,6 +446,7 @@ RETURNS TABLE (
     data_creazione TIMESTAMP,
     data_scadenza TIMESTAMP,
     id_progetto INT
+    nome_progetto VARCHAR(255)
 ) AS $$
 BEGIN
     RETURN QUERY
@@ -456,9 +457,11 @@ BEGIN
         A.Stato::VARCHAR,
         A.DataCreazione,
         A.DataScadenza,
-        A.id_progetto
+        A.id_progetto,
+        P.nome
     FROM Attivita A
     JOIN Studente_Attivita SA ON A.id = SA.id_attivita
+    JOIN Progetto P ON A.id_progetto = P.id
     WHERE SA.matricola_studente = p_matricola
     ORDER BY A.DataCreazione DESC;
 END;
