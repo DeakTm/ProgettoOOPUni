@@ -12,13 +12,14 @@ import java.util.List;
 
 public class FileCodiceBoundaryJdbc implements FileCodiceDAO {
 
+
     @Override
     public int creaFile(FileCodice file, int idAttivita) {
         String query = "{ ? = call fn_crea_filecodice(?, ?, ?, ?) }"; 
         int idGenerato = -1;
 
-        Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-        try (CallableStatement stmt = conn.prepareCall(query)) {
+        try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
+             CallableStatement stmt = conn.prepareCall(query)) {
 
             stmt.registerOutParameter(1, Types.INTEGER);
             stmt.setString(2, file.getNome_file());
@@ -35,18 +36,19 @@ public class FileCodiceBoundaryJdbc implements FileCodiceDAO {
         return idGenerato;
     }
 
+
     @Override
     public List<FileCodice> leggiFilePerAttivita(int idAttivita) {
         List<FileCodice> lista = new ArrayList<>();
         String query = "SELECT * FROM fn_leggi_file_attivita(?)";
 
-        Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setInt(1, idAttivita);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    int id = rs.getInt("id_file");                 
+                    int id = rs.getInt("id_file");                   
                     String nome = rs.getString("nome_file");
                     String contenuto = rs.getString("contenuto");
                     String langDb = rs.getString("linguaggio");
@@ -69,8 +71,8 @@ public class FileCodiceBoundaryJdbc implements FileCodiceDAO {
     public void aggiornaFile(FileCodice file) {
         String query = "CALL pr_aggiorna_filecodice(?, ?)";  
 
-        Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setInt(1, file.getId());
             stmt.setString(2, file.getContenuto());
@@ -81,12 +83,13 @@ public class FileCodiceBoundaryJdbc implements FileCodiceDAO {
         }
     }
 
+
     @Override
     public void eliminaFile(int id) {
         String query = "CALL pr_elimina_filecodice(?)";  
 
-        Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setInt(1, id);
             stmt.execute();

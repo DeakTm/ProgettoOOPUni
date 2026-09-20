@@ -18,8 +18,8 @@ public class CommentoBoundaryJdbc implements CommentoDAO {
         String query = "{ ? = call fn_crea_commento(?, ?, ?) }";
         int idGenerato = -1;
 
-        Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-        try (CallableStatement stmt = conn.prepareCall(query)) {
+        try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
+             CallableStatement stmt = conn.prepareCall(query)) {
 
             stmt.registerOutParameter(1, Types.INTEGER);
             stmt.setString(2, commento.getTesto());
@@ -41,8 +41,8 @@ public class CommentoBoundaryJdbc implements CommentoDAO {
         String query = "SELECT * FROM fn_leggi_commenti_attivita(?)";
         List<Commento> lista = new ArrayList<>();
 
-        Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setInt(1, idAttivita);
 
@@ -70,8 +70,8 @@ public class CommentoBoundaryJdbc implements CommentoDAO {
     public void eliminaCommento(int idCommento) {
         String query = "CALL pr_elimina_commento(?)";
 
-        Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setInt(1, idCommento);
             stmt.execute(); 
@@ -87,8 +87,8 @@ public class CommentoBoundaryJdbc implements CommentoDAO {
         List<Commento> lista = new ArrayList<>();
         String query = "SELECT * FROM fn_commenti_studente(?)";
 
-        Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, matricola);
             try (ResultSet rs = stmt.executeQuery()) {

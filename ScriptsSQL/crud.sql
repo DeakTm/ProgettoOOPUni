@@ -189,12 +189,8 @@ CREATE OR REPLACE PROCEDURE pr_elimina_attivita(
     IN p_id INT
 ) LANGUAGE plpgsql AS $$
 BEGIN
-    DELETE FROM Revisione 
-    WHERE id_filecodice IN (SELECT id_file FROM FileCodice WHERE id_attivita = p_id);  
-    DELETE FROM FileCodice WHERE id_attivita = p_id;
-    DELETE FROM Commento WHERE id_attivita = p_id;
-    DELETE FROM studente_attivita WHERE id_attivita = p_id; 
-    DELETE FROM Attivita WHERE id = p_id;
+    DELETE FROM Attivita
+    WHERE id = p_id;
 END;
 $$;
 
