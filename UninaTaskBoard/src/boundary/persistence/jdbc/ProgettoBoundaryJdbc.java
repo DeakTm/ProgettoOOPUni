@@ -17,8 +17,8 @@ public class ProgettoBoundaryJdbc implements ProgettoDAO {
         String query = "{ ? = call fn_crea_progetto(?, ?) }";
         int idGenerato = -1;
 
-        try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-             CallableStatement stmt = conn.prepareCall(query)) {
+        Connection conn = DatabaseManager.getDatabaseManager().getConnection();
+        try (CallableStatement stmt = conn.prepareCall(query)) {
 
             stmt.registerOutParameter(1, Types.INTEGER);
             stmt.setString(2, progetto.getNome());
@@ -35,23 +35,22 @@ public class ProgettoBoundaryJdbc implements ProgettoDAO {
 
     @Override
     public Progetto leggiProgettoPerId(int id) {
-        // CORRETTO: La funzione accetta solo l'id
         String query = "SELECT * FROM fn_leggi_progetto_id(?)";
         Progetto progetto = null;
 
-        try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        Connection conn = DatabaseManager.getDatabaseManager().getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setInt(1, id);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     progetto = new Progetto(
-                    	    rs.getInt("id"),
-                    	    StatoAvanzamento.valueOf(rs.getString("stato")),
-                    	    rs.getDate("scadenza") != null ? rs.getDate("scadenza").toLocalDate() : null,
-                    	    rs.getString("nome")
-                    	);
+                        rs.getInt("id"),
+                        StatoAvanzamento.valueOf(rs.getString("stato")),
+                        rs.getDate("scadenza") != null ? rs.getDate("scadenza").toLocalDate() : null,
+                        rs.getString("nome")
+                    );
                 }
             }
         } catch (SQLException e) {
@@ -64,8 +63,8 @@ public class ProgettoBoundaryJdbc implements ProgettoDAO {
     public void aggiornaProgetto(Progetto progetto) {
         String query = "CALL pr_aggiorna_progetto(?, ?, ?, ?)";
 
-        try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        Connection conn = DatabaseManager.getDatabaseManager().getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setInt(1, progetto.getId());
             stmt.setString(2, progetto.getNome());
@@ -82,8 +81,9 @@ public class ProgettoBoundaryJdbc implements ProgettoDAO {
     @Override
     public void eliminaProgetto(int id) {
         String query = "CALL pr_elimina_progetto(?)";
-        try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        
+        Connection conn = DatabaseManager.getDatabaseManager().getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, id);
             stmt.execute();
         } catch (SQLException e) {
@@ -96,8 +96,8 @@ public class ProgettoBoundaryJdbc implements ProgettoDAO {
         String query = "{ ? = call fn_assegna_studente_progetto(?, ?) }";
         boolean risultato = false;
 
-        try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-             CallableStatement stmt = conn.prepareCall(query)) {
+        Connection conn = DatabaseManager.getDatabaseManager().getConnection();
+        try (CallableStatement stmt = conn.prepareCall(query)) {
 
             stmt.registerOutParameter(1, Types.BOOLEAN);
             stmt.setString(2, matricola);
@@ -116,8 +116,8 @@ public class ProgettoBoundaryJdbc implements ProgettoDAO {
     public void rimuoviStudenteProgetto(String matricola, int idProgetto) {
         String query = "CALL pr_rimuovi_studente_progetto(?, ?)";
 
-        try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        Connection conn = DatabaseManager.getDatabaseManager().getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, matricola);
             stmt.setInt(2, idProgetto);
@@ -133,8 +133,8 @@ public class ProgettoBoundaryJdbc implements ProgettoDAO {
         List<Studente> membri = new ArrayList<>();
         String query = "SELECT * FROM fn_leggi_studenti_progetto(?)";
 
-        try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        Connection conn = DatabaseManager.getDatabaseManager().getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setInt(1, idProgetto);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -157,19 +157,18 @@ public class ProgettoBoundaryJdbc implements ProgettoDAO {
         List<Progetto> lista = new ArrayList<>();
         String query = "SELECT * FROM fn_progetti_studente(?)";
 
-        try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        Connection conn = DatabaseManager.getDatabaseManager().getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, matricola);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-    
                     lista.add(new Progetto(
-                    	    rs.getInt("id"),
-                    	    StatoAvanzamento.valueOf(rs.getString("stato")),
-                    	    rs.getDate("scadenza") != null ? rs.getDate("scadenza").toLocalDate() : null,
-                    	    rs.getString("nome")
-                    	));
+                        rs.getInt("id"),
+                        StatoAvanzamento.valueOf(rs.getString("stato")),
+                        rs.getDate("scadenza") != null ? rs.getDate("scadenza").toLocalDate() : null,
+                        rs.getString("nome")
+                    ));
                 }
             }
         } catch (SQLException e) {
@@ -179,24 +178,24 @@ public class ProgettoBoundaryJdbc implements ProgettoDAO {
         return lista;
     }
 
-	@Override
-	public List<String> getStudentiByProgetto(int idProgetto) {
-	    List<String> matricole = new ArrayList<>();
-	    String query = "SELECT * FROM fn_leggi_studenti_progetto(?)";
+    @Override
+    public List<String> getStudentiByProgetto(int idProgetto) {
+        List<String> matricole = new ArrayList<>();
+        String query = "SELECT * FROM fn_leggi_studenti_progetto(?)";
 
-	    try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-	         PreparedStatement stmt = conn.prepareStatement(query)) {
+        Connection conn = DatabaseManager.getDatabaseManager().getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
 
-	        stmt.setInt(1, idProgetto);
-	        try (ResultSet rs = stmt.executeQuery()) {
-	            while (rs.next()) {
-	                matricole.add(rs.getString("Matricola"));   
-	            }
-	        }
-	    } catch (SQLException e) {
-	        System.err.println("ERRORE getStudentiByProgetto: " + e.getMessage());
-	        e.printStackTrace();
-	    }
-	    return matricole;
-	}
+            stmt.setInt(1, idProgetto);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    matricole.add(rs.getString("Matricola"));    
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("ERRORE getStudentiByProgetto: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return matricole;
+    }
 }

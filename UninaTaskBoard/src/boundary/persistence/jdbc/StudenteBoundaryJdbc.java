@@ -15,8 +15,8 @@ public class StudenteBoundaryJdbc implements StudenteDAO {
         String query = "{ ? = call fn_crea_studente(?, ?, ?, ?) }";
         String matricolaGenerata = null;
 
-        try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-             CallableStatement stmt = conn.prepareCall(query)) {
+        Connection conn = DatabaseManager.getDatabaseManager().getConnection();
+        try (CallableStatement stmt = conn.prepareCall(query)) {
 
             stmt.registerOutParameter(1, Types.VARCHAR);
             
@@ -39,8 +39,8 @@ public class StudenteBoundaryJdbc implements StudenteDAO {
         String query = "SELECT * FROM fn_leggi_studenti()";
         List<Studente> studenti = new ArrayList<>();
 
-        try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query);
+        Connection conn = DatabaseManager.getDatabaseManager().getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(query);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
@@ -62,8 +62,8 @@ public class StudenteBoundaryJdbc implements StudenteDAO {
         String query = "SELECT * FROM fn_leggi_studente_matricola(?)";
         Studente studente = null;
 
-        try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        Connection conn = DatabaseManager.getDatabaseManager().getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, matricola);
 
@@ -87,8 +87,8 @@ public class StudenteBoundaryJdbc implements StudenteDAO {
     public void aggiornaStudente(Studente studente, String nuovaPassword) {
         String query = "{ call pr_aggiorna_studente(?, ?, ?, ?) }";
 
-        try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-             CallableStatement stmt = conn.prepareCall(query)) {
+        Connection conn = DatabaseManager.getDatabaseManager().getConnection();
+        try (CallableStatement stmt = conn.prepareCall(query)) {
 
             stmt.setString(1, studente.getMatricola());
             stmt.setString(2, studente.getNome());
@@ -106,8 +106,8 @@ public class StudenteBoundaryJdbc implements StudenteDAO {
     public void eliminaStudente(String matricola) {
         String query = "{ call pr_elimina_studente(?) }";
 
-        try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-             CallableStatement stmt = conn.prepareCall(query)) {
+        Connection conn = DatabaseManager.getDatabaseManager().getConnection();
+        try (CallableStatement stmt = conn.prepareCall(query)) {
 
             stmt.setString(1, matricola);
             stmt.execute();
@@ -124,8 +124,8 @@ public class StudenteBoundaryJdbc implements StudenteDAO {
 
         System.out.println(">>> DEBUG LOGIN: Matricola = [" + matricola + "]");
 
-        try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        Connection conn = DatabaseManager.getDatabaseManager().getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, matricola);
             stmt.setString(2, password);
