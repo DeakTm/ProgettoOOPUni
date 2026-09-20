@@ -94,7 +94,7 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
     @Override
     public Attivita leggiAttivitaPerId(int id) {
         Attivita attivita = null;
-        String query = "SELECT * FROM fn_leggi_attivita_id(?::bigint)";
+        String query = "SELECT * FROM fn_leggi_attivita_id(?)";
 
         Connection conn = DatabaseManager.getDatabaseManager().getConnection();
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -125,7 +125,6 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
                         try {
                             nomeProg = rs.getString("nome");
                         } catch (SQLException ex) {
-                           
                         }
                     }
 
