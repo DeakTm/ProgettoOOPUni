@@ -449,7 +449,7 @@ RETURNS TABLE (
     stato VARCHAR,
     data_creazione TIMESTAMP,
     data_scadenza TIMESTAMP,
-    id_progetto INT
+    id_progetto INT,
     nome_progetto VARCHAR(255)
 ) AS $$
 BEGIN
