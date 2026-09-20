@@ -17,6 +17,7 @@ import entity.Studente;
 import entity.enums.StatoAttivita;
 import entity.enums.TipoLinguaggio;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextInputDialog;
 import javafx.stage.FileChooser;
@@ -71,6 +72,21 @@ public class DettaglioAttivitaController {
         view.mostra();
     }
 
+
+    private void ricaricaAttivitaDalDB() {
+        try {
+            Attivita aggiornata = attivitaDAO.leggiAttivitaPerId(attivita.getId());
+            if (aggiornata != null) {
+                this.attivita.setStato(aggiornata.getStato());
+                view.aggiornaLabelStato(aggiornata.getStato().toString());
+                aggiornaStatoPulsante();
+            }
+        } catch (Exception e) {
+            System.err.println("Errore ricaricamento attività: " + e.getMessage());
+        }
+    }
+
+
     private void configuraListenerMembri() {
         view.getBtnGestisciMembri().setOnAction(e -> apriGestioneMembri());
     }
@@ -87,6 +103,7 @@ public class DettaglioAttivitaController {
         new GestioneMembriController(attivita, () -> caricaCommenti());
     }
 
+ 
     private void configuraListenerCommenti() {
         view.getBtnInviaCommento().setOnAction(e -> aggiungiCommento());
         view.getBtnEliminaCommento().setOnAction(e -> eliminaCommento());
@@ -94,25 +111,6 @@ public class DettaglioAttivitaController {
         view.getListaCommenti().getSelectionModel().selectedItemProperty().addListener(
             (obs, oldC, newC) -> view.getBtnEliminaCommento().setDisable(newC == null)
         );
-    }
-
-    private void configuraListenerFile() {
-        view.getBtnImportaFile().setOnAction(e -> importaFile());
-
-        view.getListaFile().getSelectionModel().selectedItemProperty().addListener(
-            (obs, oldF, newF) -> {
-                this.fileCorrente = newF;
-                view.setContenutoEditor(newF);
-                if (newF != null) {
-                    List<Revisione> revs = revisioneDAO.getRevisioniFile(newF.getId());
-                    view.setRevisioni(newF, revs);
-                }
-            }
-        );
-
-        view.getBtnSalvaFile().setOnAction(e -> salvaModifiche());
-        view.getBtnAggiungiRevisione().setOnAction(e -> aggiungiRevisione());
-        view.getBtnEliminaFile().setOnAction(e -> eliminaFile());
     }
 
     private void caricaCommenti() {
@@ -135,6 +133,9 @@ public class DettaglioAttivitaController {
         if (idGenerato > 0) {
             view.pulisciCampoCommento();
             caricaCommenti();
+
+            ricaricaAttivitaDalDB();
+
         } else {
             mostraErrore("Errore nell'invio del commento.\nVerifica di essere membro del progetto.");
         }
@@ -160,6 +161,26 @@ public class DettaglioAttivitaController {
             commentoDAO.eliminaCommento(selezionato.getId());
             caricaCommenti();
         }
+    }
+
+
+    private void configuraListenerFile() {
+        view.getBtnImportaFile().setOnAction(e -> importaFile());
+
+        view.getListaFile().getSelectionModel().selectedItemProperty().addListener(
+            (obs, oldF, newF) -> {
+                this.fileCorrente = newF;
+                view.setContenutoEditor(newF);
+                if (newF != null) {
+                    List<Revisione> revs = revisioneDAO.getRevisioniFile(newF.getId());
+                    view.setRevisioni(newF, revs);
+                }
+            }
+        );
+
+        view.getBtnSalvaFile().setOnAction(e -> salvaModifiche());
+        view.getBtnAggiungiRevisione().setOnAction(e -> aggiungiRevisione());
+        view.getBtnEliminaFile().setOnAction(e -> eliminaFile());
     }
 
     private void caricaFile() {
@@ -204,6 +225,9 @@ public class DettaglioAttivitaController {
 
             if (idGenerato > 0) {
                 caricaFile();
+
+                ricaricaAttivitaDalDB();
+
                 mostraInfo("File importato con successo!");
             } else {
                 mostraErrore("Errore nel salvataggio del file");
@@ -279,6 +303,57 @@ public class DettaglioAttivitaController {
         }
     }
 
+ 
+    private void configuraListenerStato() {
+        view.getBtnCambiaStato().setOnAction(e -> completaAttivita());
+        aggiornaStatoPulsante();
+    }
+
+    private void completaAttivita() {
+        if (attivita.getStato() != StatoAttivita.In_Corso) {
+            mostraErrore("Puoi completare solo attività in stato 'In_Corso'.");
+            return;
+        }
+
+        Alert conferma = new Alert(Alert.AlertType.CONFIRMATION);
+        conferma.setTitle("Completa Attività");
+        conferma.setHeaderText("Segnare l'attività come COMPLETATA?");
+        conferma.setContentText("L'attività \"" + attivita.getDescrizione() + "\" verrà chiusa.");
+
+        Optional<ButtonType> risposta = conferma.showAndWait();
+        if (risposta.isEmpty() || risposta.get() != ButtonType.OK) return;
+
+        attivita.setStato(StatoAttivita.Completata);
+
+        try {
+            attivitaDAO.aggiornaAttivita(attivita);
+            view.aggiornaLabelStato(StatoAttivita.Completata.toString());
+            aggiornaStatoPulsante();
+            mostraInfo("Attività completata!");
+        } catch (Exception e) {
+            attivita.setStato(StatoAttivita.In_Corso);
+            mostraErrore("Errore durante il completamento: " + e.getMessage());
+        }
+    }
+
+    private void aggiornaStatoPulsante() {
+        StatoAttivita stato = attivita.getStato();
+        Button btn = view.getBtnCambiaStato();
+
+        if (stato == StatoAttivita.In_Corso) {
+            btn.setText("✅ Segna come Completata");
+            btn.setDisable(false);
+        } else if (stato == StatoAttivita.Completata) {
+            btn.setText("✅ Completata");
+            btn.setDisable(true);
+        } else {
+     
+            btn.setText("⏳ In attesa di avvio");
+            btn.setDisable(true);
+        }
+    }
+
+
     private TipoLinguaggio rilevaLinguaggio(String nomeFile) {
         String lower = nomeFile.toLowerCase();
         if (lower.endsWith(".java")) return TipoLinguaggio.Java;
@@ -305,55 +380,5 @@ public class DettaglioAttivitaController {
         alert.setHeaderText(null);
         alert.setContentText(messaggio);
         alert.showAndWait();
-    }
-    
-    private void configuraListenerStato() {
-        view.getBtnCambiaStato().setOnAction(e -> cambiaStato());
-        aggiornaStatoPulsante();
-    }
-
-    private void cambiaStato() {
-        if (attivita.getStato() != StatoAttivita.In_Corso) {
-            mostraErrore("Puoi completare solo attività in stato 'In_Corso'.");
-            return;
-        }
-
-        Alert conferma = new Alert(Alert.AlertType.CONFIRMATION);
-        conferma.setTitle("Completa Attività");
-        conferma.setHeaderText("Segnare l'attività come COMPLETATA?");
-        conferma.setContentText("L'attività \"" + attivita.getDescrizione() + "\" verrà chiusa.");
-
-        Optional<ButtonType> risposta = conferma.showAndWait();
-        if (risposta.isEmpty() || risposta.get() != ButtonType.OK) {
-            return;
-        }
-
-        attivita.setStato(StatoAttivita.Completata);
-
-        try {
-            attivitaDAO.aggiornaAttivita(attivita);
-
-            view.aggiornaLabelStato(StatoAttivita.Completata.toString());
-            aggiornaStatoPulsante();
-
-            mostraInfo("Attività completata con successo!");
-        } catch (Exception e) {
-            attivita.setStato(StatoAttivita.In_Corso);
-            mostraErrore("Errore durante l'aggiornamento dello stato sul database: " + e.getMessage());
-        }
-    }
-    
-    private void aggiornaStatoPulsante() {
-        boolean puoCompletare = attivita.getStato() == StatoAttivita.In_Corso;
-
-        view.getBtnCambiaStato().setDisable(!puoCompletare);
-
-        if (puoCompletare) {
-            view.getBtnCambiaStato().setText(" Segna come Completata");
-        } else if (attivita.getStato() == StatoAttivita.Completata) {
-            view.getBtnCambiaStato().setText(" Completata");
-        } else {
-            view.getBtnCambiaStato().setText(" Segna come Completata");
-        }
     }
 }

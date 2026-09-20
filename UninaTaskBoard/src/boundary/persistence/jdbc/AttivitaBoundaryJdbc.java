@@ -8,10 +8,12 @@ import entity.enums.StatoAttivita;
 import util.DatabaseManager;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 public class AttivitaBoundaryJdbc implements AttivitaDAO {
+
 
     @Override
     public int creaAttivita(Attivita attivita) {
@@ -34,17 +36,18 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
             if (attivita.getProgetto() != null) {
                 stmt.setInt(5, attivita.getProgetto().getId());
             } else {
-                throw new SQLException("Impossibile creare l'attività: nessun progetto associato.");
+                throw new SQLException("Nessun progetto associato.");
             }
 
             stmt.execute();
             idGenerato = stmt.getInt(1);
 
         } catch (SQLException e) {
-            System.err.println("Errore Database (creaAttivita): " + e.getMessage());
+            System.err.println("Errore creaAttivita: " + e.getMessage());
         }
         return idGenerato;
     }
+
 
     @Override
     public List<Attivita> leggiAttivitaPerProgetto(int idProgetto) {
@@ -61,7 +64,6 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
                     Attivita a = new Attivita();
                     a.setId(rs.getInt("id"));
                     a.setDescrizione(rs.getString("descrizione"));
-
                     a.setTipo(TipoAttivita.valueOf(rs.getString("tipo")));
                     a.setStato(StatoAttivita.valueOf(rs.getString("stato")));
 
@@ -80,12 +82,49 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
         return lista;
     }
 
+
     @Override
-    public void aggiornaAttivita(Attivita attivita) {
-        String query = "CALL pr_aggiorna_attivita(?, ?, ?, ?)";  
+    public Attivita leggiAttivitaPerId(int id) {
+        Attivita attivita = null;
+        String query = "SELECT * FROM fn_leggi_attivita_id(?)";
 
         try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {  
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    attivita = new Attivita();
+                    attivita.setId(rs.getInt("id"));
+                    attivita.setDescrizione(rs.getString("descrizione"));
+                    attivita.setTipo(TipoAttivita.valueOf(rs.getString("tipo")));
+                    attivita.setStato(StatoAttivita.valueOf(rs.getString("stato")));
+
+                    Timestamp tsCreazione = rs.getTimestamp("data_creazione");
+                    if (tsCreazione != null) {
+                        attivita.setDataCreazione(tsCreazione.toLocalDateTime().toLocalDate());
+                    }
+                    Timestamp tsScadenza = rs.getTimestamp("data_scadenza");
+                    if (tsScadenza != null) {
+                        attivita.setDataScadenza(tsScadenza.toLocalDateTime().toLocalDate());
+                    }
+
+                    attivita.setProgetto(new Progetto(rs.getInt("id_progetto"), null, null, null));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return attivita;
+    }
+
+
+    @Override
+    public void aggiornaAttivita(Attivita attivita) {
+        String query = "CALL pr_aggiorna_attivita(?, ?, ?, ?)";
+
+        try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setInt(1, attivita.getId());
             stmt.setString(2, attivita.getDescrizione());
@@ -104,13 +143,13 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
             e.printStackTrace();
         }
     }
-    
+
     @Override
     public void eliminaAttivita(int id) {
-        String query = "CALL pr_elimina_attivita(?)";  
+        String query = "CALL pr_elimina_attivita(?)";
 
         try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {  
+             PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setInt(1, id);
             stmt.execute();
@@ -119,6 +158,7 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
             e.printStackTrace();
         }
     }
+
 
     @Override
     public boolean assegnaStudenteAttivita(String matricola, int idAttivita) {
@@ -141,9 +181,10 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
         return risultato;
     }
 
+
     @Override
     public void rimuoviStudenteAttivita(String matricola, int idAttivita) {
-        String query = "CALL pr_rimuovi_studente_attivita(?, ?)";  
+        String query = "CALL pr_rimuovi_studente_attivita(?, ?)";
 
         try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -157,6 +198,7 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
         }
     }
 
+
     @Override
     public boolean inserisciAttivitaConAssegnazione(Attivita attivita, String matricola) {
         int idAttivita = creaAttivita(attivita);
@@ -166,6 +208,7 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
         }
         return idAttivita != -1;
     }
+
 
     @Override
     public List<Attivita> getAttivitaStudente(String matricola) {
@@ -193,14 +236,9 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
                     if (tsScadenza != null) {
                         a.setDataScadenza(tsScadenza.toLocalDateTime().toLocalDate());
                     }
-                    
-                    int idProg = rs.getInt("id_progetto");
-                    String nomeProgetto = null;
-                    try {
-                        nomeProgetto = rs.getString("nome_progetto");
-                    } catch (SQLException ignored) {}
 
-                    a.setProgetto(new Progetto(idProg, null, null, nomeProgetto));
+                    int idProg = rs.getInt("id_progetto");
+                    a.setProgetto(new Progetto(idProg, null, null, null));
 
                     lista.add(a);
                 }
@@ -210,7 +248,8 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
         }
         return lista;
     }
-    
+
+
     @Override
     public List<String> getAssegnatariAttivita(int idAttivita) {
         List<String> lista = new ArrayList<>();
@@ -230,28 +269,25 @@ public class AttivitaBoundaryJdbc implements AttivitaDAO {
         }
         return lista;
     }
-    
+
+
     @Override
     public double getMediaRevisioniProgetto(int idProgetto) {
         String query = "SELECT fn_media_revisioni_progetto(?)";
         double media = 0.0;
 
-        try (Connection conn = util.DatabaseManager.getDatabaseManager().getConnection();
+        try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setInt(1, idProgetto);
-
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     media = rs.getDouble(1);
                 }
             }
-
-        } catch (java.sql.SQLException e) {
-            System.err.println("Errore SQL durante il calcolo della media revisioni per il progetto " + idProgetto);
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return media;
     }
 }

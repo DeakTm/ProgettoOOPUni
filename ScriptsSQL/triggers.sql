@@ -172,3 +172,23 @@ CREATE TRIGGER trg_auto_associa_admin
 AFTER INSERT ON Progetto
 FOR EACH ROW
 EXECUTE FUNCTION fn_auto_associa_admin();
+
+
+-- TRIGGER 7: Aggiorna lo stato dell'attività in base all'inserimento di un commento
+CREATE OR REPLACE FUNCTION StartDocActivityFromComment()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE Attivita
+    SET Stato = 'In_Corso'
+    WHERE id = NEW.id_attivita
+      AND Stato = 'Non_Iniziata'
+      AND Tipo = 'Documentazione';  
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_StatoDocAttivita
+AFTER INSERT ON Commento
+FOR EACH ROW
+EXECUTE FUNCTION StartDocActivityFromComment();

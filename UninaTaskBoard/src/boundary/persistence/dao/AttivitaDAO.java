@@ -15,4 +15,6 @@ public interface AttivitaDAO {
     boolean inserisciAttivitaConAssegnazione(Attivita attivita, String matricola);
     List<Attivita> getAttivitaStudente(String matricola);
     List<String> getAssegnatariAttivita(int idAttivita);
-    double getMediaRevisioniProgetto(int idProgetto);}
+    double getMediaRevisioniProgetto(int idProgetto);
+    Attivita leggiAttivitaPerId(int id);
+}
