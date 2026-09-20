@@ -113,6 +113,8 @@ public class AttivitaController {
     private void apriDettaglioAttivita(Attivita attivita) {
         Stage owner = (Stage) view.getRoot().getScene().getWindow();
         new DettaglioAttivitaController(owner, attivita, matricolaUtente);
+        refresh();
+        
     }
 
  void refresh() {

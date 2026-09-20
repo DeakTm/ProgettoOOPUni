@@ -56,6 +56,7 @@ public class DettaglioAttivitaController {
         configuraListenerCommenti();
         configuraListenerMembri();
         configuraListenerStato();
+        configuraListenerEliminaAttivita();
 
         boolean isSviluppo = (attivita.getTipo() != null
                               && attivita.getTipo().toString().equalsIgnoreCase("Sviluppo"));
@@ -307,6 +308,20 @@ public class DettaglioAttivitaController {
     private void configuraListenerStato() {
         view.getBtnCambiaStato().setOnAction(e -> completaAttivita());
         aggiornaStatoPulsante();
+    }
+        private void configuraListenerEliminaAttivita() {
+        view.getBtnEliminaAttivita().setOnAction(e -> {
+            Alert conferma = new Alert(Alert.AlertType.CONFIRMATION);
+            conferma.setTitle("Elimina Attività");
+            conferma.setHeaderText(null);
+            conferma.setContentText("Sei sicuro di voler eliminare questa attività? \nVerranno eliminati definitivamente anche tutti i file e i commenti associati.");
+
+            Optional<ButtonType> risultato = conferma.showAndWait();
+            if (risultato.isPresent() && risultato.get() == ButtonType.OK) {
+                attivitaDAO.eliminaAttivita(attivita.getId());
+                view.getStage().close(); 
+            }
+        });
     }
 
     private void completaAttivita() {

@@ -12,14 +12,13 @@ import java.util.List;
 
 public class RevisioneBoundaryJdbc implements RevisioneDAO {
 
-
     @Override
     public int creaRevisione(Revisione revisione, int idFile, String matricolaRevisore) {
         String query = "{ ? = call fn_crea_revisione(?, ?, ?) }";
         int idGenerato = -1;
 
-        try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-             CallableStatement stmt = conn.prepareCall(query)) {
+        Connection conn = DatabaseManager.getDatabaseManager().getConnection();
+        try (CallableStatement stmt = conn.prepareCall(query)) {
 
             stmt.registerOutParameter(1, Types.INTEGER);
             stmt.setString(2, revisione.getNota());
@@ -35,7 +34,6 @@ public class RevisioneBoundaryJdbc implements RevisioneDAO {
         return idGenerato;
     }
 
-
     @Override
     public List<Revisione> leggiRevisioniPerFile(int idFile) {
         return getRevisioniFile(idFile);
@@ -46,8 +44,8 @@ public class RevisioneBoundaryJdbc implements RevisioneDAO {
         List<Revisione> lista = new ArrayList<>();
         String query = "SELECT * FROM fn_leggi_revisioni_file(?)";
 
-        try (Connection conn = DatabaseManager.getDatabaseManager().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        Connection conn = DatabaseManager.getDatabaseManager().getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setInt(1, idFileCodice);
 

@@ -47,6 +47,8 @@ public class DettagliAttivitaView {
     private Button btnEliminaCommento;
     private Button btnGestisciMembri;
     private Button btnCambiaStato;
+    
+    private Button btnEliminaAttivita;
 
     // TabPane
     private TabPane tabPane;
@@ -107,14 +109,25 @@ public class DettagliAttivitaView {
         btnGestisciMembri.getStyleClass().add("button");
         btnGestisciMembri.setStyle(
             "-fx-background-color: #e0f2fe; " + 
-            "-fx-text-fill: #0369a1; " +       
+            "-fx-text-fill: #0369a1; " +        
             "-fx-border-color: #bae6fd; " +     
             "-fx-border-width: 1; " +
             "-fx-background-radius: 6; " +
-            "-fx-border-radius: 6;" //hard-coddado lo style 
+            "-fx-border-radius: 6;" 
         );
 
-        meta.getChildren().addAll(lblTipo, lblStato, lblScadenza, spacer, btnCambiaStato, btnGestisciMembri);
+        btnEliminaAttivita = new Button("🗑 Elimina Attività");
+        btnEliminaAttivita.getStyleClass().add("button");
+        btnEliminaAttivita.setStyle(
+            "-fx-background-color: #fee2e2; " + 
+            "-fx-text-fill: #991b1b; " +      
+            "-fx-border-color: #fecaca; " +     
+            "-fx-border-width: 1; " +
+            "-fx-background-radius: 6; " +
+            "-fx-border-radius: 6;"
+        );
+
+        meta.getChildren().addAll(lblTipo, lblStato, lblScadenza, spacer, btnCambiaStato, btnGestisciMembri, btnEliminaAttivita);
         box.getChildren().addAll(lblDescrizione, meta);
         return box;
     }
@@ -473,7 +486,7 @@ public class DettagliAttivitaView {
             System.err.println("CSS non trovato");
         }
         stage.setScene(scene);
-        stage.show();
+        stage.showAndWait();
     }
     
     public void nascondiGestioneMembri() {
@@ -505,4 +518,5 @@ public class DettagliAttivitaView {
     public Button getBtnEliminaCommento() { return btnEliminaCommento; }
     public Button getBtnGestisciMembri() { return btnGestisciMembri; }
     public Button getBtnCambiaStato() { return btnCambiaStato; }
+    public Button getBtnEliminaAttivita() { return btnEliminaAttivita; }
 }
