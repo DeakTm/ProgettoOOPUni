@@ -14,10 +14,10 @@ SELECT fn_crea_studente('S00000008', 'Elena', 'Ferrari', 'password123');
 SELECT fn_crea_studente('adminUTB', 'Admin', 'Sistema', 'root');
 
 -- Progetti (Con scadenze nel futuro per rispettare i vincoli dei trigger)
-SELECT fn_crea_progetto('2026-12-31'); -- ID 1
-SELECT fn_crea_progetto('2027-06-30'); -- ID 2
-SELECT fn_crea_progetto('2027-09-15'); -- ID 3
-SELECT fn_crea_progetto('2028-01-20'); -- ID 4
+SELECT fn_crea_progetto('Progetto Alpha', '2026-12-31'); -- ID 1
+SELECT fn_crea_progetto('Progetto Beta', '2027-06-30'); -- ID 2
+SELECT fn_crea_progetto('Progetto Gamma', '2027-09-15'); -- ID 3
+SELECT fn_crea_progetto('Progetto Delta', '2028-01-20'); -- ID 4
 
 -- Associazioni Studenti - Progetti
 -- Team Progetto 1
